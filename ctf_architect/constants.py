@@ -1,0 +1,1 @@
+APP_CMD_NAME = "ctf-architect"
