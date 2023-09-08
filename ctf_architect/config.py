@@ -1,5 +1,5 @@
 import os
-from yaml import safe_load
+from yaml import safe_load, safe_dump
 
 from ctf_architect.models import Config
 
@@ -17,3 +17,12 @@ def load_config() -> Config:
     raise ValueError("ctf_config.yaml does not specify config")
 
   return Config(**config)
+
+
+def save_config(config: Config):
+  with open("ctf_config.yaml", "w") as f:
+    data = {
+      "config": config.to_dict()
+    }
+    
+    safe_dump(data, f)

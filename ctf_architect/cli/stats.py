@@ -13,6 +13,13 @@ from ctf_architect.stats import (get_category_diff_stats, update_category_readme
 stats_app = typer.Typer()
 
 
+@stats_app.callback()
+def callback():
+  """
+  Commands to manage the stats of the challenge repo.
+  """
+
+
 @stats_app.command("update")
 def stats_update():
   """

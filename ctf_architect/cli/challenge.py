@@ -27,6 +27,13 @@ def is_challenge_repo() -> bool:
 challenge_app = typer.Typer()
 
 
+@challenge_app.callback()
+def callback():
+  """
+  Commands to manage challenges.
+  """
+
+
 @challenge_app.command("import")
 def challenge_import(
   path: str = typer.Option(default="./", help="Specify the path to the challenge zip files."),
@@ -144,7 +151,9 @@ def challenge_info(name: str = typer.Argument(..., help="The name of the challen
   """
   Gets the info of a challenge.
   """
-  if not is_challenge_repo():
+  try:
+    config = load_config()
+  except FileNotFoundError:
     print(f"[bright_red]Challenge repo not found, are you in the correct directory? If so, please run `{APP_CMD_NAME} init` first.")
     return
   
@@ -173,14 +182,8 @@ def challenge_info(name: str = typer.Argument(..., help="The name of the challen
         f"\n - [bold]Name:[/] {service.name}\n"
         f" - [bold]Path:[/] {service.path}\n"
         # f" - [bold]Path:[/] {(challenge_path / service.path).resolve()}\n"
-        f" - [bold]Ports:[/] {', '.join(service.ports)}\n"
-        f" - [bold]Protocol:[/] {service.protocol}\n"
+        f" - [bold]Port:[/] {service.port}\n"
       )
-
-      if service.port_mappings is not None:
-        info += " - [bold]Port Mappings:[/]"
-        for port, mapping in service.port_mappings.items():
-          info += f"\n   {port} -> {mapping}"
 
   print(Panel.fit(
     info,

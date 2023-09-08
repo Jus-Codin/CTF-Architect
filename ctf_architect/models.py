@@ -19,13 +19,13 @@ class Flag:
 class Hint:
   description: str
   cost: int
-  requirement: int | None = None
+  requirements: list[int] | None = None
 
   def to_dict(self) -> dict:
     return {
       "description": self.description,
       "cost": self.cost,
-      "requirement": self.requirement
+      "requirements": self.requirements
     }
 
 
@@ -33,19 +33,13 @@ class Hint:
 class Service:
   name: str
   path: str
-  ports: list[str]
-  protocol: str
-
-  # This is for internal use only
-  port_mappings: dict[str, str] | None = None
+  port: str
 
   def to_dict(self) -> dict:
     return {
       "name": self.name,
       "path": self.path,
-      "ports": self.ports,
-      "protocol": self.protocol,
-      "port_mappings": self.port_mappings
+      "port": self.port
     }
 
 
@@ -67,7 +61,12 @@ class ChallengeInfo:
 
   @classmethod
   def from_dict(cls, d: dict, services: list[Service] | None = None) -> ChallengeInfo:
-    flags = [Flag(**flag) for flag in d.pop("flags")]
+    flags = []
+    for flag in d.pop("flags"):
+      if isinstance(flag, str):
+        flags.append(Flag(flag))
+      else:
+        flags.append(Flag(**flag))
 
     hints = d.pop("hints")
     if hints is not None:
@@ -80,19 +79,24 @@ class ChallengeInfo:
       **d
     )
   
-  def to_dict(self) -> dict:
+  def to_dict(self) -> dict[str, dict | list[dict]]:
     return {
-      "name": self.name,
-      "description": self.description,
-      "difficulty": self.difficulty,
-      "category": self.category,
-      "author": self.author,
-      "discord": self.discord,
-      "flags": [flag.to_dict() for flag in self.flags],
-      "hints": [hint.to_dict() for hint in self.hints] if self.hints is not None else None,
-      "files": self.files,
-      "requirements": self.requirements,
-      "services": [service.to_dict() for service in self.services] if self.services is not None else None
+      "challenge": {
+        "name": self.name,
+        "description": self.description,
+        "difficulty": self.difficulty,
+        "category": self.category,
+        "author": self.author,
+        "discord": self.discord,
+        "flags": [flag.to_dict() for flag in self.flags],
+        "hints": [hint.to_dict() for hint in self.hints] if self.hints is not None else None,
+        "files": self.files,
+        "requirements": self.requirements
+      },
+      "services": {
+        service.name: service.to_dict()
+        for service in self.services
+      } if self.services is not None else None
     }
 
 

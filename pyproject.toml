@@ -1,12 +1,13 @@
 [tool.poetry]
 name = "ctf-architect"
-version = "0.1.0"
+version = "0.1.0a0"
 description = ""
 authors = ["Jus-Codin <70018166+Jus-Codin@users.noreply.github.com>"]
 readme = "README.md"
 
 [tool.poetry.scripts]
 ctf-architect = "ctf_architect.cli:app"
+chall-architect = "ctf_architect.chall_architect.cli:app"
 
 [tool.poetry.dependencies]
 python = "^3.11"
