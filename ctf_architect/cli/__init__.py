@@ -3,11 +3,16 @@ from __future__ import annotations
 from pathlib import Path
 
 import typer
-from rich import print
+from rich.console import Console
+from rich.panel import Panel
+from rich.prompt import Confirm, IntPrompt, Prompt
 
 from ctf_architect.cli.challenge import challenge_app
 from ctf_architect.cli.stats import stats_app
 from ctf_architect.initialize import init_no_config, init_with_config
+
+console = Console()
+
 
 app = typer.Typer()
 app.add_typer(challenge_app, name="challenge")
@@ -24,7 +29,7 @@ def init(
   """
 
   if config_only and Path("ctf_config.yaml").exists():
-    print("[bright_red]ctf_config.yaml already exists.[/bright_red]")
+    console.print("[bright_red]ctf_config.yaml already exists.[/bright_red]")
     return
   
   # Check if there is a ctf_config.yaml in the current directory, if so, use that config
@@ -33,50 +38,96 @@ def init(
     try:
       init_with_config()
     except ValueError as e:
-      print(f"[bright_red]{e}[/bright_red]")
+      console.print(f"[bright_red]{e}[/bright_red]")
       return
     else:
-      print("[bright_green]Initialized CTF repo with config in ctf_config.yaml.[/bright_green]")
+      console.print("[bright_green]Initialized CTF repo with the config in ctf_config.yaml.[/bright_green]")
   
   else:
+
     # Get the categories and difficulties from the user
     categories = []
     difficulties = []
 
-    print("[bold yellow]Please enter the categories for your CTF. Enter an empty string to stop.[/]")
-    while True:
-      category = typer.prompt("Category name", default="", show_default=False)
-      if category == "":
-        break
-      categories.append(category.lower())
+    try:
+      console.rule("[bold yellow]CTF Categories[/]")
 
-      print(f"\n[bold yellow]Category {category} added.[/]\n")
+      console.print("[bold cyan]Please enter the categories for your CTF. Enter an empty string to stop.[/]")
 
-    if len(categories) == 0:
-      print("[bright_red]Please specify at least one category.[/bright_red]")
+      while True:
+        category = Prompt.ask("[cyan]Category name[/]", default="", show_default=False)
+        if category == "":
+          break
+        categories.append(category.lower())
+
+        console.print(f"\n[green]Category {category} added.[/]\n")
+
+      if len(categories) == 0:
+        console.print("[bright_red]Please specify at least one category.[/bright_red]")
+        return
+      else:
+        console.print(f"\n[bold green]Categories:[/]")
+        for category in categories:
+          console.print(f"[green] - {category}[/]")
+
+
+      console.rule("[bold yellow]CTF Difficulties[/]")
+
+      console.print("\n[bold cyan]Please enter the difficulties for your CTF. Enter an empty string to stop.[/]")
+
+      while True:
+        name = Prompt.ask("[cyan]Difficulty name[/]", default="", show_default=False)
+        if name == "":
+          break
+        value = IntPrompt.ask("[cyan]Difficulty value[/]", default=500)
+        difficulties.append({
+          "name": name.lower(),
+          "value": value
+        })
+
+        console.print(f"\n[green]Difficulty {name} added. ({value} points)[/]\n")
+
+      if len(difficulties) == 0:
+        console.print("[bright_red]Please specify at least one difficulty.[/bright_red]")
+        return
+      else:
+        console.print(f"\n[bold green]Difficulties:[/]")
+        for difficulty in difficulties:
+          console.print(f"[green] - {difficulty['name']} ({difficulty['value']} points)[/]")
+    except (KeyboardInterrupt, EOFError):
+      console.print("\n[bright_red]Aborting...[/bright_red]")
       return
 
-    print("\n[bold yellow]Please enter the difficulties for your CTF. Enter an empty string to stop.[/]")
-    while True:
-      name = typer.prompt("Difficulty name", default="", show_default=False)
-      if name == "":
-        break
-      value = typer.prompt("Difficulty value", type=int, default=500)
-      difficulties.append({
-        "name": name.lower(),
-        "value": value
-      })
 
-      print(f"\n[bold yellow]Difficulty {name} added. ({value} points)[/]\n")
+    # Show panel of categories and difficulties
+    # If the user confirms, initialize the CTF repo
     
-    if len(difficulties) == 0:
-      print("[bright_red]Please specify at least one difficulty.[/bright_red]")
+    config_text = ""
+    config_text += "[bold cyan]Categories:[/]\n"
+    for category in categories:
+      config_text += f"[cyan] - {category}[/]\n"
+    config_text += "\n"
+    config_text += "[bold cyan]Difficulties:[/]\n"
+    for difficulty in difficulties:
+      config_text += f"[cyan] - {difficulty['name']} ({difficulty['value']} points)[/]\n"
+
+    console.print(
+      Panel(
+        config_text,
+        title="[bright_yellow]CTF Config[/bright_yellow]",
+        border_style="green"
+      )
+    )
+
+    if not Confirm.ask("[cyan]Is this correct?[/]"):
+      console.print("[bright_red]Aborting...[/bright_red]")
       return
+
     
     try:
       init_no_config(categories, difficulties, port, config_only)
     except ValueError as e:
-      print(f"[bright_red]{e}[/bright_red]")
+      console.print(f"[bright_red]{e}[/bright_red]")
       return
     else:
-      print("[bright_green]Initialized CTF repo with specified config.[/bright_green]")
+      console.print("[bright_green]Initialized CTF repo with specified config.[/bright_green]")
