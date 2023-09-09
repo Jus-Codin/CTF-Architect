@@ -12,6 +12,19 @@ I'm just a single person making this tool, so please be patient. 😇
 
 Note: This tool only supports python 3.11 and above.
 
+### Installing from PyPI
+To install from PyPI, run the following command:
+
+```bash
+# Linux and MacOS
+python3 -m pip install ctf-architect
+
+# Windows
+py -3 -m pip install ctf-architect
+```
+
+### Installing from source
+
 Git clone the repository, and pip install it
   
 ```bash
