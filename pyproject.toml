@@ -1,18 +1,18 @@
 [tool.poetry]
 name = "ctf-architect"
-version = "0.1.0a0"
+version = "0.1.0a1"
 description = "A tool for managing challenges for CTFs."
 authors = ["Jus-Codin <70018166+Jus-Codin@users.noreply.github.com>"]
 license = "MIT"
 readme = "README.md"
 classifiers = [
-    "Development Status :: 3 - Alpha"
+    "Development Status :: 3 - Alpha",
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: MacOS",
     "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.11"
 ]
 
 
