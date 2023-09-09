@@ -60,6 +60,10 @@ def get_ctf_config():
   console.rule(":gear: [bold yellow]CTF Config[/] :gear:")
 
   while True:
+
+    console.print("[cyan]Please select the CTF config file.[/cyan]")
+    time.sleep(1)
+
     config_file = askopenfilename(title="Please select the ctf config", filetypes=[("YAML", "*.yaml")])
 
     if config_file == "":
@@ -104,7 +108,7 @@ def get_solution_files():
   """
   console.rule(":file_folder: [bold yellow]Please select the solution files for the challenge.[/] :file_folder:")
 
-  time.sleep(2)
+  time.sleep(1)
 
   return askopenfilenames(title="Please select the solution files")
 
