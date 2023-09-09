@@ -105,6 +105,7 @@ class Config:
   categories: list[str]
   difficulties: list[dict[str, str | int]]
   port: int
+  name: str | None = None
 
   @property
   def diff_names(self) -> list[str]:
@@ -114,5 +115,6 @@ class Config:
     return {
       "categories": self.categories,
       "difficulties": self.difficulties,
-      "port": self.port
+      "port": self.port,
+      "name": self.name
     }
