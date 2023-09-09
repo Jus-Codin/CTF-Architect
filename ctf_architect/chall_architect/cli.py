@@ -203,18 +203,18 @@ def create_challenge_cli():
 
     # TODO: Move this to an environment variable/config file
     categories = {
-      "1": "Pwn",
-      "2": "Reverse Engineering",
-      "3": "Cryptography",
-      "4": "Web",
-      "5": "Forensics",
-      "6": "OSINT",
-      "7": "Miscellaneous"
+      "1": "pwn",
+      "2": "reverse",
+      "3": "crypto",
+      "4": "web",
+      "5": "forensics",
+      "6": "osint",
+      "7": "misc"
     }
 
     console.print("\n[bright_yellow]Challenge Categories:[/bright_yellow]")
     for i, category in categories.items():
-      console.print(f"[bright_yellow]{i}. {category}[/bright_yellow]")
+      console.print(f"[bright_yellow]{i}. {category.capitalize()}[/bright_yellow]")
       
     category = prompt("\n:rocket: [cyan] [3/6] Please enter the challenge category ID [/]")
     while category not in categories.keys():
