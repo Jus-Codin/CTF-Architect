@@ -242,8 +242,8 @@ def create_challenge_cli():
 
 
     console.rule(":file_folder: [bold yellow]Challenge Services[/] :file_folder:")
-    has_serivices = Confirm.ask("[cyan]Does the challenge require hosting?[/]")
-    if has_serivices:
+    has_services = Confirm.ask("[cyan]Does the challenge require hosting?[/]")
+    if has_services:
       services = []
 
       # Add spacing
