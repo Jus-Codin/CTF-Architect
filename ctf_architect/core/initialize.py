@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ctf_architect.config import load_config, save_config
-from ctf_architect.models import Config
-from ctf_architect.stats import update_category_readme, update_root_readme
+from ctf_architect.core.config import load_config, save_config
+from ctf_architect.core.models import Config
+from ctf_architect.core.stats import update_category_readme, update_root_readme
 
 
 def init_no_config(

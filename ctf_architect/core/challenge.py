@@ -5,8 +5,8 @@ import shutil
 from pathlib import Path
 from yaml import safe_load
 
-from ctf_architect.config import load_config
-from ctf_architect.models import ChallengeInfo, Service
+from ctf_architect.core.config import load_config
+from ctf_architect.core.models import ChallengeInfo, Service
 
 
 def is_valid_challenge(path: str | Path) -> bool:
