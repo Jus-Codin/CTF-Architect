@@ -7,7 +7,7 @@ from __future__ import annotations
 import time
 import tkinter as tk
 from pathlib import Path
-from tkinter.filedialog import askdirectory, askopenfilenames
+from tkinter.filedialog import askdirectory, askopenfilename, askopenfilenames
 
 import typer
 from rich.console import Console
@@ -15,6 +15,15 @@ from rich.panel import Panel
 from rich.prompt import Confirm, IntPrompt, Prompt
 
 from ctf_architect.chall_architect.create import create_challenge
+from ctf_architect.chall_architect.utils import is_valid_service_folder, get_config
+
+
+try:
+  import ctypes
+  # Make it not blurry on windows
+  ctypes.windll.shcore.SetProcessDpiAwareness(1)
+except:
+  pass
 
 
 # This is to fix a bug on vscode's terminal where the filedialog window will not show up
@@ -29,32 +38,64 @@ app = typer.Typer()
 console = Console()
 
 
-def is_valid_service_folder(path: str | Path) -> bool:
-  """
-  Checks if the given path is a valid service folder.
-
-  A service folder is considered valid if it has a dockerfile.
-  """
-  if isinstance(path, str):
-    path = Path(path)
-
-  # Check if there is a docker file in the folder, case-insensitive
-  return any(file.name.lower() == "dockerfile" for file in path.iterdir())
-
-
-def prompt(message: str, allow_empty: bool = False, method = Prompt.ask) -> str:
+def prompt(message: str, allow_empty: bool = False, method = Prompt.ask, **kwargs) -> str:
   """
   Prompts the user for input.
   """
   if not allow_empty:
     while True:
-      res = method(message)
+      res = method(message, **kwargs)
       if res != "":
         return res
       else:
         console.print("[bright_red]This field cannot be empty.[/bright_red]")
   else:
     return method(message)
+  
+
+def get_ctf_config():
+  """
+  Prompts the user for the ctf config.
+  """
+  console.rule(":gear: [bold yellow]CTF Config[/] :gear:")
+
+  while True:
+    config_file = askopenfilename(title="Please select the ctf config", filetypes=[("YAML", "*.yaml")])
+
+    if config_file == "":
+      # User cancelled, abort
+      console.print("[bright_red]No file selected, aborting...[/bright_red]")
+      return None
+  
+    try:
+      config = get_config(config_file)
+    except Exception as e:
+      console.print(f"[bright_red]Error loading config file: {e}[/bright_red]")
+      return None
+    
+    # Print config in a panel
+    config_string = f"[cyan][bold]Categories:[/bold]"
+    for category in config.categories:
+      config_string += f"\n- {category.capitalize()}"
+
+    config_string += f"\n\n[bold]Difficulties:[/bold]"
+    for difficulty in config.difficulties:
+      config_string += f"\n- {difficulty['name'].capitalize()} ({difficulty['value']})"
+    config_string += "[/cyan]"
+
+    config_name = config.name if config.name is not None else "Unnamed"
+
+    console.print(Panel(
+      config_string,
+      border_style="green",
+      title=f"[bright_yellow]{config_name} CTF Config[/bright_yellow]"
+    ))
+
+    if Confirm.ask("[cyan]Is this the correct config?[/]"):
+      return config
+    
+    # Add spacing
+    console.print()
   
 
 def get_solution_files():
@@ -192,20 +233,56 @@ def create_challenge_cli():
   """
   Creates a challenge folder in the current directory.
   """
+
+  config = get_ctf_config()
+
+  if config is None:
+    return
+  
+  categories = config.categories
+  difficulties = config.diff_names
+
   try:
     console.rule(":rocket: [bold yellow]Challenge Details[/] :rocket:")
 
-    name = prompt(":rocket: [cyan]Please enter the challenge name (case-insensitive)[/]")
+    name = prompt(":rocket: [cyan][1/6] Please enter the challenge name (case-insensitive)[/]")
 
-    description = prompt("\n:rocket: [cyan]Please enter the challenge description (case-sensitive)[/]")
+    description = prompt("\n:rocket: [cyan][2/6] Please enter the challenge description (case-sensitive)[/]")
 
-    category = prompt("\n:rocket: [cyan]Please enter the challenge category (case-insensitive)[/]").capitalize()
+    # Print the categories in a list, with an index starting at 1
+    console.print("\n[bright_yellow]Categories:[/]")
+    for i, category in enumerate(categories):
+      console.print(f"[bright_yellow]{i + 1}. {category.capitalize()}[/]")
 
-    difficulty = prompt("\n:rocket: [cyan]Please enter the challenge difficulty (case-insensitive)[/]").capitalize()
+    while True:
+      category = prompt(f"\n:rocket: [cyan][3/6] Please choose the challenge category \[1-{len(categories)}][/]", method=IntPrompt.ask)
+      if 1 > category > len(categories):
+        console.print("[bright_red]Invalid category.[/bright_red]\n")
+      else:
+        category = categories[category - 1].capitalize()
+        break
 
-    author = prompt("\n:rocket: [cyan]Please enter your name (case-sensitive)[/]")
+    console.print(f"[green]Category selected: {category}[/green]\n")
 
-    discord = prompt("\n:rocket: [cyan]Please enter your discord username (So we can contact you if your challenge breaks)[/]")
+
+    # Print the difficulties in a list, with an index starting at 1
+    console.print("[bright_yellow]Difficulties:[/]")
+    for i, difficulty in enumerate(difficulties):
+      console.print(f"[bright_yellow]{i + 1}. {difficulty.capitalize()}[/]")
+
+    while True:
+      difficulty = prompt(f"\n:rocket: [cyan][4/6] Please choose the challenge difficulty \[1-{len(difficulties)}][/]", method=IntPrompt.ask)
+      if 1 > difficulty > len(difficulties):
+        console.print("[bright_red]Invalid difficulty.[/bright_red]\n")
+      else:
+        difficulty = difficulties[difficulty - 1].capitalize()
+        break
+
+    console.print(f"[green]Difficulty selected: {difficulty}[/green]\n")
+
+    author = prompt("\n:rocket: [cyan][5/6] Please enter your name (case-sensitive)[/]")
+
+    discord = prompt("\n:rocket: [cyan][6/6] Please enter your discord username (So we can contact you if your challenge breaks)[/]")
 
     solution_files = get_solution_files()
     if solution_files == "":
