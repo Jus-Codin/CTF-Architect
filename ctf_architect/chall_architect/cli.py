@@ -76,14 +76,14 @@ def get_flags() -> list[dict[str, str | bool]]:
 
   flags = []
   while True:
-    regex = Confirm.ask(":triangular_flag: [cyan]Is the flag a regex flag?[/]")
+    regex = Confirm.ask(":triangular_flag: [cyan]Is the flag a regex flag? (optional, 'n' if don't care) [/]")
     flag = prompt(":triangular_flag: [cyan]Please enter the flag[/]")
     flags.append({
       "flag": flag,
       "regex": regex
     })
 
-    if not Confirm.ask("[cyan]Do you want to add another flag?[/]"):
+    if not Confirm.ask("[cyan]Do you want to add another flag? (optional, 'n' if don't care)[/]"):
       break
 
     # Add spacing between the flags
@@ -107,11 +107,11 @@ def get_hints() -> list[dict[str, str | int | list[int]]] | None:
 
     while True:
       hint_description = prompt(":light_bulb: [cyan]Please enter the hint description[/]")
-      cost = prompt(":light_bulb: [cyan]Please enter the hint cost[/]", method=IntPrompt.ask)
+      cost = prompt(":light_bulb: [cyan]Please enter the hint cost (optional, '100' if don't care) [/]", method=IntPrompt.ask)
       
       hint_req = None
       if len(hints) > 0:
-        if Confirm.ask(":light_bulb: [cyan]Do you want to add a hint requirement?[/]"):
+        if Confirm.ask(":light_bulb: [cyan]Do you want to add a hint requirement? (optional, 'n' if don't care) [/]"):
           # console.print the following hints in a list, with an index starting at 0
           console.print("\n[green]Hints:[/green]")
           console.print("\n".join([
@@ -122,7 +122,7 @@ def get_hints() -> list[dict[str, str | int | list[int]]] | None:
           valid = False
 
           while not valid:
-            hint_req = prompt(":light_bulb: [cyan]Please enter the hint requirements (comma separated)[/]")
+            hint_req = prompt(":light_bulb: [cyan]Please enter the hint requirements (comma separated) [/]")
             hint_req = [int(i) for i in hint_req.split(",")]
             # Check if the requirements are valid
             for requirement in hint_req:
@@ -168,7 +168,7 @@ def get_requirements() -> list[str] | None:
   """
   console.rule(":triangular_flag: [bold yellow]Challenge Requirements[/] :triangular_flag:")
 
-  has_requirements = Confirm.ask("[cyan]Do any challenges need to be solved before this challenge?[/]")
+  has_requirements = Confirm.ask("[cyan]Do any challenges need to be solved before this challenge? (optional, 'n' if don't care) [/]")
   if has_requirements:
     requirements = []
     while True:
@@ -195,17 +195,115 @@ def create_challenge_cli():
   try:
     console.rule(":rocket: [bold yellow]Challenge Details[/] :rocket:")
 
-    name = prompt(":rocket: [cyan]Please enter the challenge name (case-insensitive)[/]")
+    name = prompt(":rocket: [cyan] [1/6] Please enter the challenge name (case-insensitive)[/]")
 
-    description = prompt("\n:rocket: [cyan]Please enter the challenge description (case-sensitive)[/]")
+    description = prompt("\n:rocket: [cyan] [2/6] Please enter the challenge description (case-sensitive)[/]")
 
-    category = prompt("\n:rocket: [cyan]Please enter the challenge category (case-insensitive)[/]").capitalize()
 
-    difficulty = prompt("\n:rocket: [cyan]Please enter the challenge difficulty (case-insensitive)[/]").capitalize()
 
-    author = prompt("\n:rocket: [cyan]Please enter your name (case-sensitive)[/]")
+    # TODO: Move this to an environment variable/config file
+    categories = {
+      "1": "Pwn",
+      "2": "Reverse Engineering",
+      "3": "Cryptography",
+      "4": "Web",
+      "5": "Forensics",
+      "6": "OSINT",
+      "7": "Miscellaneous"
+    }
 
-    discord = prompt("\n:rocket: [cyan]Please enter your discord username (So we can contact you if your challenge breaks)[/]")
+    console.print("\n[bright_yellow]Challenge Categories:[/bright_yellow]")
+    for i, category in categories.items():
+      console.print(f"[bright_yellow]{i}. {category}[/bright_yellow]")
+      
+    category = prompt("\n:rocket: [cyan] [3/6] Please enter the challenge category ID [/]")
+    while category not in categories.keys():
+      console.print("[bright_red]Invalid category ID.[/bright_red]")
+      category = prompt("\n:rocket: [cyan] [3/6] Please enter the challenge category ID [/]")
+    
+    category = categories[category]
+    console.print(f"[green]Category selected: {category}[/green]")
+
+    # TODO: Move this to an environment variable/config file  
+    difficulties = {
+      "1": "Easy",
+      "2": "Medium",
+      "3": "Hard"
+    }
+
+    console.print("\n[bright_yellow]Challenge Difficulties:[/bright_yellow]")
+    for i, difficulty in difficulties.items():
+      console.print(f"[bright_yellow]{i}. {difficulty}[/bright_yellow]")
+  
+    difficulty = prompt("\n:rocket: [cyan] [4/6] Please enter the challenge difficulty ID [/]")
+    while difficulty not in difficulties.keys():
+      console.print("[bright_red]Invalid difficulty.[/bright_red]")
+      difficulty = prompt("\n:rocket: [cyan] [4/6] Please enter the challenge difficulty ID [/]")
+
+    difficulty = difficulties[difficulty]
+    console.print(f"[green]Difficulty selected: {difficulty}[/green]")
+
+    author = prompt("\n:rocket: [cyan] [5/6] Please enter your name (case-sensitive)[/]")
+
+    discord = prompt("\n:rocket: [cyan] [6/6] Please enter your discord username [/]")
+
+    while 1:
+      first_confirm = ""
+      first_confirm = f"[cyan][bold]1. Challenge Name:[/bold] {name}\n"
+      first_confirm += f"[bold]2. Challenge Description:[/bold] {description}\n"
+      first_confirm += f"[bold]3. Challenge Category:[/bold] {category}\n"
+      first_confirm += f"[bold]4. Challenge Difficulty:[/bold] {difficulty}\n"
+      first_confirm += f"[bold]5. Author:[/bold] {author}\n"
+      first_confirm += f"[bold]6. Discord:[/bold] {discord}\n\n"
+
+      console.print(Panel(
+        first_confirm,
+        border_style="green",
+        title="[bright_yellow]Challenge Details[/bright_yellow]"
+      ))
+      confirm = prompt("\n [cyan]Are these details correct?[/]", method=Confirm.ask)
+
+      if confirm:
+        break
+      else:
+        edit = prompt("\n [cyan]Which field do you want to edit?[/]")
+        match edit:
+          case "1":
+            name = prompt(":rocket: [cyan] [1/6] Please enter the challenge name (case-insensitive)[/]")
+          case "2":
+            description = prompt("\n:rocket: [cyan] [2/6] Please enter the challenge description (case-sensitive)[/]")
+          case "3":
+            console.print("\n[bright_yellow]Challenge Categories:[/bright_yellow]")
+            for i, category in categories.items():
+              console.print(f"[bright_yellow]{i}. {category}[/bright_yellow]")
+            
+            category = prompt("\n:rocket: [cyan] [3/6] Please enter the challenge category ID [/]")
+            while category not in categories.keys():
+              console.print("[bright_red]Invalid category ID.[/bright_red]")
+              category = prompt("\n:rocket: [cyan] [3/6] Please enter the challenge category ID [/]")
+
+            category = categories[category]
+            console.print(f"[green]Category selected: {category}[/green]")
+          case "4":
+            console.print("\n[bright_yellow]Challenge Difficulties:[/bright_yellow]")
+            for i, difficulty in difficulties.items():
+              console.print(f"[bright_yellow]{i}. {difficulty}[/bright_yellow]")
+
+            difficulty = prompt("\n:rocket: [cyan] [4/6] Please enter the challenge difficulty ID [/]")
+            while difficulty not in difficulties.keys():
+              console.print("[bright_red]Invalid difficulty.[/bright_red]")
+              difficulty = prompt("\n:rocket: [cyan] [4/6] Please enter the challenge difficulty ID [/]")
+
+            difficulty = difficulties[difficulty]
+
+            console.print(f"[green]Difficulty selected: {difficulty}[/green]")
+          case "5":
+            author = prompt("\n:rocket: [cyan] [5/6] Please enter your name (case-sensitive)[/]")
+          case "6":
+            discord = prompt("\n:rocket: [cyan] [6/6] Please enter your discord username [/]")
+          case _:
+            console.print("[bright_red]Invalid field.[/bright_red]")
+            continue
 
     solution_files = get_solution_files()
     if solution_files == "":
@@ -242,7 +340,7 @@ def create_challenge_cli():
 
 
     console.rule(":file_folder: [bold yellow]Challenge Services[/] :file_folder:")
-    has_services = Confirm.ask("[cyan]Does the challenge require hosting?[/]")
+    has_services = Confirm.ask("[cyan]Does the challenge require hosting? (e.g Web/Pwn) [/]")
     if has_services:
       services = []
 
@@ -332,6 +430,7 @@ def create_challenge_cli():
     )
 
     console.print(f"[green]Successfully created challenge `{name}` at `{challenge_path.resolve()}`[/green]")
+
 
   except (KeyboardInterrupt, EOFError):
     console.print("[bright_red]Aborting...[/bright_red]")
