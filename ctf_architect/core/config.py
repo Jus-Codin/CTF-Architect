@@ -1,7 +1,7 @@
 import os
 from yaml import safe_load, safe_dump
 
-from ctf_architect.models import Config
+from ctf_architect.core.models import Config
 
 
 def load_config() -> Config:

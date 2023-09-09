@@ -9,7 +9,7 @@ from rich.prompt import Confirm, IntPrompt, Prompt
 
 from ctf_architect.cli.challenge import challenge_app
 from ctf_architect.cli.stats import stats_app
-from ctf_architect.initialize import init_no_config, init_with_config
+from ctf_architect.core.initialize import init_no_config, init_with_config
 
 console = Console()
 

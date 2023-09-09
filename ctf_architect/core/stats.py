@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ctf_architect.challenge import get_challenge_info
-from ctf_architect.config import load_config
+from ctf_architect.core.challenge import get_challenge_info
+from ctf_architect.core.config import load_config
 
 
 CATEGORY_README_TEMPLATE = """# {name} Challenges

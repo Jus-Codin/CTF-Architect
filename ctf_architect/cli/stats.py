@@ -4,9 +4,9 @@ import typer
 from rich import print
 from rich.table import Table
 
-from ctf_architect.config import load_config
-from ctf_architect.constants import APP_CMD_NAME
-from ctf_architect.stats import (get_category_diff_stats, update_category_readme,
+from ctf_architect.core.config import load_config
+from ctf_architect.core.constants import APP_CMD_NAME
+from ctf_architect.core.stats import (get_category_diff_stats, update_category_readme,
                          update_root_readme)
 
 

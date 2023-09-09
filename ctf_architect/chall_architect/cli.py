@@ -7,7 +7,7 @@ from __future__ import annotations
 import time
 import tkinter as tk
 from pathlib import Path
-from tkinter.filedialog import askdirectory, askopenfilenames
+from tkinter.filedialog import askdirectory, askopenfilename, askopenfilenames
 
 import typer
 from rich.console import Console
@@ -15,6 +15,15 @@ from rich.panel import Panel
 from rich.prompt import Confirm, IntPrompt, Prompt
 
 from ctf_architect.chall_architect.create import create_challenge
+from ctf_architect.chall_architect.utils import is_valid_service_folder, get_config
+
+
+try:
+  import ctypes
+  # Make it not blurry on windows
+  ctypes.windll.shcore.SetProcessDpiAwareness(1)
+except:
+  pass
 
 
 # This is to fix a bug on vscode's terminal where the filedialog window will not show up
@@ -29,26 +38,13 @@ app = typer.Typer()
 console = Console()
 
 
-def is_valid_service_folder(path: str | Path) -> bool:
-  """
-  Checks if the given path is a valid service folder.
-
-  A service folder is considered valid if it has a dockerfile.
-  """
-  if isinstance(path, str):
-    path = Path(path)
-
-  # Check if there is a docker file in the folder, case-insensitive
-  return any(file.name.lower() == "dockerfile" for file in path.iterdir())
-
-
-def prompt(message: str, allow_empty: bool = False, method = Prompt.ask) -> str:
+def prompt(message: str, allow_empty: bool = False, method = Prompt.ask, **kwargs) -> str:
   """
   Prompts the user for input.
   """
   if not allow_empty:
     while True:
-      res = method(message)
+      res = method(message, **kwargs)
       if res != "":
         return res
       else:
@@ -57,13 +53,62 @@ def prompt(message: str, allow_empty: bool = False, method = Prompt.ask) -> str:
     return method(message)
   
 
+def get_ctf_config():
+  """
+  Prompts the user for the ctf config.
+  """
+  console.rule(":gear: [bold yellow]CTF Config[/] :gear:")
+
+  while True:
+
+    console.print("[cyan]Please select the CTF config file.[/cyan]")
+    time.sleep(1)
+
+    config_file = askopenfilename(title="Please select the ctf config", filetypes=[("YAML", "*.yaml")])
+
+    if config_file == "":
+      # User cancelled, abort
+      console.print("[bright_red]No file selected, aborting...[/bright_red]")
+      return None
+  
+    try:
+      config = get_config(config_file)
+    except Exception as e:
+      console.print(f"[bright_red]Error loading config file: {e}[/bright_red]")
+      return None
+    
+    # Print config in a panel
+    config_string = f"[cyan][bold]Categories:[/bold]"
+    for category in config.categories:
+      config_string += f"\n- {category.capitalize()}"
+
+    config_string += f"\n\n[bold]Difficulties:[/bold]"
+    for difficulty in config.difficulties:
+      config_string += f"\n- {difficulty['name'].capitalize()} ({difficulty['value']})"
+    config_string += "[/cyan]"
+
+    config_name = config.name if config.name is not None else "Unnamed"
+
+    console.print(Panel(
+      config_string,
+      border_style="green",
+      title=f"[bright_yellow]{config_name} CTF Config[/bright_yellow]"
+    ))
+
+    if Confirm.ask("[cyan]Is this the correct config?[/]"):
+      return config
+    
+    # Add spacing
+    console.print()
+  
+
 def get_solution_files():
   """
   Prompts the user for the solution files.
   """
   console.rule(":file_folder: [bold yellow]Please select the solution files for the challenge.[/] :file_folder:")
 
-  time.sleep(2)
+  time.sleep(1)
 
   return askopenfilenames(title="Please select the solution files")
 
@@ -76,14 +121,14 @@ def get_flags() -> list[dict[str, str | bool]]:
 
   flags = []
   while True:
-    regex = Confirm.ask(":triangular_flag: [cyan]Is the flag a regex flag? (optional, 'n' if don't care) [/]")
+    regex = Confirm.ask(":triangular_flag: [cyan]Is the flag a regex flag?[/]")
     flag = prompt(":triangular_flag: [cyan]Please enter the flag[/]")
     flags.append({
       "flag": flag,
       "regex": regex
     })
 
-    if not Confirm.ask("[cyan]Do you want to add another flag? (optional, 'n' if don't care)[/]"):
+    if not Confirm.ask("[cyan]Do you want to add another flag?[/]"):
       break
 
     # Add spacing between the flags
@@ -107,11 +152,11 @@ def get_hints() -> list[dict[str, str | int | list[int]]] | None:
 
     while True:
       hint_description = prompt(":light_bulb: [cyan]Please enter the hint description[/]")
-      cost = prompt(":light_bulb: [cyan]Please enter the hint cost (optional, '100' if don't care) [/]", method=IntPrompt.ask)
+      cost = prompt(":light_bulb: [cyan]Please enter the hint cost[/]", method=IntPrompt.ask)
       
       hint_req = None
       if len(hints) > 0:
-        if Confirm.ask(":light_bulb: [cyan]Do you want to add a hint requirement? (optional, 'n' if don't care) [/]"):
+        if Confirm.ask(":light_bulb: [cyan]Do you want to add a hint requirement?[/]"):
           # console.print the following hints in a list, with an index starting at 0
           console.print("\n[green]Hints:[/green]")
           console.print("\n".join([
@@ -122,7 +167,7 @@ def get_hints() -> list[dict[str, str | int | list[int]]] | None:
           valid = False
 
           while not valid:
-            hint_req = prompt(":light_bulb: [cyan]Please enter the hint requirements (comma separated) [/]")
+            hint_req = prompt(":light_bulb: [cyan]Please enter the hint requirements (comma separated)[/]")
             hint_req = [int(i) for i in hint_req.split(",")]
             # Check if the requirements are valid
             for requirement in hint_req:
@@ -168,7 +213,7 @@ def get_requirements() -> list[str] | None:
   """
   console.rule(":triangular_flag: [bold yellow]Challenge Requirements[/] :triangular_flag:")
 
-  has_requirements = Confirm.ask("[cyan]Do any challenges need to be solved before this challenge? (optional, 'n' if don't care) [/]")
+  has_requirements = Confirm.ask("[cyan]Do any challenges need to be solved before this challenge?[/]")
   if has_requirements:
     requirements = []
     while True:
@@ -192,118 +237,56 @@ def create_challenge_cli():
   """
   Creates a challenge folder in the current directory.
   """
+
+  config = get_ctf_config()
+
+  if config is None:
+    return
+  
+  categories = config.categories
+  difficulties = config.diff_names
+
   try:
     console.rule(":rocket: [bold yellow]Challenge Details[/] :rocket:")
 
-    name = prompt(":rocket: [cyan] [1/6] Please enter the challenge name (case-insensitive)[/]")
+    name = prompt(":rocket: [cyan][1/6] Please enter the challenge name (case-insensitive)[/]")
 
-    description = prompt("\n:rocket: [cyan] [2/6] Please enter the challenge description (case-sensitive)[/]")
+    description = prompt("\n:rocket: [cyan][2/6] Please enter the challenge description (case-sensitive)[/]")
 
+    # Print the categories in a list, with an index starting at 1
+    console.print("\n[bright_yellow]Categories:[/]")
+    for i, category in enumerate(categories):
+      console.print(f"[bright_yellow]{i + 1}. {category.capitalize()}[/]")
 
-
-    # TODO: Move this to an environment variable/config file
-    categories = {
-      "1": "pwn",
-      "2": "reverse",
-      "3": "crypto",
-      "4": "web",
-      "5": "forensics",
-      "6": "osint",
-      "7": "misc"
-    }
-
-    console.print("\n[bright_yellow]Challenge Categories:[/bright_yellow]")
-    for i, category in categories.items():
-      console.print(f"[bright_yellow]{i}. {category.capitalize()}[/bright_yellow]")
-      
-    category = prompt("\n:rocket: [cyan] [3/6] Please enter the challenge category ID [/]")
-    while category not in categories.keys():
-      console.print("[bright_red]Invalid category ID.[/bright_red]")
-      category = prompt("\n:rocket: [cyan] [3/6] Please enter the challenge category ID [/]")
-    
-    category = categories[category]
-    console.print(f"[green]Category selected: {category}[/green]")
-
-    # TODO: Move this to an environment variable/config file  
-    difficulties = {
-      "1": "Easy",
-      "2": "Medium",
-      "3": "Hard"
-    }
-
-    console.print("\n[bright_yellow]Challenge Difficulties:[/bright_yellow]")
-    for i, difficulty in difficulties.items():
-      console.print(f"[bright_yellow]{i}. {difficulty}[/bright_yellow]")
-  
-    difficulty = prompt("\n:rocket: [cyan] [4/6] Please enter the challenge difficulty ID [/]")
-    while difficulty not in difficulties.keys():
-      console.print("[bright_red]Invalid difficulty.[/bright_red]")
-      difficulty = prompt("\n:rocket: [cyan] [4/6] Please enter the challenge difficulty ID [/]")
-
-    difficulty = difficulties[difficulty]
-    console.print(f"[green]Difficulty selected: {difficulty}[/green]")
-
-    author = prompt("\n:rocket: [cyan] [5/6] Please enter your name (case-sensitive)[/]")
-
-    discord = prompt("\n:rocket: [cyan] [6/6] Please enter your discord username [/]")
-
-    while 1:
-      first_confirm = ""
-      first_confirm = f"[cyan][bold]1. Challenge Name:[/bold] {name}\n"
-      first_confirm += f"[bold]2. Challenge Description:[/bold] {description}\n"
-      first_confirm += f"[bold]3. Challenge Category:[/bold] {category}\n"
-      first_confirm += f"[bold]4. Challenge Difficulty:[/bold] {difficulty}\n"
-      first_confirm += f"[bold]5. Author:[/bold] {author}\n"
-      first_confirm += f"[bold]6. Discord:[/bold] {discord}\n\n"
-
-      console.print(Panel(
-        first_confirm,
-        border_style="green",
-        title="[bright_yellow]Challenge Details[/bright_yellow]"
-      ))
-      confirm = prompt("\n [cyan]Are these details correct?[/]", method=Confirm.ask)
-
-      if confirm:
-        break
+    while True:
+      category = prompt(f"\n:rocket: [cyan][3/6] Please choose the challenge category \[1-{len(categories)}][/]", method=IntPrompt.ask)
+      if 1 > category > len(categories):
+        console.print("[bright_red]Invalid category.[/bright_red]\n")
       else:
-        edit = prompt("\n [cyan]Which field do you want to edit?[/]")
-        match edit:
-          case "1":
-            name = prompt(":rocket: [cyan] [1/6] Please enter the challenge name (case-insensitive)[/]")
-          case "2":
-            description = prompt("\n:rocket: [cyan] [2/6] Please enter the challenge description (case-sensitive)[/]")
-          case "3":
-            console.print("\n[bright_yellow]Challenge Categories:[/bright_yellow]")
-            for i, category in categories.items():
-              console.print(f"[bright_yellow]{i}. {category}[/bright_yellow]")
-            
-            category = prompt("\n:rocket: [cyan] [3/6] Please enter the challenge category ID [/]")
-            while category not in categories.keys():
-              console.print("[bright_red]Invalid category ID.[/bright_red]")
-              category = prompt("\n:rocket: [cyan] [3/6] Please enter the challenge category ID [/]")
+        category = categories[category - 1].capitalize()
+        break
 
-            category = categories[category]
-            console.print(f"[green]Category selected: {category}[/green]")
-          case "4":
-            console.print("\n[bright_yellow]Challenge Difficulties:[/bright_yellow]")
-            for i, difficulty in difficulties.items():
-              console.print(f"[bright_yellow]{i}. {difficulty}[/bright_yellow]")
+    console.print(f"[green]Category selected: {category}[/green]\n")
 
-            difficulty = prompt("\n:rocket: [cyan] [4/6] Please enter the challenge difficulty ID [/]")
-            while difficulty not in difficulties.keys():
-              console.print("[bright_red]Invalid difficulty.[/bright_red]")
-              difficulty = prompt("\n:rocket: [cyan] [4/6] Please enter the challenge difficulty ID [/]")
 
-            difficulty = difficulties[difficulty]
+    # Print the difficulties in a list, with an index starting at 1
+    console.print("[bright_yellow]Difficulties:[/]")
+    for i, difficulty in enumerate(difficulties):
+      console.print(f"[bright_yellow]{i + 1}. {difficulty.capitalize()}[/]")
 
-            console.print(f"[green]Difficulty selected: {difficulty}[/green]")
-          case "5":
-            author = prompt("\n:rocket: [cyan] [5/6] Please enter your name (case-sensitive)[/]")
-          case "6":
-            discord = prompt("\n:rocket: [cyan] [6/6] Please enter your discord username [/]")
-          case _:
-            console.print("[bright_red]Invalid field.[/bright_red]")
-            continue
+    while True:
+      difficulty = prompt(f"\n:rocket: [cyan][4/6] Please choose the challenge difficulty \[1-{len(difficulties)}][/]", method=IntPrompt.ask)
+      if 1 > difficulty > len(difficulties):
+        console.print("[bright_red]Invalid difficulty.[/bright_red]\n")
+      else:
+        difficulty = difficulties[difficulty - 1].capitalize()
+        break
+
+    console.print(f"[green]Difficulty selected: {difficulty}[/green]\n")
+
+    author = prompt("\n:rocket: [cyan][5/6] Please enter your name (case-sensitive)[/]")
+
+    discord = prompt("\n:rocket: [cyan][6/6] Please enter your discord username (So we can contact you if your challenge breaks)[/]")
 
     solution_files = get_solution_files()
     if solution_files == "":
@@ -340,8 +323,8 @@ def create_challenge_cli():
 
 
     console.rule(":file_folder: [bold yellow]Challenge Services[/] :file_folder:")
-    has_services = Confirm.ask("[cyan]Does the challenge require hosting? (e.g Web/Pwn) [/]")
-    if has_services:
+    has_serivices = Confirm.ask("[cyan]Does the challenge require hosting?[/]")
+    if has_serivices:
       services = []
 
       # Add spacing
@@ -430,7 +413,6 @@ def create_challenge_cli():
     )
 
     console.print(f"[green]Successfully created challenge `{name}` at `{challenge_path.resolve()}`[/green]")
-
 
   except (KeyboardInterrupt, EOFError):
     console.print("[bright_red]Aborting...[/bright_red]")

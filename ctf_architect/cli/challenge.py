@@ -7,12 +7,12 @@ import typer
 from rich import print
 from rich.panel import Panel
 
-from ctf_architect.challenge import add_challenge, find_challenge
-from ctf_architect.config import load_config
-from ctf_architect.constants import APP_CMD_NAME
-from ctf_architect.stats import (update_category_readme,
+from ctf_architect.core.challenge import add_challenge, find_challenge
+from ctf_architect.core.config import load_config
+from ctf_architect.core.constants import APP_CMD_NAME
+from ctf_architect.core.stats import (update_category_readme,
                          update_root_readme)
-from ctf_architect.unzip import unzip
+from ctf_architect.core.unzip import unzip
 
 
 def is_challenge_repo() -> bool:

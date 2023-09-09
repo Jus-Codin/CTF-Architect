@@ -24,7 +24,7 @@ from typing import TypedDict
 
 from yaml import safe_dump
 
-from ctf_architect.models import ChallengeInfo, Flag, Hint, Service
+from ctf_architect.core.models import ChallengeInfo, Flag, Hint, Service
 
 
 class ServiceDict(TypedDict):
