@@ -282,7 +282,7 @@ def create_challenge_cli():
         difficulty = difficulties[difficulty - 1].capitalize()
         break
 
-    console.print(f"[green]Difficulty selected: {difficulty}[/green]\n")
+    console.print(f"[green]Difficulty selected: {difficulty}[/green]")
 
     author = prompt("\n:rocket: [cyan][5/6] Please enter your name (case-sensitive)[/]")
 
