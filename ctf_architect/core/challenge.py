@@ -41,8 +41,8 @@ def get_challenge_info(path: str | Path) -> ChallengeInfo:
 
   if services is not None:
     services = [
-      Service(name=k, **v)
-      for k, v in services.items()
+      Service(**v)
+      for _, v in services.items()
     ]
   
   return ChallengeInfo.from_dict(info, services=services)
@@ -142,7 +142,7 @@ def add_challenge(folder: str | Path, replace: bool = False):
   # Check if challenge already exists
   if (c := find_challenge(challenge.name)) is not None:
     if replace:
-      remove_challenge(c[1])
+      remove_challenge(path=c[1])
     else:
       raise FileExistsError("Challenge already exists!")
   
@@ -152,7 +152,7 @@ def add_challenge(folder: str | Path, replace: bool = False):
   folder.rename(new_path)
 
 
-def remove_challenge(name: str | None, path: Path | str | None = None):
+def remove_challenge(name: str | None = None, path: Path | str | None = None):
   """
   Removes a challenge
 
