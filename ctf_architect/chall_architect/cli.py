@@ -120,7 +120,7 @@ def get_description():
     except KeyboardInterrupt:
       return None
   
-  return description.join("\n")
+  return "\n".join(description)
   
 
 def get_solution_files():
