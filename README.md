@@ -1,5 +1,6 @@
 # CTF-Architect
 
+![Static Badge](https://img.shields.io/badge/python-3.10-blue)
 ![Static Badge](https://img.shields.io/badge/python-3.11-blue)
 
 A tool for managing challenges for CTFs.
@@ -10,7 +11,7 @@ I'm just a single person making this tool, so please be patient. 😇
 
 ## Installation
 
-Note: This tool only supports python 3.11 and above.
+Note: This tool only supports python 3.10 and above.
 
 ### Installing from PyPI
 To install from PyPI, run the following command:
