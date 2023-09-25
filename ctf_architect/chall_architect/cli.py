@@ -100,6 +100,27 @@ def get_ctf_config():
     
     # Add spacing
     console.print()
+
+
+def get_description():
+  """
+  Prompts the user for the description of the challenge.
+  This should allow users to enter multiple lines, and exit when EOF is entered.
+  """
+
+  console.print(":rocket: [cyan][2/6] Please enter the challenge description. Press Ctrl+D (or Ctrl+Z on Windows) on an empty line to finish.[/]", highlight=False)
+
+  description = []
+  while True:
+    try:
+      line = input(">>> ")
+      description.append(line)
+    except EOFError:
+      break
+    except KeyboardInterrupt:
+      return None
+  
+  return description.join("\n")
   
 
 def get_solution_files():
@@ -251,7 +272,11 @@ def create_challenge_cli():
 
     name = prompt(":rocket: [cyan][1/6] Please enter the challenge name (case-insensitive)[/]")
 
-    description = prompt("\n:rocket: [cyan][2/6] Please enter the challenge description (case-sensitive)[/]")
+    description = get_description()
+    if description is None:
+      # User cancelled, abort
+      console.print("[bright_red]Aborting...[/bright_red]")
+      return
 
     # Print the categories in a list, with an index starting at 1
     console.print("\n[bright_yellow]Categories:[/]")
