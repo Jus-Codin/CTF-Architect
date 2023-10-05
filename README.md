@@ -24,6 +24,8 @@ python3 -m pip install ctf-architect
 py -3 -m pip install ctf-architect
 ```
 
+NOTE: If the above command produces an error during installation, try running the command in a terminal with administrator privileges.
+
 ### Installing from source
 
 Git clone the repository, and pip install it
