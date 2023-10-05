@@ -9,27 +9,27 @@ from ctf_architect.core.config import load_config
 CATEGORY_README_TEMPLATE = """# {name} Challenges
 This directory contains challenges related to {name}.
 
-## Challenges ({count} total)
-| Name | Description | Difficulty | Author |
-| ---- | ----------- | ---------- | ------ |
-{challenges_table}
-
 ## Difficulty Distribution
 | Difficulty | Number of Challenges |
 | ---------- |:--------------------:|
 {diff_table}
+
+## Challenges ({count} total)
+| Name | Description | Difficulty | Author |
+| ---- | ----------- | ---------- | ------ |
+{challenges_table}
 """
 
 ROOT_README_TEMPLATE = """# Challenges
 This directory contains all challenges.
 
+## Difficulty Distribution
+{diff_table}
+
 ## Challenges ({count} total)
 | Name | Description | Category | Difficulty | Author |
 | ---- | ----------- | -------- | ---------- | ------ |
 {challenges_table}
-
-## Difficulty Distribution
-{diff_table}
 """
 
 
@@ -85,9 +85,11 @@ def update_category_readme(name: str):
   stats = get_category_diff_stats(name)
 
   # Create the challenges table
-  newline = "\n"
   challenges_table = "\n".join(
-    f"| [{name}](<../{name}>) | {description.replace(newline, '')} | {difficulty.capitalize()} | {author} |"
+    f"| [{name}](<./{name}>) |" +
+    f" {description if len(description) <= 20 else description[:20]+'...'} |" +
+    f" {difficulty.capitalize()} |" +
+    f" {author} |"
     for name, description, difficulty, author in challenges
   )
 
@@ -140,9 +142,12 @@ def update_root_readme():
   stats = {category: get_category_diff_stats(category) for category in config.categories}
 
   # Create the challenges table
-  newline = "\n"
   challenges_table = "\n".join(
-    f"| [{name}](<../{category}/{name}>) | {description.replace(newline, '')} | {category.capitalize()} | {difficulty.capitalize()} | {author} |"
+    f"| [{name}](<./{category.lower()}/{name}>) |" +
+    f" {description if len(description) <= 20 else description[:20]+'...'} |" +
+    f" {category.capitalize()} |" +
+    f" {difficulty.capitalize()} |" +
+    f" {author} |"
     for name, description, category, difficulty, author in challenges
   )
 
