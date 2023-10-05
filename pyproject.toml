@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ctf-architect"
-version = "0.1.0a3"
+version = "0.1.0a4"
 description = "A tool for managing challenges for CTFs."
 authors = ["Jus-Codin <70018166+Jus-Codin@users.noreply.github.com>"]
 license = "MIT"
