@@ -148,7 +148,7 @@ def add_challenge(folder: str | Path, replace: bool = False):
   
   
   # Move the challenge to the correct category
-  new_path = Path("./challenges") / challenge.category.lower() / folder.name
+  new_path = Path("./challenges") / challenge.category.lower() / challenge.name
   folder.rename(new_path)
 
 
