@@ -5,6 +5,8 @@ import shutil
 from pathlib import Path
 from yaml import safe_load
 
+from typing import Generator
+
 from ctf_architect.core.config import load_config
 from ctf_architect.core.models import ChallengeInfo, Service
 
@@ -176,3 +178,24 @@ def remove_challenge(name: str | None = None, path: Path | str | None = None):
     raise ValueError("Specified path is not a directory!")
   
   shutil.rmtree(path)
+
+
+def walk_challenges(category: str | None = None) -> Generator[ChallengeInfo]:
+  """
+  Walks through all challenges in the challenges directory.
+
+  Can optionally specify a category to only walk through challenges in that category.
+  """
+  config = load_config()
+
+  challenges_path = Path("./challenges")
+
+  for _category in config.categories:
+    if category is not None and category.lower() != _category.lower():
+      continue
+    for dir in (challenges_path / _category).iterdir():
+      if dir.is_dir():
+        try:
+          yield get_challenge_info(dir)
+        except ValueError:
+          pass
