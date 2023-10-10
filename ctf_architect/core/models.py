@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TypedDict
 
 
 @dataclass
@@ -100,12 +101,18 @@ class ChallengeInfo:
     }
 
 
+class PortMappingDict(TypedDict):
+  from_port: str
+  to_port: str
+
+
 @dataclass
 class Config:
   categories: list[str]
   difficulties: list[dict[str, str | int]]
   port: int
   name: str | None = None
+  port_mappings: dict[str, PortMappingDict] | None = None
 
   @property
   def diff_names(self) -> list[str]:
@@ -116,5 +123,6 @@ class Config:
       "categories": self.categories,
       "difficulties": self.difficulties,
       "port": self.port,
-      "name": self.name
+      "name": self.name,
+      "port_mappings": self.port_mappings
     }
