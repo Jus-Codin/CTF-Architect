@@ -35,13 +35,17 @@ class Service:
   name: str
   path: str
   port: str
+  extras: dict[str, str] | None = None
 
   def to_dict(self) -> dict:
-    return {
+    d = {
       "name": self.name,
       "path": self.path,
       "port": self.port
     }
+    if self.extras is not None:
+      d["extras"] = self.extras
+    return d
 
 
 @dataclass
