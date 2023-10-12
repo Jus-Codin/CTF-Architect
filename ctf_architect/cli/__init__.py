@@ -8,6 +8,7 @@ from rich.panel import Panel
 from rich.prompt import Confirm, IntPrompt, Prompt
 
 from ctf_architect.cli.challenge import challenge_app
+from ctf_architect.cli.mapping import mapping_app
 from ctf_architect.cli.stats import stats_app
 from ctf_architect.core.initialize import init_no_config, init_with_config
 
@@ -16,6 +17,7 @@ console = Console()
 
 app = typer.Typer()
 app.add_typer(challenge_app, name="challenge")
+app.add_typer(mapping_app, name="mapping")
 app.add_typer(stats_app, name="stats")
 
 
