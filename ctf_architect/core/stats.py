@@ -111,7 +111,7 @@ def update_category_readme(name: str):
   )
 
   # Write the README
-  with (category_path / "README.md").open("w") as f:
+  with (category_path / "README.md").open("w", encoding="utf-8") as f:
     f.write(readme)
 
 
@@ -176,5 +176,5 @@ def update_root_readme():
   )
 
   # Write the README
-  with (challenges_path / "README.md").open("w") as f:
+  with (challenges_path / "README.md").open("w", encoding="utf-8") as f:
     f.write(readme)
