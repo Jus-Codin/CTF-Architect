@@ -17,12 +17,18 @@ def is_valid_challenge(path: str | Path) -> bool:
   A challenge is considered valid if it has a chall.yaml and a README.md file.
   """
   files = os.listdir(path)
-  if "chall.yaml" not in files:
-    return False
-  if "README.md" not in files:
-    return False
   
-  return True
+  # do case insensitive check for chall.yaml and README.md
+  has_chall_yaml = False
+  has_readme_md = False
+
+  for file in files:
+    if file.lower() == "chall.yaml":
+      has_chall_yaml = True
+    elif file.lower() == "readme.md":
+      has_readme_md = True
+
+  return has_chall_yaml and has_readme_md
 
 
 def get_challenge_info(path: str | Path) -> ChallengeInfo:
