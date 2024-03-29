@@ -1,0 +1,117 @@
+# Challenge info file (version 0.1)
+# This file is machine generated. DO NOT EDIT unless you know what you are doing.
+# If you want to create or edit a challenge, use chall-architect instead.
+
+# The Challenge Specification version (required)
+version = "0.1"
+
+
+# Challenge info (required)
+[challenge]
+author = "Author Name"
+category = "category"
+description = "Description"
+difficulty = "difficulty"
+name = "Challenge Name"
+
+# Challenge Files (optional)
+# Specifies the files that are part of the challenge.
+# The files are specified as a list of strings, where each string is a path to a file.
+# The paths are relative to the challenge directory.
+# Alternatively, specify a URL to download the file from the internet.
+
+# files = [
+#     "file1",
+#     "file2"
+# ]
+
+# Challenge Requirements (optional)
+# Specifies the challenges that must be solved before this challenge can be unlocked.
+# The requirements are specified as a list of strings, where each string is the name of a challenge.
+
+# requirements = [
+#     "challenge1",
+#     "challenge2"
+# ]
+
+
+# Challenge Extra info (optional) ----------------------------------------------
+# This section specifies extra information about the challenge.
+# The fields in this section must be specified if it is required by the ctf_config.toml file
+
+# [challenge.extras]
+# discord = "juscodin"
+
+
+# Challenge Flags (required) ----------------------------------------------------
+# Specifies the flags that are part of the challenge.
+# To specify multiple flags, create another table in the array of tables.
+# The flag table must have the following fields:
+# - flag: The flag value
+# - regex (optional): If the flag is a regex flag, otherwise it is a static flag. Defaults to false
+# - case_insensitive (optional): If the flag is case insensitive or not. Defaults to false
+
+# Static case-sensitive flag
+[[challenge.flags]]
+flag = "flag{example}"
+
+# Static case-insensitive flag
+# [[challenge.flags]]
+# flag = "flag{example2}"
+# case_insensitive = true
+
+# Regex case-sensitive flag
+# [[challenge.flags]]
+# flag = "flag{example3}"
+# regex = true
+
+# Regex case-insensitive flag
+# [[challenge.flags]]
+# flag = "flag{example4}"
+# regex = true
+# case_insensitive = true
+
+
+# Challenge Hints (optional) ----------------------------------------------------
+# Specifies the hints that are part of the challenge.
+# To specify multiple hints, create another table in the array of tables.
+# The hint table must have the following fields:
+# - cost: The cost of the hint
+# - content: The content of the hint
+# - requirements (optional): The requirements to unlock the hint. This should be
+#   an index referencing a hint in the array of tables. Defualts to null
+
+# Example hint
+# [[challenge.hints]]
+# cost = 10
+# content = "This is a hint"
+
+# Example hint with requirements
+# [[challenge.hints]]
+# cost = 20
+# content = "This is a hint with requirements"
+# requirements = 0
+
+
+# Challenge Services (optional) -------------------------------------------------
+# Specifies the services that are part of the challenge.
+# To specify multiple services, create another table in the array of tables.
+# The service table must have the following fields:
+# - name: The name of the service. This will be the name of the docker container. Restricted to [a-zA-Z0-9_-] and must be unique
+# - path: The path to the service's directory. This path is relative to the challenge directory
+# - port: The port that the docker container exposes.
+# - type: The type of the service. This must be one of the following:
+#   - web     : A web service, must have a port exposed
+#   - nc      : A netcat service, must have a port exposed
+#   - ssh     : An ssh service, must have a port exposed
+#   - secret  : A secret service, it must have a port exposed, but will not be shown in the challenge info
+#               This is useful for challenges where the service must be discovered by the player
+#   - internal: An internal service, does not need to expose a port, and will not be shown in the challenge info
+#               This is useful for challenges where the service should not be accessed directly, i.e. web admin bots
+
+# Example service
+# [[challenge.services]]
+# name = "service1"
+# path = "service1"
+# port = 1337
+# type = "web"

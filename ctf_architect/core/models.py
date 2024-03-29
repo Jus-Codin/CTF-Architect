@@ -1,132 +1,233 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import TypedDict
+import re
+from pathlib import Path
+from typing import Annotated, Any, Literal
+
+from pydantic import (BaseModel, HttpUrl, StringConstraints, field_validator,
+                      model_validator)
+
+from ctf_architect.core.constants import SPECIFICATION_VERSION
 
 
-@dataclass
-class Flag:
+class Model(BaseModel, validate_assignment=True):
+  pass
+
+
+class Flag(Model):
+  """
+  Represents a challenge flag.
+  
+  Attributes:
+    flag (str): The flag string.
+    regex (bool, optional): Specifies whether the flag is a regular expression. Defaults to False.
+    case_sensitive (bool, optional): Specifies whether the flag is case-sensitive. Defaults to False.
+  """
+  
   flag: str
   regex: bool = False
-
-  def to_dict(self) -> dict:
-    return {
-      "flag": self.flag,
-      "regex": self.regex
-    }
+  case_sensitive: bool = True
 
 
-@dataclass
-class Hint:
-  description: str
+class Hint(Model):
+  """
+  Represents a challenge hint.
+
+  Attributes:
+    cost (int): The cost of the hint.
+    content (str): The content of the hint.
+    requirements (list[int], optional): The list of requirements needed to unlock the hint.
+  """
+
   cost: int
+  content: str
   requirements: list[int] | None = None
 
-  def to_dict(self) -> dict:
-    return {
-      "description": self.description,
-      "cost": self.cost,
-      "requirements": self.requirements
-    }
+
+class Service(Model, extra="allow"):
+  """
+  Represents a service for a challenge.
+
+  Attributes:
+    name (str): The name of the service. Must follow the pattern /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.
+    path (Path): The path to the service.
+    port (int, optional): The port number for the service. Only allowed to be None if type is "internal".
+    type (str): The type of the service. Must be one of "web", "nc", "ssh", "secret", or "internal".
+    extras (dict[str, Any], optional): Extra information to be passed to the Docker Compose file.
+  """
+
+  name: Annotated[str, StringConstraints(pattern=r"^[a-zA-Z0-9][a-zA-Z0-9_-]*$")]
+  path: Path
+  port: int | None = None
+  type: Literal["web", "nc", "ssh", "secret", "internal"]
+  extras: dict[str, Any] | None = None
+
+  # port is only allowed to be none if type is "internal"
+  @model_validator(mode="after")
+  def validate_port(self) -> Service:
+    if self.port is None and self.type != "internal":
+      raise ValueError("Port must be specified for non-internal services")
+    return self
 
 
-@dataclass
-class Service:
-  name: str
-  path: str
-  port: str
-  extras: dict[str, str] | None = None
+class Challenge(Model):
+  """
+  Represents a challenge.
 
-  def to_dict(self) -> dict:
-    d = {
-      "name": self.name,
-      "path": self.path,
-      "port": self.port
-    }
-    if self.extras is not None:
-      d["extras"] = self.extras
-    return d
+  Attributes:
+    author (str): The author of the challenge.
+    category (str): The category of the challenge.
+    description (str): The description of the challenge.
+    difficulty (str): The difficulty of the challenge.
+    name (str): The name of the challenge.
+    files (list[Path | HttpUrl], optional): The list of files for the challenge.
+    requirements (list[str], optional): The list of requirements needed to unlock the challenge.
+    extras (dict[str, Any], optional): Extra information for the challenge.
+    flags (list[Flag]): The list of flags for the challenge.
+    hints (list[Hint], optional): The list of hints for the challenge.
+    services (list[Service], optional): The list of services for the challenge.
+  """
 
-
-@dataclass
-class ChallengeInfo:
-  name: str
-  description: str
-  difficulty: str
-  category: str
   author: str
-  discord: str
-  flags: list[Flag]
-
-  hints: list[Hint] | None = None
-  files: list[str] | None = None
+  category: Annotated[str, StringConstraints(to_lower=True)]
+  description: str
+  difficulty: Annotated[str, StringConstraints(to_lower=True)]
+  name: str
+  files: list[HttpUrl | Path] | None = None
   requirements: list[str] | None = None
-  
+  extras: dict[str, Any] | None = None
+  flags: list[Flag]
+  hints: list[Hint] | None = None
   services: list[Service] | None = None
 
-  @classmethod
-  def from_dict(cls, d: dict, services: list[Service] | None = None) -> ChallengeInfo:
-    flags = []
-    for flag in d.pop("flags"):
-      if isinstance(flag, str):
-        flags.append(Flag(flag))
-      else:
-        flags.append(Flag(**flag))
-
-    hints = d.pop("hints")
-    if hints is not None:
-      hints = [Hint(**hint) for hint in hints]
-
-    return cls(
-      flags=flags,
-      hints=hints,
-      services=services,
-      **d
-    )
-  
-  def to_dict(self) -> dict[str, dict | list[dict]]:
-    return {
-      "challenge": {
-        "name": self.name,
-        "description": self.description,
-        "difficulty": self.difficulty,
-        "category": self.category,
-        "author": self.author,
-        "discord": self.discord,
-        "flags": [flag.to_dict() for flag in self.flags],
-        "hints": [hint.to_dict() for hint in self.hints] if self.hints is not None else None,
-        "files": self.files,
-        "requirements": self.requirements
-      },
-      "services": {
-        service.name: service.to_dict()
-        for service in self.services
-      } if self.services is not None else None
-    }
-
-
-class PortMappingDict(TypedDict):
-  from_port: str
-  to_port: str
-
-
-@dataclass
-class Config:
-  categories: list[str]
-  difficulties: list[dict[str, str | int]]
-  port: int
-  name: str | None = None
-  port_mappings: dict[str, PortMappingDict] | None = None
+  @model_validator(mode="after")
+  def validate_folder_name(self) -> Challenge:
+    if not self.folder_name:
+      raise ValueError(f"Invalid challenge name, unable to create a valid folder name for \"{self.name}\"")
+    return self
 
   @property
-  def diff_names(self) -> list[str]:
-    return [d["name"] for d in self.difficulties]
+  def folder_name(self) -> str:
+    """
+    Converts the challenge name to an alphanumeric string with spaces,
+    dashes, and underscores only that should be supported by Windows and
+    Linux filesystems.
+
+    Returns:
+      str: The folder name for the challenge.
+    """
+    return re.sub(r"[^a-zA-Z0-9-_ ]", "", self.name).strip()
+    
+  @property
+  def full_path(self) -> Path:
+    """
+    The full path to the challenge folder from the root of the CTF repo.
+
+    Returns:
+      Path: The full path to the challenge folder.
+    """
+    return Path("challenges") / self.category.lower() / self.folder_name
+
+
+class DifficultyConfig(Model):
+  """
+  Represents a difficulty configuration for a CTF challenge.
+
+  Attributes:
+    name (str): The name of the difficulty level.
+    value (int): The value of the difficulty level.
+  """
+
+  name: Annotated[str, StringConstraints(to_lower=True)]
+  value: int
+
+
+class CTFConfig(Model):
+  """
+  Represents the configuration for a CTF.
+
+  Attributes:
+    categories (list[str]): The list of categories for the CTF.
+    extras (list[str]): The list of extra fields for the CTF.
+    starting_port (int): The starting port for the CTF.
+    name (str): The name of the CTF.
+    difficulties (list[DifficultyConfig]): The list of difficulties for the CTF.
+  """
+  categories: list[Annotated[str, StringConstraints(to_lower=True)]]
+  starting_port: int
+  name: str
+  extras: list[str] | None = None
+  difficulties: list[DifficultyConfig]
+
+
+class BaseFile(Model):
+  """
+  Represents a base CTF-Architect config file.
+
+  Attributes:
+    version (str): The version of the file.
+  """
   
-  def to_dict(self) -> dict:
-    return {
-      "categories": self.categories,
-      "difficulties": self.difficulties,
-      "port": self.port,
-      "name": self.name,
-      "port_mappings": self.port_mappings
-    }
+  version: str
+
+  @field_validator("version")
+  def validate_version(cls, value: str) -> str:
+    if value != SPECIFICATION_VERSION:
+      raise ValueError(
+        f"Invalid specification version: \"{value}\",\
+        expected \"{SPECIFICATION_VERSION}\""
+      )
+    return value
+
+
+class ChallengeFile(BaseFile):
+  """
+  Represents a chall.toml config file.
+
+  Attributes:
+    challenge (Challenge): The challenge object.
+  """
+
+  challenge: Challenge
+
+  @classmethod
+  def from_challenge(cls, challenge: Challenge) -> ChallengeFile:
+    return cls(version=SPECIFICATION_VERSION, challenge=challenge)
+
+
+class ConfigFile(BaseFile):
+  """
+  Represents a ctf_config.toml config file.
+
+  Attributes:
+    config (CTFConfig): The CTF config object.
+  """
+  config: CTFConfig
+
+  @classmethod
+  def from_ctf_config(cls, config: CTFConfig) -> ConfigFile:
+    """
+    Creates a ConfigFile object from a CTFConfig object.
+
+    Args:
+      config (CTFConfig): The CTFConfig object to convert.
+
+    Returns:
+      ConfigFile: The converted ConfigFile object.
+    """
+    return cls(version=SPECIFICATION_VERSION, config=config)
+  
+
+class ServicePortMapping(Model):
+  """
+  Represents a port mapping for a challenge service.
+  """
+  from_port: int
+  to_port: int
+
+
+class PortMappingFile(BaseFile):
+  """
+  Represents a port_mapping.json file.
+  """
+  mapping: dict[str, ServicePortMapping]

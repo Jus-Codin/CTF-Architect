@@ -1,51 +1,52 @@
-"""
-Various utility functions for chall-architect
-"""
-
 from __future__ import annotations
 
 from pathlib import Path
 
-from yaml import safe_load
+from pydantic import ValidationError
+from tomlkit import load
 
-from ctf_architect.core.models import Config
+from ctf_architect.core.models import ConfigFile, CTFConfig
 
 
-def get_config(path: str | Path) -> Config:
+def get_config(path: str | Path) -> CTFConfig:
   """
-  Gets the config from a given path.
+  Load and validate a CTF config file.
+
+  Args:
+    path (str | Path): The path to the CTF config file.
+
+  Returns:
+    CTFConfig: The validated CTF config object.
+
+  Raises:
+    ValueError: If the path is not a file or if there is an error loading the config file.
   """
   if isinstance(path, str):
     path = Path(path)
 
-  # Ensure path is a file
   if not path.is_file():
     raise ValueError("Path must be a file")
-  
-  # Ensure path is a yaml file
-  if path.suffix != ".yaml":
-    raise ValueError("Path must be a yaml file")
-  
-  # Load the config
-  with path.open("r") as f:
-    data = safe_load(path.open("r"))
 
-  config = data.get("config")
+  with path.open("r", encoding="utf-8") as f:
+    data = load(f)
 
-  # Ensure config is present
-  if config is None:
-    raise ValueError("Config not found in yaml file")
+  try:
+    config_file = ConfigFile.model_validate(data.value)
+  except ValidationError as e:
+    raise ValueError(f"Error loading CTF config file: {e}")
   
-  config = Config(**config)
-
-  return config
+  return config_file.config
 
 
 def is_valid_service_folder(path: str | Path) -> bool:
   """
-  Checks if the given path is a valid service folder.
+  Check if a given folder contains a valid service.
 
-  A service folder is considered valid if it has a dockerfile.
+  Args:
+    path (str | Path): The path to the folder to be checked.
+
+  Returns:
+    bool: True if the folder contains a valid service, False otherwise.
   """
   if isinstance(path, str):
     path = Path(path)
