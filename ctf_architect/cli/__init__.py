@@ -26,7 +26,7 @@ app.add_typer(stats_app, name="stats")
 
 @app.command()
 def init(
-  port: int = typer.Option(8000, "--starting-port", "-p", help="The starting port for the CTF Services"),
+  starting_port: int = typer.Option(None, "--starting-port", "-p", help="The starting port for the CTF Services"),
   config_only: bool = typer.Option(False, "--config-only", "-c", help="Only create the config file.")
 ):
   """
@@ -38,7 +38,7 @@ def init(
     if config_only:
       console.print("A config file already exists. Exiting...", style="bright_red")
 
-    if not Confirm.ask("[cyan]A config file already exists. Do you want to overwrite it?[/]"):
+    if not Confirm.ask("[cyan]A config file already exists. Do you want to use this config?[/]"):
       console.print("Aborting...", style="bright_red")
       return
 
@@ -51,10 +51,17 @@ def init(
       console.print("CTF repo initialized successfully!", style="bright_green")
 
   else:
+    ctf_name = None
+    while not ctf_name:
+      ctf_name = Prompt.ask("[cyan]Enter the name of the CTF[/]")
+    
+    if starting_port is None:
+      starting_port = IntPrompt.ask("[cyan]Starting port for the CTF Services[/]", default=8000)
 
-    # Get the categories and difficulties from the user
+    # Get the categories, difficulties and extras from the user
     categories = []
     difficulties = []
+    extras = []
 
     try:
       console.rule("[bright_yellow]CTF Categories[/bright_yellow]")
@@ -67,7 +74,7 @@ def init(
           break
         categories.append(category.lower())
 
-        console.print(f"\nCategory {category} added.", style="green")
+        console.print(f"Category {category} added.\n", style="green")
 
       if len(categories) == 0:
         console.print("No categories specified. Exiting...", style="bright_red")
@@ -89,7 +96,7 @@ def init(
         value = IntPrompt.ask("[cyan]Difficulty value[/]", default=500)
         difficulties.append({"name": name.lower(), "value": value})
 
-        console.print(f"\nDifficulty {name} added. ({value} points)", style="green")
+        console.print(f"Difficulty {name} added. ({value} points)\n", style="green")
 
       if len(difficulties) == 0:
         console.print("No difficulties specified. Exiting...", style="bright_red")
@@ -98,12 +105,24 @@ def init(
         console.print("Difficulties:", style="bright_green")
         for difficulty in difficulties:
           console.print(f"  - {difficulty['name']} ({difficulty['value']} points)", style="green")
+
+      
+      console.rule("[bright_yellow]Extra Fields[/bright_yellow]")
+
+      console.print("Enter any extra fields challenges should specify (one per line, empty line to stop).", style="bright_cyan")
+
+      while True:
+        extra = Prompt.ask("[cyan]Extra field[/]", default="", show_default=False)
+        if extra == "":
+          break
+        extras.append(extra)
+
+        console.print(f"Extra field {extra} added.\n", style="green")
     except (KeyboardInterrupt, EOFError):
       console.print("\nAborting...", style="bright_red")
       return
-    
 
-    # Show panel of categories and difficulties
+    # Show panel of current configuration and ask for confirmation
     # If the user confirms, initialize the CTF repo
 
     config_text = "[bright_cyan]Categories:[/]\n"
@@ -112,11 +131,16 @@ def init(
     config_text += "\n[bright_cyan]Difficulties:[/]\n"
     for difficulty in difficulties:
       config_text += f"[cyan]  - {difficulty['name']} ({difficulty['value']} points)[/]\n"
+    config_text += "\n[bright_cyan]Extras:[/]\n"
+    for extra in extras:
+      config_text += f"[cyan]  - {extra}[/]\n"
+
+    config_text += f"\n[bright_cyan]Starting Port:[/]\n[cyan]  - {starting_port}[/]"
 
     console.print(
       Panel(
         config_text,
-        title="[bright_yellow]CTF Configuration[/bright_yellow]",
+        title=f"[bright_yellow]{ctf_name} Configuration[/bright_yellow]",
         border_style="green"
       )
     )
@@ -127,7 +151,14 @@ def init(
     
 
     try:
-      init_no_config(categories, difficulties, port, config_only)
+      init_no_config(
+        name=ctf_name,
+        categories=categories,
+        difficulties=difficulties,
+        starting_port=starting_port,
+        extras=extras,
+        config_only=config_only
+      )
     except ValueError as e:
       console.print(f"Error initializing the CTF repo:\n{e}", style="bright_red")
       return
