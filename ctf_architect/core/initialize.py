@@ -12,9 +12,11 @@ from ctf_architect.core.stats import update_category_readme, update_root_readme
 
 
 def init_no_config(
+  name: str,
   categories: list[str],
   difficulties: list[dict[str, str | int]],
-  port: int,
+  starting_port: int,
+  extras: list[str] | None = None,
   config_only: bool = False
 ):
   """
@@ -22,9 +24,11 @@ def init_no_config(
   """
 
   config = CTFConfig(
+    name=name,
     categories=categories,
     difficulties=difficulties,
-    port=port
+    starting_port=starting_port,
+    extras=extras
   )
 
   save_config(config)
