@@ -24,7 +24,10 @@ def get_category_difficulty_distribution(name: str) -> dict[str, int]:
 
   difficulties = config.difficulties
 
-  stats = {difficulty.name for difficulty in difficulties}
+  stats = {
+    difficulty.name: 0
+    for difficulty in difficulties
+  }
 
   for challenge_path in category_path.iterdir():
     if challenge_path.is_dir():
@@ -129,7 +132,10 @@ def update_root_readme():
   for category in config.categories:
     category_path = challenges_path / category.lower()
 
-    stats = {difficulty.name for difficulty in difficulties}
+    stats = {
+      difficulty.name: 0
+      for difficulty in difficulties
+    }
 
     for challenge_path in category_path.iterdir():
       if challenge_path.is_dir():
