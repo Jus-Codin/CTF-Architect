@@ -3,7 +3,6 @@ from __future__ import annotations
 import time
 from pathlib import Path
 from tkinter.filedialog import askdirectory, askopenfilename, askopenfilenames
-
 from typing import Callable
 
 from rich.console import Console
@@ -11,8 +10,8 @@ from rich.panel import Panel
 from rich.prompt import Confirm, IntPrompt, Prompt
 
 from ctf_architect.chall_architect.create import create_challenge
-from ctf_architect.chall_architect.utils import get_config, is_valid_service_folder
-
+from ctf_architect.chall_architect.utils import (get_config,
+                                                 is_valid_service_folder)
 
 console = Console()
 
@@ -432,7 +431,7 @@ def create():
 
   services = get_services()
 
-  if Confirm.ask(":rocket: [cyan]Does the service(s) need a Docker Compose file?[/]"):
+  if len(services) > 0 and Confirm.ask(":rocket: [cyan]Does the service(s) need a Docker Compose file?[/]"):
     # Ask for a docker-compose file
     console.print("[bright_cyan]Please select the Docker Compose file for the services[/bright_cyan]")
     docker_compose = askopenfilename(
