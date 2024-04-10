@@ -128,7 +128,7 @@ def create_challenge(
   # Write challenge config file
   doc = document()
   doc.add(comment(
-    f"CTF Repo Config File (version {SPECIFICATION_VERSION})"
+    f"Challenge Metadata File (version {SPECIFICATION_VERSION})"
   ))
   doc.add(comment(
     "This file is machine generated. DO NOT EDIT unless you know what you are doing."
