@@ -1,75 +1,32 @@
 # CTF-Architect
 
-![Static Badge](https://img.shields.io/badge/python-3.10-blue)
-![Static Badge](https://img.shields.io/badge/python-3.11-blue)
+---
 
-A tool for managing challenges for CTFs.
+<p align="center">
+    <a href="https://pypi.org/project/ctf-architect/" target="_blank">
+        <img alt="PyPI - Version" src="https://img.shields.io/pypi/v/ctf-architect">
+    </a>
+    <a href="https://pypi.org/project/ctf-architect/" target="_blank">
+        <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/ctf-architect">
+    </a>
+</p>
 
-NOTE: this tool is still a work in progress, bugs are to be expected.
+---
 
-I'm just a single person making this tool, so please be patient. 😇
+Github: <a href="https://github.com/Jus-Codin/CTF-Architect" target="_blank">https://github.com/Jus-Codin/CTF-Architect</a>
+
+Documentation: <a href="https://jus-codin.github.io/CTF-Architect/" target="_blank">https://jus-codin.github.io/CTF-Architect/</a>
+
+---
+
+CTF Architect is a tool for managing challenges for CTFs.
+
+Warning: This tool is still a work in progress, bugs are to be expected. If you find any, please open an [issue](https://github.com/Jus-Codin/CTF-Architect/issues)
+
 
 ## Installation
-
-Note: This tool only supports python 3.10 and above.
-
-### Installing from PyPI
-To install from PyPI, run the following command:
-
-```bash
-# Linux and MacOS
-python3 -m pip install ctf-architect
-
-# Windows
-py -3 -m pip install ctf-architect
-```
-
-NOTE: If the above command produces an error during installation, try running the command in a terminal with administrator privileges.
-
-### Installing from source
-
-Git clone the repository, and pip install it
-  
-```bash
-git clone https://github.com/Jus-Codin/CTF-Architect
-cd CTF-Architect
-
-# Linux and MacOS
-python3 -m pip install .
-
-# Windows
-py -3 -m pip install .
-```
-
-If the installation is successful, you should be able to run the following commands:
-
-```bash
-ctf-architect --help
-
-chall-architect --help
-```
-
-If, after installation, you get an error saying that the command is not found, you may need to add the python scripts folder to your PATH environment variable.
+Refer to the [installation guide](./guides/installation.md) for instructions on how to install CTF-Architect.
 
 ## Usage
-
-### Creating a new challenge collection
-To create a new CTF challenge collection, run the following command:
-
-```bash
-ctf-architect init
-```
-
-Follow the prompts to create a new challenge collection.
-
-### Packaging a challenge for submission
-To package a challenge for submission, run the following command:
-
-```bash
-chall-architect
-```
-
-Follow the prompts, and a folder will be created with the packaged challenge in your current directory.
-
-### ⚠️ Warning ⚠️
-This command will overwrite any files you have if they have the same name as the challenge you are packaging.
+- [For Challenge Creators](./guides/packaging-challenges.md)
+- [For CTF Organizers](./guides/repository-setup.md)
