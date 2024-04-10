@@ -1,3 +1,8 @@
+---
+hide:
+    - navigation
+---
+
 # CTF-Architect
 
 ---
@@ -21,7 +26,8 @@ Documentation: <a href="https://jus-codin.github.io/CTF-Architect/" target="_bla
 
 CTF Architect is a tool for managing challenges for CTFs.
 
-Warning: This tool is still a work in progress, bugs are to be expected. If you find any, please open an [issue](https://github.com/Jus-Codin/CTF-Architect/issues)
+!!! warning
+    This tool is still a work in progress, bugs are to be expected. If you find any, please open an [issue](https://github.com/Jus-Codin/CTF-Architect/issues)
 
 
 ## Installation

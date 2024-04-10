@@ -1,0 +1,116 @@
+site_name: CTF Architect
+site_url: https://127.0.0.1:8000/
+site_author: JusCodin
+site_description: >-
+  A tool for managing challenges for CTFs
+
+repo_name: CTF-Architect
+repo_url: https://github.com/Jus-Codin/CTF-Architect
+
+theme:
+  name: material
+
+  features:
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - navigation.footer
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - toc.follow
+
+
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/cog
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/lightbulb-on
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to system preference
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+
+markdown_extensions: 
+
+  # Python Markdown
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+
+  # Python Markdown Extensions
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+      combine_header_slug: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify {kwds: {case: lower}}
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+plugins:
+  - search
+  - autorefs
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [.]
+          import:
+          - https://docs.python.org/3/objects.inv
+          options:
+            show_source: true
+            show_root_toc_entry: false
+            docstring_style: numpy
+            members_order: source
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            separate_signature: true
+            show_signature_annotations: true
+            signature_crossrefs: true
+
+nav:
+  - Home: index.md
+  - Guides:
+    - Installation: guides/installation.md
+    - Repository Setup: guides/repository-setup.md
+    - Packaging Challenges: guides/packaging-challenges.md
+  - Specifications:
+    - Challenge: spec/challenge.md
+    - Repository: spec/repository.md
+  - API Reference:
+    - Models: api/models.md

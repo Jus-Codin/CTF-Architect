@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ctf-architect"
-version = "0.1.0a4"
+version = "0.1.0a5"
 description = "A tool for managing challenges for CTFs."
 authors = ["Jus-Codin <70018166+Jus-Codin@users.noreply.github.com>"]
 license = "MIT"
@@ -24,6 +24,17 @@ chall-architect = "ctf_architect.chall_architect.cli:app"
 python = "^3.10"
 typer = {extras = ["all"], version = "^0.9.0"}
 pyyaml = "^6.0.1"
+tomlkit = "^0.12.3"
+pydantic = "^2.6.1"
+rich = "^13.7.1"
+
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+mkdocs-material = "^9.5.16"
+mkdocstrings = {extras = ["python"], version = "^0.24.1"}
 
 
 [build-system]

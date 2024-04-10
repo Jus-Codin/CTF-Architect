@@ -8,8 +8,10 @@ from rich.panel import Panel
 from rich.prompt import Confirm, IntPrompt, Prompt
 
 from ctf_architect.cli.challenge import challenge_app
+from ctf_architect.cli.docker import docker_app
 from ctf_architect.cli.mapping import mapping_app
 from ctf_architect.cli.stats import stats_app
+from ctf_architect.core.constants import CTF_CONFIG_FILE
 from ctf_architect.core.initialize import init_no_config, init_with_config
 
 console = Console()
@@ -17,44 +19,54 @@ console = Console()
 
 app = typer.Typer()
 app.add_typer(challenge_app, name="challenge")
+app.add_typer(docker_app, name="docker")
 app.add_typer(mapping_app, name="mapping")
 app.add_typer(stats_app, name="stats")
 
 
 @app.command()
 def init(
-  port: int = typer.Option(8000, "--port", "-p", help="Specify the port."),
+  starting_port: int = typer.Option(None, "--starting-port", "-p", help="The starting port for the CTF Services"),
   config_only: bool = typer.Option(False, "--config-only", "-c", help="Only create the config file.")
 ):
   """
-  Initialize a new CTF repo.
+  Initialize a new CTF repository.
   """
 
-  if config_only and Path("ctf_config.yaml").exists():
-    console.print("[bright_red]ctf_config.yaml already exists.[/bright_red]")
-    return
-  
-  # Check if there is a ctf_config.yaml in the current directory, if so, use that config
-  # Otherwise, use the config specified in the command line arguments
-  if Path("ctf_config.yaml").exists():
+  # Check if the config file already exists
+  if Path(CTF_CONFIG_FILE).exists():
+    if config_only:
+      console.print("A config file already exists. Exiting...", style="bright_red")
+
+    if not Confirm.ask("[cyan]A config file already exists. Do you want to use this config?[/]"):
+      console.print("Aborting...", style="bright_red")
+      return
+
     try:
       init_with_config()
     except ValueError as e:
-      console.print(f"[bright_red]{e}[/bright_red]")
+      console.print(f"Error initializing the CTF repo: {e}", style="bright_red")
       return
     else:
-      console.print("[bright_green]Initialized CTF repo with the config in ctf_config.yaml.[/bright_green]")
-  
-  else:
+      console.print("CTF repo initialized successfully!", style="bright_green")
 
-    # Get the categories and difficulties from the user
+  else:
+    ctf_name = None
+    while not ctf_name:
+      ctf_name = Prompt.ask("[cyan]Enter the name of the CTF[/]")
+    
+    if starting_port is None:
+      starting_port = IntPrompt.ask("[cyan]Starting port for the CTF Services[/]", default=8000)
+
+    # Get the categories, difficulties and extras from the user
     categories = []
     difficulties = []
+    extras = []
 
     try:
-      console.rule("[bold yellow]CTF Categories[/]")
+      console.rule("[bright_yellow]CTF Categories[/bright_yellow]")
 
-      console.print("[bold cyan]Please enter the categories for your CTF. Enter an empty string to stop.[/]")
+      console.print("Enter the categories for the CTF (one per line, empty line to stop).", style="bright_cyan")
 
       while True:
         category = Prompt.ask("[cyan]Category name[/]", default="", show_default=False)
@@ -62,74 +74,93 @@ def init(
           break
         categories.append(category.lower())
 
-        console.print(f"\n[green]Category {category} added.[/]\n")
+        console.print(f"Category {category} added.\n", style="green")
 
       if len(categories) == 0:
-        console.print("[bright_red]Please specify at least one category.[/bright_red]")
+        console.print("No categories specified. Exiting...", style="bright_red")
         return
       else:
-        console.print(f"\n[bold green]Categories:[/]")
+        console.print("Categories:", style="bright_green")
         for category in categories:
-          console.print(f"[green] - {category}[/]")
+          console.print(f"  - {category}", style="green")
 
 
-      console.rule("[bold yellow]CTF Difficulties[/]")
+      console.rule("[bright_yellow]CTF Difficulties[/bright_yellow]")
 
-      console.print("\n[bold cyan]Please enter the difficulties for your CTF. Enter an empty string to stop.[/]")
+      console.print("Enter the difficulties for the CTF (empty name to stop).", style="bright_cyan")
 
       while True:
         name = Prompt.ask("[cyan]Difficulty name[/]", default="", show_default=False)
         if name == "":
           break
         value = IntPrompt.ask("[cyan]Difficulty value[/]", default=500)
-        difficulties.append({
-          "name": name.lower(),
-          "value": value
-        })
+        difficulties.append({"name": name.lower(), "value": value})
 
-        console.print(f"\n[green]Difficulty {name} added. ({value} points)[/]\n")
+        console.print(f"Difficulty {name} added. ({value} points)\n", style="green")
 
       if len(difficulties) == 0:
-        console.print("[bright_red]Please specify at least one difficulty.[/bright_red]")
+        console.print("No difficulties specified. Exiting...", style="bright_red")
         return
       else:
-        console.print(f"\n[bold green]Difficulties:[/]")
+        console.print("Difficulties:", style="bright_green")
         for difficulty in difficulties:
-          console.print(f"[green] - {difficulty['name']} ({difficulty['value']} points)[/]")
+          console.print(f"  - {difficulty['name']} ({difficulty['value']} points)", style="green")
+
+      
+      console.rule("[bright_yellow]Extra Fields[/bright_yellow]")
+
+      console.print("Enter any extra fields challenges should specify (one per line, empty line to stop).", style="bright_cyan")
+
+      while True:
+        extra = Prompt.ask("[cyan]Extra field[/]", default="", show_default=False)
+        if extra == "":
+          break
+        extras.append(extra)
+
+        console.print(f"Extra field {extra} added.\n", style="green")
     except (KeyboardInterrupt, EOFError):
-      console.print("\n[bright_red]Aborting...[/bright_red]")
+      console.print("\nAborting...", style="bright_red")
       return
 
-
-    # Show panel of categories and difficulties
+    # Show panel of current configuration and ask for confirmation
     # If the user confirms, initialize the CTF repo
-    
-    config_text = ""
-    config_text += "[bold cyan]Categories:[/]\n"
+
+    config_text = "[bright_cyan]Categories:[/]\n"
     for category in categories:
-      config_text += f"[cyan] - {category}[/]\n"
-    config_text += "\n"
-    config_text += "[bold cyan]Difficulties:[/]\n"
+      config_text += f"[cyan]  - {category}[/]\n"
+    config_text += "\n[bright_cyan]Difficulties:[/]\n"
     for difficulty in difficulties:
-      config_text += f"[cyan] - {difficulty['name']} ({difficulty['value']} points)[/]\n"
+      config_text += f"[cyan]  - {difficulty['name']} ({difficulty['value']} points)[/]\n"
+    config_text += "\n[bright_cyan]Extras:[/]\n"
+    for extra in extras:
+      config_text += f"[cyan]  - {extra}[/]\n"
+
+    config_text += f"\n[bright_cyan]Starting Port:[/]\n[cyan]  - {starting_port}[/]"
 
     console.print(
       Panel(
         config_text,
-        title="[bright_yellow]CTF Config[/bright_yellow]",
+        title=f"[bright_yellow]{ctf_name} Configuration[/bright_yellow]",
         border_style="green"
       )
     )
 
-    if not Confirm.ask("[cyan]Is this correct?[/]"):
-      console.print("[bright_red]Aborting...[/bright_red]")
+    if not Confirm.ask("[cyan]Is this configuration correct?[/]"):
+      console.print("Aborting...", style="bright_red")
       return
-
     
+
     try:
-      init_no_config(categories, difficulties, port, config_only)
+      init_no_config(
+        name=ctf_name,
+        categories=categories,
+        difficulties=difficulties,
+        starting_port=starting_port,
+        extras=extras,
+        config_only=config_only
+      )
     except ValueError as e:
-      console.print(f"[bright_red]{e}[/bright_red]")
+      console.print(f"Error initializing the CTF repo:\n{e}", style="bright_red")
       return
     else:
-      console.print("[bright_green]Initialized CTF repo with specified config.[/bright_green]")
+      console.print("CTF repo initialized successfully.", style="bright_green")

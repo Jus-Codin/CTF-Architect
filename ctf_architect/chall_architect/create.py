@@ -1,108 +1,18 @@
-"""
-Functions to create a new challenge folder.
-
-Challenge template:
-<challenge name>
-├── dist
-│   └── <files to give participants here>
-├── service
-│   └── <service name>
-│       ├── dockerfile
-│       └── <other files>
-├── solution
-│   ├── writeup.md
-│   └── <optional solve scripts, etc>
-├── chall.yaml
-└── README.md
-"""
-
 from __future__ import annotations
 
+import re
 import shutil
 from pathlib import Path
-from typing import TypedDict
 
-from yaml import safe_dump
+from tomlkit import comment, document, dump, nl
 
-from ctf_architect.core.models import ChallengeInfo, Flag, Hint, Service
-
-
-class ServiceDict(TypedDict):
-  name: str
-  path: str
-  port: int
-
-
-README_TEMPLATE = """# {name}
-{description}
-
-## Summary
-- **Author:** {author}
-- **Discord Username:** {discord}
-- **Category:** {category}
-- **Difficulty:** {difficulty}
-
-## Hints
-{hints}
-
-## Files
-{files}
-
-## Services
-{services}
-
-## Flags
-{flags}
-"""
-
-
-def create_challenge_readme(info: ChallengeInfo) -> str:
-  """
-  Creates a README.md file for a challenge.
-  """
-  flags = "\n".join([
-    f"- `{flag.flag}` ({'regex' if flag.regex else 'static'})"
-    for flag in info.flags
-  ])
-  
-  if info.hints is None:
-    hints = "None"
-  else:
-    hints = "\n".join([f"- `{hint.description}` ({hint.cost} points)" for hint in info.hints])
-  
-  if info.files is None:
-    files = "None"
-  else:
-    files = ""
-    for file in info.files:
-      path = Path(file)
-      files += f"- [`{path.name}`]({path})\n"
-  
-  if info.services is None:
-    services = "None"
-  else:
-    services = ""
-    for service in info.services:
-      services += f"- [`{service.name}`]({service.path}) (port {service.port})\n"
-  
-  return README_TEMPLATE.format(
-    name=info.name,
-    description=info.description,
-    author=info.author,
-    discord=info.discord,
-    category=info.category,
-    difficulty=info.difficulty,
-    hints=hints,
-    files=files,
-    services=services,
-    flags=flags
-  )
+from ctf_architect.core.challenge import create_challenge_readme
+from ctf_architect.core.constants import (CHALLENGE_CONFIG_FILE,
+                                          SPECIFICATION_VERSION)
+from ctf_architect.core.models import Challenge, Flag, Hint, Service
 
 
 def create_challenge_folder(name: str, dist: bool = False, service: bool = False) -> Path:
-  """
-  Creates a folder with the challenge template.
-  """
   challenge_path = Path(name)
   challenge_path.mkdir(exist_ok=True)
 
@@ -115,11 +25,10 @@ def create_challenge_folder(name: str, dist: bool = False, service: bool = False
   (challenge_path / "solution").mkdir(exist_ok=True)
 
   # Create empty files
-  (challenge_path / "chall.yaml").touch()
+  (challenge_path / CHALLENGE_CONFIG_FILE).touch()
   (challenge_path / "README.md").touch()
 
   return challenge_path
-
 
 
 def create_challenge(
@@ -128,114 +37,116 @@ def create_challenge(
   difficulty: str,
   category: str,
   author: str,
-  discord: str,
   solution_files: list[Path],
-  flag: str =  None,
-  flags: list[dict[str, str | bool]] = None,
-  hints: dict[str, str | int] = None,
+  flags: list[dict[str, str | bool]],
+  extras: dict = None,
+  hints: list[dict[str, str | int]] = None,
   files: list[Path] = None,
   requirements: list[str] = None,
-  services: list[ServiceDict] = None
+  services: list[dict] = None,
+  docker_compose: Path | None = None
 ) -> Path:
-  """
-  Creates a folder with the challenge template.
-
-  Parameters
-  ----------
-  name : str
-    The name of the challenge.
-  description : str
-    The description of the challenge.
-  difficulty : str
-    The difficulty of the challenge.
-  category : str
-    The category of the challenge.
-  author : str
-    The author of the challenge.
-  discord : str
-    The discord of the author.
-  flag : str, optional
-    The flag of the challenge.
-  flags : list[dict[str, str | bool]], optional
-    The flags of the challenge.
-  hints : dict[str, str | int], optional
-    The hints of the challenge.
-  files : list[Path], optional
-    Paths to the files that should be given to participants
-  requirements : list[str], optional
-    The requirements of the challenge.
-  services : list[ServiceDict], optional
-    The services of the challenge.
-
-  Returns
-  -------
-  Path
-    The path to the challenge folder.
-  """
-
-  if flag is None and flags is None:
-    raise ValueError("Must specify either flag or flags")
-  elif flag is not None and flags is not None:
-    raise ValueError("Cannot specify both flag and flags")
-  
-  if flag is not None:
-    flags = [Flag(flag=flag)]
-
-  if flags is not None:
-    flags = [Flag(**flag) for flag in flags]
+  flags = [Flag.model_validate(flag) for flag in flags]
 
   if hints is not None:
-    hints = [Hint(**hint) for hint in hints]
-  
+    hints = [Hint.model_validate(hint) for hint in hints]
+
   dist = files is not None
   service = services is not None
 
-  path = create_challenge_folder(name, dist=dist, service=service)
+  folder_name = re.sub(r"[^a-zA-Z0-9-_ ]", "", name).strip()
+
+  path = create_challenge_folder(folder_name, dist, service)
+
 
   if files is not None:
-    # Copy files to dist folder
+    # Copy files to dist folder, unless they are already in the dist folder
     file_paths = []
     for file in files:
-      file_path = shutil.copy(file, path / "dist")
-      file_path = Path(file_path).relative_to(path)
-      file_paths.append(file_path.as_posix())
+      if isinstance(file, Path):
+        if file.parent.resolve() != path.resolve() / "dist":
+          file_path = shutil.copy(file, path / "dist")
+          file_path = Path(file_path).relative_to(path)
+          file_paths.append(file_path)
+        else:
+          file_paths.append(file)
+      else:
+        file_paths.append(file)
   else:
     file_paths = None
 
+
   if services is not None:
-    # Copy services to service folder
-    service_objs = []
+    # Copy services to service folder, unless they are already in the service folder
+    _services = []
     for service in services:
-      service_path = path / "service" / service["name"]
-      shutil.copytree(service["path"], service_path)
-      service_obj = Service(service["name"], path=service_path.relative_to(path).as_posix(), port=str(service["port"]))
-      service_objs.append(service_obj)
+      _service = Service.model_validate(service)
+      service_path = _service.path
+
+      if not service_path.is_dir():
+        raise ValueError(f"Service path must be a directory: {service_path}")
+      
+      if service_path.parent.resolve() != path.resolve() / "service" / service_path.name:
+        service_path = shutil.copytree(service_path, path / "service" / service_path.name)
+        service_path = Path(service_path).relative_to(path)
+        _service.path = service_path
+        _services.append(_service)
+      else:
+        _services.append(_service)
+
+    services = _services
   else:
-    service_objs = None
+    services = None
 
-  # Copy solution files to solution folder
+
+  if docker_compose is not None:
+    if not docker_compose.name == "docker-compose.yml":
+      raise ValueError("Docker compose file must be named 'docker-compose.yml'")
+    if docker_compose.parent.resolve() != path.resolve() / "service":
+      shutil.copy(docker_compose, path / "service")
+
+
+  # Copy solution files to solution folder, unless they are already in the solution folder
   for file in solution_files:
-    shutil.copy(file, path / "solution")
+    if file.parent.resolve() != path.resolve() / "solution":
+      shutil.copy(file, path / "solution")
 
-  # Create challenge info
-  info = ChallengeInfo(
+  challenge = Challenge(
     name=name,
     description=description,
     difficulty=difficulty,
     category=category,
     author=author,
-    discord=discord,
     flags=flags,
+    extras=extras,
     hints=hints,
     files=file_paths,
     requirements=requirements,
-    services=service_objs
+    services=services
   )
 
-  # Save challenge info in chall.yaml
-  safe_dump(info.to_dict(), (path / "chall.yaml").open("w"))
+  # Write challenge config file
+  doc = document()
+  doc.add(comment(
+    f"Challenge Metadata File (version {SPECIFICATION_VERSION})"
+  ))
+  doc.add(comment(
+    "This file is machine generated. DO NOT EDIT unless you know what you are doing."
+  ))
+  doc.add(comment(
+    "If you want to create or edit a challenge, use chall-architect instead."
+  ))
+  doc.add(nl())
 
-  # Create README.md
-  (path / "README.md").write_text(create_challenge_readme(info))
+  doc.add("version", SPECIFICATION_VERSION)
+
+  doc.add("challenge", challenge.model_dump(mode="json", exclude_defaults=True))
+
+  with open(path / CHALLENGE_CONFIG_FILE, "w") as f:
+    dump(doc, f)
+
+  # Write README
+  with open(path / "README.md", "w", encoding="utf-8") as f:
+    f.write(create_challenge_readme(challenge))
 
   return path

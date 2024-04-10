@@ -1,0 +1,27 @@
+# CTF Repo Config File (version 0.1)
+# This file is machine generated. DO NOT EDIT unless you know what you are doing.
+# This is the file to specify to chall-architect when creating a new challenge
+
+
+# The Challenge Specification version (required)
+version = "0.1"
+
+
+[config]
+categories = ["web", "crypto", "pwn", "re", "misc", "forensics", "osint"]
+extras = ["discord"]
+starting_port = 8000
+name = "Test CTF"
+
+
+[[config.difficulties]]
+name = "easy"
+value = 500
+
+[[config.difficulties]]
+name = "medium"
+value = 1000
+
+[[config.difficulties]]
+name = "hard"
+value = 2000
