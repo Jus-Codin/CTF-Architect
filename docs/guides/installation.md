@@ -6,10 +6,10 @@ To install from PyPI, run the following command:
 
 ```bash
 # Linux and MacOS
-python3 -m pip install ctf-architect
+python3 -m pip install -U ctf-architect
 
 # Windows
-py -3 -m pip install ctf-architect
+py -3 -m pip install -U ctf-architect
 ```
 !!! warning
     If the above command produces an error during installation, try running the command in a terminal with administrator privileges.
