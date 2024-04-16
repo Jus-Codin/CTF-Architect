@@ -431,7 +431,7 @@ def create():
 
   services = get_services()
 
-  if len(services) > 0 and Confirm.ask(":rocket: [cyan]Does the service(s) need a Docker Compose file?[/]"):
+  if services and Confirm.ask(":rocket: [cyan]Does the service(s) need a Docker Compose file?[/]"):
     # Ask for a docker-compose file
     console.print("[bright_cyan]Please select the Docker Compose file for the services[/bright_cyan]")
     docker_compose = askopenfilename(
