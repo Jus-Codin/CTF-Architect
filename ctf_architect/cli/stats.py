@@ -4,14 +4,13 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from ctf_architect.core.challenge import walk_challenges
 from ctf_architect.core.config import load_config
 from ctf_architect.core.constants import APP_CMD_NAME
-from ctf_architect.core.challenge import walk_challenges
 from ctf_architect.core.stats import (get_category_difficulty_distribution,
                                       update_category_readme,
                                       update_challenge_readme,
                                       update_root_readme)
-
 
 console = Console()
 
@@ -51,7 +50,7 @@ def stats_update(
   except FileNotFoundError:
     console.print(f"README not found. Please run `{APP_CMD_NAME} init` first", style="bright_red")
   else:
-    print("Stats updated successfully", style="green")
+    console.print("Stats updated successfully", style="green")
 
 
 @stats_app.command("show")
