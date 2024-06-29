@@ -7,10 +7,12 @@ from rich.table import Table
 from ctf_architect.core.challenge import walk_challenges
 from ctf_architect.core.config import load_config
 from ctf_architect.core.constants import APP_CMD_NAME
-from ctf_architect.core.stats import (get_category_difficulty_distribution,
-                                      update_category_readme,
-                                      update_challenge_readme,
-                                      update_root_readme)
+from ctf_architect.core.stats import (
+    get_category_difficulty_distribution,
+    update_category_readme,
+    update_challenge_readme,
+    update_root_readme,
+)
 
 console = Console()
 

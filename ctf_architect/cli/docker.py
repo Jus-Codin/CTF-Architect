@@ -49,7 +49,12 @@ def docker_generate(
     try:
         create_compose_file()
     except Exception as e:
-      console.print(f"An error occurred while generating the docker compose file: {e}", style="bright_red")
-      return
+        console.print(
+            f"An error occurred while generating the docker compose file: {e}",
+            style="bright_red",
+        )
+        return
     else:
-      console.print("Docker compose file generated successfully.", style="bright_green")
+        console.print(
+            "Docker compose file generated successfully.", style="bright_green"
+        )
