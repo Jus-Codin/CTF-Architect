@@ -29,8 +29,6 @@ CHALL_README_TEMPLATE = """# {name}
 {flags}
 
 ## Services
-| Service | Port | Type |
-| ------- | ---- | ---- |
 {services}
 """
 

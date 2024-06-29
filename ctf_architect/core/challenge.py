@@ -10,11 +10,9 @@ from pydantic import ValidationError
 from tomlkit import load
 
 from ctf_architect.core.config import load_config
-from ctf_architect.core.constants import (
-    CHALL_README_TEMPLATE,
-    CHALLENGE_CONFIG_FILE,
-    CTF_CONFIG_FILE,
-)
+from ctf_architect.core.constants import (CHALL_README_TEMPLATE,
+                                          CHALLENGE_CONFIG_FILE,
+                                          CTF_CONFIG_FILE)
 from ctf_architect.core.models import Challenge, ChallengeFile, CTFConfig
 
 
@@ -259,8 +257,8 @@ def create_challenge_readme(challenge: Challenge):
     if challenge.services is None:
         services = "None"
     else:
-        services = "| Service | Port | Type |\n| ------- | ---- | ---- |"
-        services = "\n".join(
+        services = "| Service | Port | Type |\n| ------- | ---- | ---- |\n"
+        services += "\n".join(
             f"| [`{service.name}`]({service.path}) | {service.port} | {service.type} |"
             for service in challenge.services
         )
