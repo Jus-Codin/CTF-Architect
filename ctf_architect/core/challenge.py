@@ -10,9 +10,11 @@ from pydantic import ValidationError
 from tomlkit import load
 
 from ctf_architect.core.config import load_config
-from ctf_architect.core.constants import (CHALL_README_TEMPLATE,
-                                          CHALLENGE_CONFIG_FILE,
-                                          CTF_CONFIG_FILE)
+from ctf_architect.core.constants import (
+    CHALL_README_TEMPLATE,
+    CHALLENGE_CONFIG_FILE,
+    CTF_CONFIG_FILE,
+)
 from ctf_architect.core.models import Challenge, ChallengeFile, CTFConfig
 
 
@@ -161,9 +163,7 @@ def add_challenge(
         else:
             # If the challenge in that path is a different name, raise an error
             raise FileExistsError(
-                f"A challenge with a similar name already exists in the same category, unable to resolve conflict.\n\
-        Old Challenge: {old_challenge.name}\n\
-        New Challenge: {challenge.name}"
+                f"A challenge with a similar name already exists in the same category, unable to resolve conflict.\n    Old Challenge: {old_challenge.name}\n   New Challenge: {challenge.name}"
             )
 
     elif (c := find_challenge(challenge.name)) is not None:

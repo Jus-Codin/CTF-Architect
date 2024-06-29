@@ -100,9 +100,9 @@ def challenge_import(
 
         # Zipfile could contain multiple folders, recurse through every folder
         # as deep as possible until there is a challenge config file
-        challenge_folders = []
+        challenge_folders: list[Path] = []
 
-        queue = deque()
+        queue: deque[Path] = deque()
         queue.append(new_path)
         # BFS through the extracted folder
         while queue:
@@ -118,8 +118,11 @@ def challenge_import(
             console.print(
                 f"No challenge folders found in {zip_file}, skipping...", style="yellow"
             )
+            if delete_on_error:
+                shutil.rmtree(new_path, ignore_errors=True)
             continue
 
+        folder_is_success = True
         for extracted in challenge_folders:
             try:
                 add_challenge(extracted, replace=replace)
@@ -137,6 +140,8 @@ def challenge_import(
                         # Delete the challenge folder if it exists
                         if extracted.exists() and delete_on_error:
                             shutil.rmtree(extracted)
+                        else:
+                            folder_is_success = False
                         import_failed += 1
                         continue
                     else:
@@ -144,8 +149,9 @@ def challenge_import(
                             f'Challenge "{extracted.name}" imported successfully.',
                             style="green",
                         )
+                        # Delete the extracted folder
+                        shutil.rmtree(extracted, ignore_errors=True)
                         success += 1
-                else:
                     console.print(f'Skipping "{extracted.name}"', style="yellow")
             except Exception as e:
                 console.print(
@@ -154,6 +160,8 @@ def challenge_import(
                 # Delete the challenge folder if it exists
                 if extracted.exists() and delete_on_error:
                     shutil.rmtree(extracted)
+                else:
+                    folder_is_success = False
                 import_failed += 1
                 continue
             else:
@@ -161,7 +169,13 @@ def challenge_import(
                     f'Challenge "{extracted.name}" imported successfully.',
                     style="green",
                 )
+                # Delete the extracted folder
+                shutil.rmtree(extracted, ignore_errors=True)
                 success += 1
+
+        # If all challenges in the folder were imported successfully, delete the folder
+        if folder_is_success:
+            shutil.rmtree(new_path, ignore_errors=True)
 
     if update_stats and success > 0:
         for category in config.categories:
@@ -178,7 +192,7 @@ def challenge_export(
     path: str = typer.Option(
         ".", "--path", "-p", help="Path to export the challenge to."
     ),
-    filename: str = typer.Option(
+    filename: str | None = typer.Option(
         None, "--filename", "-f", help="Filename of the exported challenge."
     ),
 ):
