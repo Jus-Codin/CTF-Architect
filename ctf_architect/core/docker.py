@@ -15,81 +15,82 @@ from ctf_architect.core.models import Service
 
 
 def challenge_name_to_network_name(challenge_name: str) -> str:
-  """
-  Convert a challenge name to a network name.
+    """
+    Convert a challenge name to a network name.
 
-  All non alphanumeric characters are removed, and spaces are replaced with dashes
-  """
-  name = "".join(
-    c for c in challenge_name.lower().replace(" ", "-")
-    if c.isalnum()
-  )
-  return f"{name}-network"
+    All non alphanumeric characters are removed, and spaces are replaced with dashes
+    """
+    name = "".join(c for c in challenge_name.lower().replace(" ", "-") if c.isalnum())
+    return f"{name}-network"
 
 
 def create_compose_dict(
-  service: Service,
-  challenge_path: Path,
-  network_name: str,
-  host_port: int
+    service: Service, challenge_path: Path, network_name: str, host_port: int | None
 ) -> dict:
-  """
-  Create a docker compose service from a challenge service
-  """
+    """
+    Create a docker compose service from a challenge service
+    """
 
-  service_path = (challenge_path / service.path).as_posix()
+    d = {"container_name": service.name, "networks": [network_name]}
 
-  d = {
-    "build": service_path,
-    "ports": [f"{host_port}:{service.port}"],
-    "container_name": service.name,
-    "networks": [network_name]
-  }
+    if host_port is not None:
+        d["ports"] = [f"{host_port}:{service.port}"]
 
-  if service.extras is not None:
-    d.update(service.extras)
+    service_docker_compose = challenge_path / "service" / "docker-compose.yml"
 
-  if service.__pydantic_extra__ is not None:
-    d.update(service.__pydantic_extra__)
+    if service_docker_compose.exists():
+        d["extends"] = {
+            "file": service_docker_compose.as_posix(),
+            "service": service.name,
+        }
+    else:
+        d["build"] = (challenge_path / service.path).as_posix()
 
-  if "restart" not in d:
-    d["restart"] = "always"
+    if service.extras is not None:
+        d.update(service.extras)
 
-  return d
+    if service.__pydantic_extra__ is not None:
+        d.update(service.__pydantic_extra__)
+
+    if "restart" not in d:
+        d["restart"] = "always"
+
+    return d
 
 
 def create_compose_file() -> None:
-  """
-  Creates a docker compose file for all challenges
-  """
+    """
+    Creates a docker compose file for all challenges
+    """
 
-  try:
-    port_mapping = load_port_mapping()
-  except FileNotFoundError:
-    raise ValueError("Port mappings not found, please generate them first")
-  
-  services = {}
-  networks = {}
+    try:
+        port_mapping = load_port_mapping()
+    except FileNotFoundError:
+        raise ValueError("Port mappings not found, please generate them first")
 
-  for challenge in walk_challenges():
-    if challenge.services is not None:
-       
-      network_name = challenge_name_to_network_name(challenge.name)
+    services = {}
+    networks = {}
 
-      if network_name not in networks:
-        networks[network_name] = {}
+    for challenge in walk_challenges():
+        if challenge.services is not None:
+            network_name = challenge_name_to_network_name(challenge.name)
 
-      for service in challenge.services:
-        services[service.name] = create_compose_dict(
-          service,
-          challenge.full_path,
-          network_name,
-          port_mapping.mapping[service.name].to_port
-        )
+            if network_name not in networks:
+                networks[network_name] = {}
 
-  with open("docker-compose.yml", "w") as f:
-    safe_dump({
-      "version": "3",
-      "services": services,
-      "networks": networks
-    }, f) 
+            for service in challenge.services:
+                if service.port is None:
+                    host_port = None
+                elif service.name not in port_mapping.mapping:
+                    raise ValueError(
+                        f"Port mapping not found for service: {service.name}"
+                    )
+                else:
+                    host_port = port_mapping.mapping[service.name].to_port
+
+                services[service.name] = create_compose_dict(
+                    service, challenge.full_path, network_name, host_port
+                )
+
+    with open("docker-compose.yml", "w") as f:
+        safe_dump({"version": "3", "services": services, "networks": networks}, f)

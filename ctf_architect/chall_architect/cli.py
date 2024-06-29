@@ -9,7 +9,7 @@ app = typer.Typer()
 
 @app.command()
 def callback():
-  """
-  Creates a challenge folder in the current directory
-  """
-  terminal_main()
+    """
+    Creates a challenge folder in the current directory
+    """
+    terminal_main()
