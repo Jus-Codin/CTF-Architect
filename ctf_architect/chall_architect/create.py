@@ -40,11 +40,11 @@ def create_challenge(
     author: str,
     solution_files: list[Path],
     flags: list[dict[str, str | bool]],
-    extras: dict = None,
-    hints: list[dict[str, str | int]] = None,
-    files: list[Path] = None,
-    requirements: list[str] = None,
-    services: list[dict] = None,
+    extras: dict | None = None,
+    hints: list[dict[str, str | int]] | None = None,
+    files: list[Path] | None = None,
+    requirements: list[str] | None = None,
+    services: list[dict] | None = None,
     docker_compose: Path | None = None,
 ) -> Path:
     flags = [Flag.model_validate(flag) for flag in flags]
@@ -69,8 +69,10 @@ def create_challenge(
                     file_path = Path(file_path).relative_to(path)
                     file_paths.append(file_path)
                 else:
-                    file_paths.append(file)
+                    file_path = file.relative_to(path.resolve())
+                    file_paths.append(file_path)
             else:
+                # It is a URL
                 file_paths.append(file)
     else:
         file_paths = None
@@ -85,18 +87,17 @@ def create_challenge(
             if not service_path.is_dir():
                 raise ValueError(f"Service path must be a directory: {service_path}")
 
-            if (
-                service_path.parent.resolve()
-                != path.resolve() / "service" / service_path.name
-            ):
+            if service_path.resolve() != path.resolve() / "service" / service_path.name:
                 service_path = shutil.copytree(
-                    service_path, path / "service" / service_path.name
+                    service_path,
+                    path / "service" / service_path.name,
+                    dirs_exist_ok=True,
                 )
                 service_path = Path(service_path).relative_to(path)
-                _service.path = service_path
-                _services.append(_service)
             else:
-                _services.append(_service)
+                service_path = service_path.relative_to(path.resolve())
+            _service.path = service_path
+            _services.append(_service)
 
         services = _services
     else:
