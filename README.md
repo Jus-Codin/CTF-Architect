@@ -26,8 +26,8 @@ Documentation: <a href="https://jus-codin.github.io/CTF-Architect/" target="_bla
 ---
 
 ## Installation
-Refer to the [installation guide](./guides/installation.md) for instructions on how to install CTF-Architect.
+Refer to the [installation guide](./docs/guides/installation.md) for instructions on how to install CTF-Architect.
 
 ## Usage
-- [For Challenge Creators](./guides/packaging-challenges.md)
-- [For CTF Organizers](./guides/repository-setup.md)
+- [For Challenge Creators](./docs/guides/packaging-challenges.md)
+- [For CTF Organizers](./docs/guides/repository-setup.md)
