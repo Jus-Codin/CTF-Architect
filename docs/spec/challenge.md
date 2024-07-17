@@ -7,23 +7,29 @@ A challenge in CTF-Architect is a directory that contains the following files an
 ```
 .
 └── 📁 {challenge_name}/
+    ├── 📁 src/
+    │   └── 📄...
     ├── 📁 dist/
     │   └── 📄...
     ├── 📁 service/
     │   ├── 📁 {service_name}/
     │   │   ├── 📄...
     │   │   └── 🐋 Dockerfile
-    │   └── 🐋 docker-compose.yml
+    │   └── 🐋 docker-compose.yml (optional)
+    ├── 📁 solution/
+    │   └── 📄...
     ├── 📄 chall.toml
     └── 📄 README.md
 ```
 
 | File/Directory | Description |
 | -------------- | ----------- |
+| `src/` | Directory containing the source files for the challenge. This is used to assist testing, not for giving to users attempting the challenge. |
 | `dist/` | Directory containing the challenge files to give to users attempting the challenge. |
 | `service/` | Directory containing the services for challenges that require hosting. |
 | `service/{service_name}/` | Directory containing the files for the service. This folder must container a `Dockerfile` |
 | `service/docker-compose.yml` | Docker Compose file to run the services. If only one service is needed, this does not need to be added. |
+| `solution/` | Directory containing the solution files for the challenge. This is used to assist testing, not for giving to users attempting the challenge. |
 | `chall.toml` | TOML file containing the metadata for the challenge. This is generated automatically by `chall-architect` |
 | `README.md` | Markdown file containing the description of the challenge. This is generated automatically by `chall-architect` |
 
