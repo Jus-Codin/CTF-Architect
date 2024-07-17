@@ -113,7 +113,7 @@ def create_challenge(
     # Copy source files to src folder, unless they are already in the src folder
     for file in source_files:
         if file.parent.resolve() != path.resolve() / "src":
-            shutil.copy(file, path)
+            shutil.copy(file, path / "src")
 
     # Copy solution files to solution folder, unless they are already in the solution folder
     for file in solution_files:
