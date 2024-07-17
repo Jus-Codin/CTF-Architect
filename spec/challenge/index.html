@@ -54,6 +54,10 @@
     
       <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
+      <link rel="stylesheet" href="../../css/custom.css">
+    
+      <link rel="stylesheet" href="../../css/termynal.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -788,13 +792,17 @@
 <p>A challenge in CTF-Architect is a directory that contains the following files and directories:</p>
 <div class="highlight"><pre><span></span><code>.
 └── 📁 {challenge_name}/
+    ├── 📁 src/
+    │   └── 📄...
     ├── 📁 dist/
     │   └── 📄...
     ├── 📁 service/
     │   ├── 📁 {service_name}/
     │   │   ├── 📄...
     │   │   └── 🐋 Dockerfile
-    │   └── 🐋 docker-compose.yml
+    │   └── 🐋 docker-compose.yml (optional)
+    ├── 📁 solution/
+    │   └── 📄...
     ├── 📄 chall.toml
     └── 📄 README.md
 </code></pre></div>
@@ -806,6 +814,10 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>src/</code></td>
+<td>Directory containing the source files for the challenge. This is used to assist testing, not for giving to users attempting the challenge.</td>
+</tr>
 <tr>
 <td><code>dist/</code></td>
 <td>Directory containing the challenge files to give to users attempting the challenge.</td>
@@ -821,6 +833,10 @@
 <tr>
 <td><code>service/docker-compose.yml</code></td>
 <td>Docker Compose file to run the services. If only one service is needed, this does not need to be added.</td>
+</tr>
+<tr>
+<td><code>solution/</code></td>
+<td>Directory containing the solution files for the challenge. This is used to assist testing, not for giving to users attempting the challenge.</td>
 </tr>
 <tr>
 <td><code>chall.toml</code></td>
@@ -1036,6 +1052,10 @@
     
     
       <script src="../../assets/javascripts/bundle.bd41221c.min.js"></script>
+      
+        <script src="../../js/termynal.js"></script>
+      
+        <script src="../../js/custom.js"></script>
       
     
   </body>

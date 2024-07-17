@@ -54,6 +54,10 @@
     
       <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
+      <link rel="stylesheet" href="../../css/custom.css">
+    
+      <link rel="stylesheet" href="../../css/termynal.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -811,8 +815,155 @@
 python3<span class="w"> </span>-m<span class="w"> </span>ctf_architect.chall_architect<span class="w"> </span><span class="c1"># Linux and MacOS</span>
 py<span class="w"> </span>-3<span class="w"> </span>-m<span class="w"> </span>ctf_architect.chall_architect<span class="w"> </span><span class="c1"># Windows</span>
 </code></pre></div>
-<p><img alt="alt text" src="../image.png" />
-<img alt="alt text" src="../image-1.png" /></p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>chall-architect
+<span class="go">────────────────── ⚙ CTF Config ⚙ ───────────────────</span>
+<span class="gp"># </span>Please<span class="w"> </span><span class="k">select</span><span class="w"> </span>the<span class="w"> </span>CTF<span class="w"> </span>config<span class="w"> </span>file.$<span class="w">                                     </span>
+<span class="go">╭──────────────── YCEP 2024 Config ─────────────────╮</span>
+<span class="go">│ Categories:                                       │</span>
+<span class="go">│   - Web                                           │</span>
+<span class="go">│   - Forensics                                     │</span>
+<span class="go">│   - Crypto                                        │</span>
+<span class="go">│   - Misc                                          │</span>
+<span class="go">│   - Re                                            │</span>
+<span class="go">│   - Pwn                                           │</span>
+<span class="go">│   - Osint                                         │</span>
+<span class="go">│                                                   │</span>
+<span class="go">│ Difficulties:                                     │</span>
+<span class="go">│   - Easy (1000)                                   │</span>
+<span class="go">│   - Medium (1000)                                 │</span>
+<span class="go">│   - Hard (1000)                                   │</span>
+<span class="go">│   - Insane (1000)                                 │</span>
+<span class="go">│                                                   │</span>
+<span class="go">│ Extra Fields:                                     │</span>
+<span class="go">│   - discord                                       │</span>
+<span class="go">│                                                   │</span>
+<span class="go">│ Starting Port: 8000                               │</span>
+<span class="go">╰───────────────────────────────────────────────────╯</span>
+<span class="gp"># </span>Is<span class="w"> </span>this<span class="w"> </span>the<span class="w"> </span>correct<span class="w"> </span>config?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span>:$<span class="w"> </span>y
+<span class="go">───────────── 🚀 Challenge Creation 🚀 ──────────────</span>
+<span class="gp"># </span>🚀<span class="w"> </span><span class="o">[</span><span class="m">1</span>/6<span class="o">]</span><span class="w"> </span>Please<span class="w"> </span>enter<span class="w"> </span>the<span class="w"> </span>challenge<span class="w"> </span>name<span class="o">(</span><span class="k">case</span>-insensitive<span class="o">)</span>:$<span class="w"> </span>Gimme<span class="w"> </span>Cookie
+<span class="go">🚀 [2/6] Please enter the challenge description.</span>
+<span class="go">Press Ctrl+D (or Ctrl+Z on Windows) on an empty line</span>
+<span class="go">to finish.</span>
+<span class="gp"># </span>&gt;&gt;&gt;$<span class="w"> </span>I<span class="w"> </span>want<span class="w"> </span>cookies!
+<span class="gp"># </span>&gt;&gt;&gt;$<span class="w"> </span>^Z
+
+<span class="go">Categories:</span>
+<span class="go">1. Web</span>
+<span class="go">2. Forensics</span>
+<span class="go">3. Crypto</span>
+<span class="go">4. Misc</span>
+<span class="go">5. Re</span>
+<span class="go">6. Pwn</span>
+<span class="go">7. Osint</span>
+
+<span class="gp"># </span>🚀<span class="w"> </span><span class="o">[</span><span class="m">3</span>/6<span class="o">]</span><span class="w"> </span>Please<span class="w"> </span>choose<span class="w"> </span>the<span class="w"> </span>challenge<span class="w"> </span>category<span class="w"> </span><span class="o">[</span><span class="m">1</span>-7<span class="o">]</span>:$<span class="w"> </span><span class="m">1</span>
+<span class="go">Category selected: Web</span>
+
+<span class="go">Difficulties:</span>
+<span class="go">1. Easy (1000)</span>
+<span class="go">2. Medium (1000)</span>
+<span class="go">3. Hard (1000)</span>
+<span class="go">4. Insane (1000)</span>
+
+<span class="gp"># </span>🚀<span class="w"> </span><span class="o">[</span><span class="m">4</span>/6<span class="o">]</span><span class="w"> </span>Please<span class="w"> </span>choose<span class="w"> </span>the<span class="w"> </span>challenge<span class="w"> </span>difficulty<span class="w"> </span><span class="o">[</span><span class="m">1</span>-4<span class="o">]</span>:$<span class="w"> </span><span class="m">1</span>
+<span class="go">Difficulty selected: Easy</span>
+
+
+<span class="gp"># </span>🚀<span class="w"> </span><span class="o">[</span><span class="m">5</span>/6<span class="o">]</span><span class="w"> </span>Please<span class="w"> </span>enter<span class="w"> </span>your<span class="w"> </span>name:$<span class="w"> </span>JusCodin
+
+<span class="gp"># </span>🚀<span class="w"> </span><span class="o">[</span><span class="m">6</span>/6<span class="o">]</span><span class="w"> </span>Please<span class="w"> </span>enter<span class="w"> </span>info<span class="w"> </span><span class="k">for</span><span class="w"> </span>discord:$<span class="w"> </span>juscodin
+<span class="go">Discord: juscodin</span>
+<span class="gp"># </span>─<span class="w"> </span>📁<span class="w"> </span>Please<span class="w"> </span><span class="k">select</span><span class="w"> </span>the<span class="w"> </span><span class="nb">source</span><span class="w"> </span>files<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>challe…<span class="w"> </span>─$<span class="w">                                     </span>
+<span class="go">Source files selected:</span>
+<span class="go">  C:\Users\Admin\Git\Gryphons\YCEP-Challenges-2024\ch</span>
+<span class="go">allenges\web\Gimme Cookie\service\gimme-cookie\app.py</span>
+<span class="go">  C:\Users\Admin\Git\Gryphons\YCEP-Challenges-2024\ch</span>
+<span class="go">allenges\web\Gimme</span>
+<span class="go">Cookie\service\gimme-cookie\Dockerfile</span>
+<span class="gp"># </span>─<span class="w"> </span>📁<span class="w"> </span>Please<span class="w"> </span><span class="k">select</span><span class="w"> </span>the<span class="w"> </span>solution<span class="w"> </span>files<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>chal…<span class="w"> </span>─$<span class="w">                                     </span>
+<span class="go">Solution files selected:</span>
+<span class="go">  C:\Users\Admin\Git\Gryphons\YCEP-Challenges-2024\ch</span>
+<span class="go">allenges\web\Gimme Cookie\solution\writeup.md</span>
+<span class="go">─────────────── 🚩 Challenge Flags 🚩 ───────────────</span>
+<span class="gp"># </span>🚩<span class="w"> </span>Is<span class="w"> </span>the<span class="w"> </span>flag<span class="w"> </span>a<span class="w"> </span>regex<span class="w"> </span>flag?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span>:$<span class="w"> </span>n
+<span class="gp"># </span>🚩<span class="w"> </span>Is<span class="w"> </span>the<span class="w"> </span>flag<span class="w"> </span><span class="k">case</span>-sensitive?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span>:$<span class="w"> </span>y
+<span class="gp"># </span>🚩<span class="w"> </span>Enter<span class="w"> </span>the<span class="w"> </span>flag:$<span class="w"> </span>YCEP24<span class="o">{</span>v3Ry_EZ_C0oK1e_MAn1pU1@t!0N<span class="o">}</span>
+<span class="gp"># </span>Do<span class="w"> </span>you<span class="w"> </span>want<span class="w"> </span>to<span class="w"> </span>add<span class="w"> </span>another<span class="w"> </span>flag?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span>:$<span class="w"> </span>n
+<span class="go">─────────────── 💡 Challenge Hints 💡 ───────────────</span>
+<span class="gp"># </span>💡<span class="w"> </span>Does<span class="w"> </span>the<span class="w"> </span>challenge<span class="w"> </span>have<span class="w"> </span>hints?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span>:$<span class="w"> </span>n
+<span class="go">─────────────── 📁 Challenge Files 📁 ───────────────</span>
+<span class="gp"># </span>📁<span class="w"> </span>Does<span class="w"> </span>the<span class="w"> </span>challenge<span class="w"> </span>have<span class="w"> </span>files<span class="w"> </span>to<span class="w"> </span>give<span class="w"> </span>to<span class="w"> </span>players?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span>:$<span class="w"> </span>y
+
+<span class="gp"># </span>📁<span class="w"> </span>Are<span class="w"> </span>there<span class="w"> </span>any<span class="w"> </span>files<span class="w"> </span>from<span class="w"> </span>URLs?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span>:$<span class="w"> </span>n
+
+<span class="gp"># </span>📁<span class="w"> </span>Are<span class="w"> </span>there<span class="w"> </span>any<span class="w"> </span>files<span class="w"> </span>from<span class="w"> </span>the<span class="w"> </span><span class="nb">local</span><span class="w"> </span>system?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span>:$<span class="w"> </span>y
+<span class="gp">$                                     </span>
+<span class="go">Files selected:</span>
+<span class="go">-</span>
+<span class="go">C:\Users\Admin\Git\Gryphons\YCEP-Challenges-2024\chal</span>
+<span class="go">lenges\web\Gimme</span>
+<span class="go">Cookie\service\gimme-cookie\Dockerfile</span>
+<span class="go">────────────── ⚙ Challenge Services ⚙ ───────────────</span>
+<span class="gp"># </span>⚙<span class="w"> </span>Does<span class="w"> </span>the<span class="w"> </span>challenge<span class="w"> </span>have<span class="w"> </span>services?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span>:$<span class="w"> </span>y
+
+<span class="gp"># </span>⚙<span class="w"> </span>Please<span class="w"> </span>enter<span class="w"> </span>the<span class="w"> </span>service<span class="w"> </span>name:$<span class="w"> </span>gimme-cookie
+<span class="gp"># </span>⚙<span class="w"> </span>Please<span class="w"> </span>enter<span class="w"> </span>the<span class="w"> </span>service<span class="w"> </span>port:$<span class="w"> </span><span class="m">1337</span>
+<span class="go">⚙ Please enter the service type</span>
+<span class="gp"># </span><span class="o">[</span>web/nc/ssh/secret/internal<span class="o">]</span>:$<span class="w"> </span>web
+<span class="gp"># </span>⚙<span class="w"> </span>Please<span class="w"> </span><span class="k">select</span><span class="w"> </span>the<span class="w"> </span>service<span class="w"> </span>folder...$<span class="w">                                     </span>
+<span class="gp"># </span>⚙<span class="w"> </span>Does<span class="w"> </span>the<span class="w"> </span>service<span class="w"> </span>have<span class="w"> </span>any<span class="w"> </span>extra<span class="w"> </span>fields?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span>:$<span class="w"> </span>n
+<span class="gp"># </span>Do<span class="w"> </span>you<span class="w"> </span>want<span class="w"> </span>to<span class="w"> </span>add<span class="w"> </span>another<span class="w"> </span>service?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span>:$<span class="w"> </span>n
+<span class="go">🚀 Does the service(s) need a Docker Compose file?</span>
+<span class="gp"># </span><span class="o">[</span>y/n<span class="o">]</span>:$<span class="w"> </span>n
+
+<span class="go">──────────── ⚙ Challenge Requirements ⚙ ─────────────</span>
+<span class="gp"># </span>⚙<span class="w"> </span>Does<span class="w"> </span>the<span class="w"> </span>challenge<span class="w"> </span>have<span class="w"> </span>requirements?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span>:$<span class="w"> </span>n
+<span class="go">╭──────────────── Challenge Details ────────────────╮</span>
+<span class="go">│ Name: Gimme Cookie                                │</span>
+<span class="go">│ Description: I want cookies!                      │</span>
+<span class="go">│ Category: Web                                     │</span>
+<span class="go">│ Difficulty: Easy                                  │</span>
+<span class="go">│ Author: JusCodin                                  │</span>
+<span class="go">│                                                   │</span>
+<span class="go">│ Extra Fields:                                     │</span>
+<span class="go">│ Discord: juscodin                                 │</span>
+<span class="go">│ None                                              │</span>
+<span class="go">│                                                   │</span>
+<span class="go">│ Solution Files:                                   │</span>
+<span class="go">│ -                                                 │</span>
+<span class="go">│ C:/Users/Admin/Git/Gryphons/YCEP-Challenges-2024/ │</span>
+<span class="go">│ challenges/web/Gimme Cookie/solution/writeup.md   │</span>
+<span class="go">│                                                   │</span>
+<span class="go">│ Flags: YCEP24{v3Ry_EZ_C0oK1e_MAn1pU1@t!0N}        │</span>
+<span class="go">│                                                   │</span>
+<span class="go">│ Hints:                                            │</span>
+<span class="go">│ None                                              │</span>
+<span class="go">│                                                   │</span>
+<span class="go">│ Files:                                            │</span>
+<span class="go">│ -                                                 │</span>
+<span class="go">│ C:/Users/Admin/Git/Gryphons/YCEP-Challenges-2024/ │</span>
+<span class="go">│ challenges/web/Gimme                              │</span>
+<span class="go">│ Cookie/service/gimme-cookie/Dockerfile            │</span>
+<span class="go">│                                                   │</span>
+<span class="go">│ Services:                                         │</span>
+<span class="go">│ - gimme-cookie (web)                              │</span>
+<span class="go">│                                                   │</span>
+<span class="go">│ Docker Compose:                                   │</span>
+<span class="go">│ None                                              │</span>
+<span class="go">│ Requirements:                                     │</span>
+<span class="go">│ None                                              │</span>
+<span class="go">│                                                   │</span>
+<span class="go">╰───────────────────────────────────────────────────╯</span>
+<span class="gp"># </span>Do<span class="w"> </span>you<span class="w"> </span>want<span class="w"> </span>to<span class="w"> </span>create<span class="w"> </span>the<span class="w"> </span>challenge?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span>:$<span class="w"> </span>y
+<span class="go">Successfully created challenge `Gimme Cookie` at</span>
+<span class="go">`C:\Users\Admin\Gimme Cookie`</span>
+</code></pre></div>
+
+</div>
+
 <h2 id="submitting-a-challenge">Submitting a Challenge<a class="headerlink" href="#submitting-a-challenge" title="Permanent link">&para;</a></h2>
 <p>If everything goes well, your challenge should be nicely packaged in a folder. You can now <strong>zip</strong> the folder and submit it. </p>
 <div class="admonition warning">
@@ -917,6 +1068,10 @@ py<span class="w"> </span>-3<span class="w"> </span>-m<span class="w"> </span>ct
     
     
       <script src="../../assets/javascripts/bundle.bd41221c.min.js"></script>
+      
+        <script src="../../js/termynal.js"></script>
+      
+        <script src="../../js/custom.js"></script>
       
     
   </body>

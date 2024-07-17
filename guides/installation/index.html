@@ -54,6 +54,10 @@
     
       <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
+      <link rel="stylesheet" href="../../css/custom.css">
+    
+      <link rel="stylesheet" href="../../css/termynal.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -773,12 +777,15 @@
 <h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h1>
 <h2 id="installing-from-pypi">Installing from PyPI<a class="headerlink" href="#installing-from-pypi" title="Permanent link">&para;</a></h2>
 <p>To install from PyPI, run the following command:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Linux and MacOS</span>
-python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>ctf-architect
+<div class="termy">
 
-<span class="c1"># Windows</span>
-py<span class="w"> </span>-3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>ctf-architect
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>CTF-Architect
+<span class="go">---&gt; 100%</span>
+<span class="go">Successfully installed CTF-Architect</span>
 </code></pre></div>
+
+</div>
+
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>If the above command produces an error during installation, try running the command in a terminal with administrator privileges.</p>
@@ -789,21 +796,80 @@ py<span class="w"> </span>-3<span class="w"> </span>-m<span class="w"> </span>pi
 <p>Installing from source will pull the latest changes from the repository. This may include new features, bug fixes, or breaking changes. If you want to use a stable version, it is recommended to install from PyPI.</p>
 </div>
 <p>Git clone the repository, and pip install it</p>
-<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/Jus-Codin/CTF-Architect
-<span class="nb">cd</span><span class="w"> </span>CTF-Architect
+<div class="termy">
 
-<span class="c1"># Linux and MacOS</span>
-python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/Jus-Codin/CTF-Architect
+<span class="go">Cloning into &#39;CTF-Architect&#39;...</span>
+<span class="go">remote: Enumerating objects: 496, done.</span>
+<span class="go">remote: Counting objects: 100% (78/78), done.</span>
+<span class="go">remote: Compressing objects: 100% (55/55), done.</span>
+<span class="go">remote: Total 496 (delta 32), reused 44 (delta 23), pack-reused 418</span>
+<span class="go">Receiving objects: 100% (496/496), 941.69 KiB | 15.44 MiB/s, done.</span>
+<span class="go">Resolving deltas: 100% (240/240), done.</span>
 
-<span class="c1"># Windows</span>
-py<span class="w"> </span>-3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>CTF-Architect
+
+<span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>.
+<span class="go">---&gt; 100%</span>
+<span class="go">Successfully installed CTF-Architect</span>
 </code></pre></div>
+
+</div>
+
 <h2 id="post-installation">Post Installation<a class="headerlink" href="#post-installation" title="Permanent link">&para;</a></h2>
 <p>If the installation is successful, you should be able to run the following commands:</p>
-<div class="highlight"><pre><span></span><code>ctf-architect<span class="w"> </span>--help
+<div class="termy">
 
-chall-architect<span class="w"> </span>--help
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>ctf-architect<span class="w"> </span>--help
+
+<span class="go"> Usage: ctf-architect [OPTIONS] COMMAND [ARGS]...</span>
+
+<span class="go">╭─ Options ─────────────────────────────────────────╮</span>
+<span class="go">│ --install-completion          Install completion  │</span>
+<span class="go">│                               for the current     │</span>
+<span class="go">│                               shell.              │</span>
+<span class="go">│ --show-completion             Show completion for │</span>
+<span class="go">│                               the current shell,  │</span>
+<span class="go">│                               to copy it or       │</span>
+<span class="go">│                               customize the       │</span>
+<span class="go">│                               installation.       │</span>
+<span class="go">│ --help                        Show this message   │</span>
+<span class="go">│                               and exit.           │</span>
+<span class="go">╰───────────────────────────────────────────────────╯</span>
+<span class="go">╭─ Commands ────────────────────────────────────────╮</span>
+<span class="go">│ challenge  Commands to manage challenges in the   │</span>
+<span class="go">│            CTF repo.                              │</span>
+<span class="go">│ docker     Commands to manage challenge services  │</span>
+<span class="go">│            in the CTF repo.                       │</span>
+<span class="go">│ init       Initialize a new CTF repository.       │</span>
+<span class="go">│ mapping    Commands to manage port mappings for   │</span>
+<span class="go">│            challenge services                     │</span>
+<span class="go">│ stats      Commands to manage challenge           │</span>
+<span class="go">│            statistics in the challenge repository │</span>
+<span class="go">╰───────────────────────────────────────────────────╯</span>
+
+<span class="gp">$ </span>chall-architect<span class="w"> </span>--help
+
+<span class="go"> Usage: chall-architect [OPTIONS]</span>
+
+<span class="go"> Creates a challenge folder in the current directory</span>
+
+<span class="go">╭─ Options ─────────────────────────────────────────╮</span>
+<span class="go">│ --install-completion          Install completion  │</span>
+<span class="go">│                               for the current     │</span>
+<span class="go">│                               shell.              │</span>
+<span class="go">│ --show-completion             Show completion for │</span>
+<span class="go">│                               the current shell,  │</span>
+<span class="go">│                               to copy it or       │</span>
+<span class="go">│                               customize the       │</span>
+<span class="go">│                               installation.       │</span>
+<span class="go">│ --help                        Show this message   │</span>
+<span class="go">│                               and exit.           │</span>
+<span class="go">╰───────────────────────────────────────────────────╯</span>
 </code></pre></div>
+
+</div>
+
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If after installation, you get an error saying that the command is not found, you may need to add the python scripts folder to your PATH environment variable. See <a href="https://realpython.com/add-python-to-path/">this guide</a> for more information.</p>
@@ -911,6 +977,10 @@ chall-architect<span class="w"> </span>--help
     
     
       <script src="../../assets/javascripts/bundle.bd41221c.min.js"></script>
+      
+        <script src="../../js/termynal.js"></script>
+      
+        <script src="../../js/custom.js"></script>
       
     
   </body>
