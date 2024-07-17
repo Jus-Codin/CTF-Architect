@@ -64,7 +64,7 @@ def stats_update(
 
 
 @stats_app.command("show")
-def stats_show(category: str | None = typer.Argument(None)):
+def stats_show(category: str = typer.Argument(None)):
     """
     Shows the stats of a category.
 
