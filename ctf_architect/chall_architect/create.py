@@ -38,6 +38,7 @@ def create_challenge(
     difficulty: str,
     category: str,
     author: str,
+    source_files: list[Path],
     solution_files: list[Path],
     flags: list[dict[str, str | bool]],
     extras: dict | None = None,
@@ -108,6 +109,11 @@ def create_challenge(
             raise ValueError("Docker compose file must be named 'docker-compose.yml'")
         if docker_compose.parent.resolve() != path.resolve() / "service":
             shutil.copy(docker_compose, path / "service")
+
+    # Copy source files to src folder, unless they are already in the src folder
+    for file in source_files:
+        if file.parent.resolve() != path.resolve() / "src":
+            shutil.copy(file, path)
 
     # Copy solution files to solution folder, unless they are already in the solution folder
     for file in solution_files:

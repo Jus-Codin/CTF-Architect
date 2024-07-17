@@ -125,6 +125,19 @@ def get_description():
     return "\n".join(description)
 
 
+def get_source_files():
+    """
+    Prompts the user for the source files.
+    """
+    console.rule(
+        ":file_folder: [bright_yellow]Please select the source files for the challenge.[/] :file_folder:"
+    )
+
+    time.sleep(1)
+
+    return askopenfilenames(title="Select the source files for the challenge")
+
+
 def get_solution_files():
     """
     Prompts the user for the solution files.
@@ -431,6 +444,19 @@ def create():
     else:
         console.print("\n:rocket: [cyan][6/6] No extra fields to fill, skipping...[/]")
 
+    source_files = get_source_files()
+    if source_files == "":
+        # User cancelled, abort
+        console.print("[bright_red]No files selected, aborting...[/bright_red]")
+        return
+    
+    elif source_files is not None:
+        source_files = [Path(file) for file in source_files]
+
+        console.print("[green]Source files selected: [/green]")
+        for file in source_files:
+            console.print(f"  [green]{file}[/]")
+
     solution_files = get_solution_files()
     if solution_files == "":
         # User cancelled, abort
@@ -572,6 +598,7 @@ def create():
         difficulty=difficulty,
         author=author,
         extras=extra_fields,
+        source_files=source_files,
         solution_files=solution_files,
         flags=flags,
         hints=hints,
