@@ -114,3 +114,11 @@ nav:
     - Repository: spec/repository.md
   - API Reference:
     - Models: api/models.md
+
+extra_css:
+  - css/custom.css
+  - css/termynal.css
+
+extra_javascript:
+  - js/termynal.js
+  - js/custom.js
