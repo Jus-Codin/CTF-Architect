@@ -192,7 +192,7 @@ def challenge_export(
     path: str = typer.Option(
         ".", "--path", "-p", help="Path to export the challenge to."
     ),
-    filename: str | None = typer.Option(
+    filename: str = typer.Option(
         None, "--filename", "-f", help="Filename of the exported challenge."
     ),
 ):
