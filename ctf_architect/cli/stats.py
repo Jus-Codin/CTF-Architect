@@ -97,7 +97,7 @@ def stats_show(category: str = typer.Argument(None)):
                 style="magenta",
                 justify="center",
             )
-        table.add_coloumn(
+        table.add_column(
             "Total", header_style="bright_green", style="green", justify="center"
         )
 
