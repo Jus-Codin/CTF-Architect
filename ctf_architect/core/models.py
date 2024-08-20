@@ -232,8 +232,8 @@ class ServicePortMapping(Model):
     Represents a port mapping for a challenge service.
     """
 
-    from_port: int
-    to_port: int
+    from_port: int | None
+    to_port: int | None
 
 
 class PortMappingFile(BaseFile):

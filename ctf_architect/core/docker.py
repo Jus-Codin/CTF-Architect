@@ -9,7 +9,6 @@ from pathlib import Path
 from yaml import safe_dump
 
 from ctf_architect.core.challenge import walk_challenges
-from ctf_architect.core.config import load_config
 from ctf_architect.core.mapping import load_port_mapping
 from ctf_architect.core.models import Service
 
@@ -79,7 +78,7 @@ def create_compose_file() -> None:
                 networks[network_name] = {}
 
             for service in challenge.services:
-                if service.port is None:
+                if service.type == "internal":
                     host_port = None
                 elif service.name not in port_mapping.mapping:
                     raise ValueError(

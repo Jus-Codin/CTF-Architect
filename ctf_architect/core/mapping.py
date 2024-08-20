@@ -8,7 +8,7 @@ from pydantic import ValidationError
 
 from ctf_architect.core.challenge import walk_challenges
 from ctf_architect.core.config import load_config
-from ctf_architect.core.constants import CTF_CONFIG_FILE, PORT_MAPPING_FILE
+from ctf_architect.core.constants import PORT_MAPPING_FILE
 from ctf_architect.core.models import PortMappingFile, ServicePortMapping
 
 
@@ -57,12 +57,14 @@ def generate_port_mapping(
         for challenge in walk_challenges(category):
             if challenge.services is not None:
                 for service in challenge.services:
-                    if service.type == "internal":
-                        continue
-                    elif service.name in mapping:
+                    if service.name in mapping:
                         raise ValueError(f"Duplicate service name: {service.name}")
                     elif service.type == "secret":
                         secret_services.append(service)
+                    elif service.type == "internal":
+                        mapping[service.name] = ServicePortMapping(
+                            from_port=service.port, to_port=None
+                        )
                     else:
                         mapping[service.name] = ServicePortMapping(
                             from_port=service.port, to_port=port
