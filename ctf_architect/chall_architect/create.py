@@ -65,12 +65,16 @@ def create_challenge(
         file_paths = []
         for file in files:
             if isinstance(file, Path):
-                if file.parent.resolve() != path.resolve() / "dist":
-                    file_path = shutil.copy(file, path / "dist")
-                    file_path = Path(file_path).relative_to(path)
+                # Check if file exists
+                if not file.exists():
+                    raise ValueError(f"File does not exist: {file}")
+                # Check if the file is in the dist folder
+                elif file.parent.resolve() == path.resolve() / "dist":
+                    file_path = file.relative_to(path.resolve())
                     file_paths.append(file_path)
                 else:
-                    file_path = file.relative_to(path.resolve())
+                    file_path = shutil.copy(file, path / "dist")
+                    file_path = Path(file_path).relative_to(path)
                     file_paths.append(file_path)
             else:
                 # It is a URL
@@ -85,18 +89,31 @@ def create_challenge(
             _service = Service.model_validate(service)
             service_path = _service.path
 
+            # Check if service exists
+            if not service_path.exists():
+                raise ValueError(f"Service does not exist: {service_path}")
+
+            # Check if service is a directory
             if not service_path.is_dir():
                 raise ValueError(f"Service path must be a directory: {service_path}")
+            
+            # Check if the service is in the challenge folder or the service subdirectory
+            # This is to prevent recursive copying
+            if service_path.resolve() == path.resolve() or service_path.resolve() == path.resolve() / "service":
+                # TODO: Maybe we can actually allow this, but we need to handle it properly
+                raise ValueError("Service path cannot be the challenge folder or the service subdirectory")
 
-            if service_path.resolve() != path.resolve() / "service" / service_path.name:
+            # Check if the service is already in the service folder
+            if service_path.resolve() == path.resolve() / "service" / service_path.name:
+                service_path = service_path.relative_to(path.resolve())
+            else:
                 service_path = shutil.copytree(
                     service_path,
                     path / "service" / service_path.name,
                     dirs_exist_ok=True,
                 )
                 service_path = Path(service_path).relative_to(path)
-            else:
-                service_path = service_path.relative_to(path.resolve())
+
             _service.path = service_path
             _services.append(_service)
 
