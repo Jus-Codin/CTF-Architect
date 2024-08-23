@@ -96,12 +96,17 @@ def create_challenge(
             # Check if service is a directory
             if not service_path.is_dir():
                 raise ValueError(f"Service path must be a directory: {service_path}")
-            
+
             # Check if the service is in the challenge folder or the service subdirectory
             # This is to prevent recursive copying
-            if service_path.resolve() == path.resolve() or service_path.resolve() == path.resolve() / "service":
+            if (
+                service_path.resolve() == path.resolve()
+                or service_path.resolve() == path.resolve() / "service"
+            ):
                 # TODO: Maybe we can actually allow this, but we need to handle it properly
-                raise ValueError("Service path cannot be the challenge folder or the service subdirectory")
+                raise ValueError(
+                    "Service path cannot be the challenge folder or the service subdirectory"
+                )
 
             # Check if the service is already in the service folder
             if service_path.resolve() == path.resolve() / "service" / service_path.name:

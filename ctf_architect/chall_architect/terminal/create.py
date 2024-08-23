@@ -325,7 +325,7 @@ def get_services() -> list[dict[str, str | int | dict[str, str | int]]] | None:
             ":gear: [cyan]Please enter the service type[/]",
             choices=["web", "nc", "ssh", "secret", "internal"],
         )
-        console.print(f":gear: [cyan]Please select the service folder...[/]")
+        console.print(":gear: [cyan]Please select the service folder...[/]")
         path = askdirectory(title="Select the service folder")
 
         if path == "":
@@ -449,7 +449,7 @@ def create():
         # User cancelled, abort
         console.print("[bright_red]No files selected, aborting...[/bright_red]")
         return
-    
+
     elif source_files is not None:
         source_files = [Path(file) for file in source_files]
 
@@ -526,7 +526,7 @@ def create():
         info_string += "None\n"
     info_string += "\n"
 
-    info_string += f"[bold]Solution Files:[/bold]\n"
+    info_string += "[bold]Solution Files:[/bold]\n"
     for file in solution_files:
         info_string += f"- {file.as_posix()}\n"
     info_string += "\n"
