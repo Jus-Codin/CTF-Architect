@@ -65,7 +65,7 @@ def get_chall_config(path: str | Path, verify: bool = False) -> Challenge:
         path = Path(path)
 
     if not is_challenge_folder(path):
-        raise FileNotFoundError("Challenge does not have chall.yaml or README.md")
+        raise FileNotFoundError("Challenge does not have chall.toml or README.md")
 
     with (path / CHALLENGE_CONFIG_FILE).open("r", encoding="utf-8") as f:
         data = load(f)
