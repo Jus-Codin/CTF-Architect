@@ -54,14 +54,14 @@ class Service(Model, extra="allow"):
     Represents a service for a challenge.
 
     Attributes:
-      name (str): The name of the service. Must follow the pattern /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.
+      name (str): The name of the service. Must follow the pattern /^[a-z0-9][a-z0-9_-]*$/.
       path (Path): The path to the service.
       port (int, optional): The port number for the service. Only allowed to be None if type is "internal".
       type (str): The type of the service. Must be one of "web", "nc", "ssh", "secret", or "internal".
       extras (dict[str, Any], optional): Extra information to be passed to the Docker Compose file.
     """
 
-    name: Annotated[str, StringConstraints(pattern=r"^[a-zA-Z0-9][a-zA-Z0-9_-]*$")]
+    name: Annotated[str, StringConstraints(pattern=r"^[a-z0-9][a-z0-9_-]*$")]
     path: Path
     port: int | None = None
     type: Literal["web", "nc", "ssh", "secret", "internal"]
