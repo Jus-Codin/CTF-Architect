@@ -44,3 +44,9 @@ ruff = "^0.5.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff.lint]
+ignore = [
+  "F403" # 'from module import *' used; unable to detect undefined names
+]
