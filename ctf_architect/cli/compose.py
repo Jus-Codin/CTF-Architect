@@ -12,24 +12,20 @@ from ctf_architect.core.compose import create_compose_files, get_compose_file
 console = Console()
 
 
-docker_app = typer.Typer()
+compose_app = typer.Typer()
 
 
-@docker_app.callback()
+@compose_app.callback()
 def callback():
     """
-    Commands to manage challenge services in the CTF repo.
+    Commands to create compose files for challenges.
     """
-    console.print(
-        ':warning: [bold]WARNING:[/bold] The "docker" command has been replaced with the "compose" command and will be removed in a future version.',
-        style="bright_yellow",
-    )
 
 
-@docker_app.command("generate")
-def docker_generate(
+@compose_app.command("generate")
+def compose_generate(
     force: bool = typer.Option(
-        False, "--force", "-f", help="Force generation of docker compose file."
+        False, "--force", "-f", help="Force generation of compose files."
     ),
 ):
     """
