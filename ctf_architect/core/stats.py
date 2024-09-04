@@ -42,7 +42,7 @@ def get_category_difficulty_distribution(name: str) -> dict[str, int]:
 def update_challenge_readme(challenge: Challenge):
     readme = create_challenge_readme(challenge)
 
-    with open(challenge.full_path / "README.md", "w", encoding="utf-8") as f:
+    with open(challenge.repo_path / "README.md", "w", encoding="utf-8") as f:
         f.write(readme)
 
 

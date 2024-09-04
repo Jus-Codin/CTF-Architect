@@ -1,5 +1,7 @@
 """
 Functions for creating a docker compose file for services needing hosting
+
+TODO: Deprecate this module in favor of the new compose module
 """
 
 from __future__ import annotations
@@ -88,7 +90,7 @@ def create_compose_file() -> None:
                     host_port = port_mapping.mapping[service.name].to_port
 
                 services[service.name] = create_compose_dict(
-                    service, challenge.full_path, network_name, host_port
+                    service, challenge.repo_path, network_name, host_port
                 )
 
     with open("docker-compose.yml", "w") as f:
