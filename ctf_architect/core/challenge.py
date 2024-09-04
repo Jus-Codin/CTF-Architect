@@ -73,7 +73,7 @@ def get_chall_config(path: str | Path, verify: bool = False) -> Challenge:
     try:
         config_file = ChallengeFile.model_validate(data.unwrap())
     except ValidationError as e:
-        raise ValueError(f"Error loading challenge config file: {e}")
+        raise ValueError(f"Invalid challenge config: {e}")
 
     challenge = config_file.challenge
 
@@ -81,7 +81,7 @@ def get_chall_config(path: str | Path, verify: bool = False) -> Challenge:
         try:
             verify_challenge_config(challenge)
         except ValueError as e:
-            raise ValueError(f"Error verifying challenge config:\n{e}")
+            raise ValueError(f"Error verifying challenge config:\n{e}") from e
 
     return challenge
 
@@ -150,12 +150,12 @@ def add_challenge(
     challenge = get_chall_config(folder, verify=verify)
 
     # Check if path for the challenge already exists
-    if challenge.full_path.exists():
+    if challenge.repo_path.exists():
         # Check if the challenge in that path is the same name as the new challenge
-        old_challenge = get_chall_config(challenge.full_path)
+        old_challenge = get_chall_config(challenge.repo_path)
         if old_challenge.name == challenge.name:
             if replace:
-                remove_challenge(path=challenge.full_path)
+                remove_challenge(path=challenge.repo_path)
             else:
                 raise FileExistsError(
                     f"Challenge with name {challenge.name} already exists"
@@ -175,7 +175,7 @@ def add_challenge(
             )
 
     # Move the challenge to the correct category folder
-    new_path = challenge.full_path
+    new_path = challenge.repo_path
     folder.rename(new_path)
 
 

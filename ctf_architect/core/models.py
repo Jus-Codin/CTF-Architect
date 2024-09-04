@@ -144,7 +144,7 @@ class Challenge(Model):
         return re.sub(r"[^a-zA-Z0-9-_ ]", "", self.name).strip()
 
     @property
-    def full_path(self) -> Path:
+    def repo_path(self) -> Path:
         """
         The full path to the challenge folder from the root of the CTF repo.
 

@@ -8,18 +8,15 @@ from zipfile import ZipFile
 import typer
 from rich.console import Console
 from rich.panel import Panel
-from rich.prompt import Confirm, Prompt
+from rich.prompt import Confirm
 
 from ctf_architect.core.challenge import (
     add_challenge,
     find_challenge,
     is_challenge_folder,
     is_challenge_repo,
-    verify_challenge_config,
-    walk_challenges,
 )
 from ctf_architect.core.config import load_config
-from ctf_architect.core.constants import APP_CMD_NAME, CTF_CONFIG_FILE
 from ctf_architect.core.stats import update_category_readme, update_root_readme
 
 console = Console()
@@ -269,34 +266,3 @@ def challenge_info(name: str = typer.Argument(..., help="Name of the challenge."
             border_style="bright_cyan",
         )
     )
-
-
-@challenge_app.command("verify")
-def challenge_verify():
-    """
-    Verify the challenges in the CTF repo
-    """
-
-    if not is_challenge_repo():
-        console.print("Not a valid challenge repo. Exiting...", style="bright_red")
-        return
-
-    config = load_config()
-
-    total = 0
-    failed = 0
-
-    for chall in walk_challenges():
-        total += 1
-        try:
-            verify_challenge_config(chall, config)
-        except Exception as e:
-            console.print(f"Error verifying {chall.name}:\n{e}", style="bright_red")
-            failed += 1
-
-    if failed == 0:
-        console.print("All challenges verified successfully.", style="green")
-    else:
-        console.print(
-            f"{failed}/{total} challenges failed verification.", style="bright_red"
-        )
