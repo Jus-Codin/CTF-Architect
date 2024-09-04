@@ -265,3 +265,11 @@ RULES_DICT = {rule.code: rule for rule in RULES}
 
 def get_rule(code: str) -> Rule:
     return RULES_DICT[code]
+
+
+def add_rule(rule: Rule):
+    if rule.code in RULES_DICT:
+        raise ValueError(f"Rule with code {rule.code} already exists")
+
+    RULES_DICT[rule.code] = rule
+    RULES.append(rule)
