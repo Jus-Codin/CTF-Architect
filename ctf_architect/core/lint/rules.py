@@ -216,7 +216,7 @@ def C004(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool | st
 def C005(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool:
     challenge = get_chall_config(challenge_path)
 
-    return len(challenge.flags) > 0
+    return challenge.flags is None or len(challenge.flags) == 0
 
 
 @rule(
