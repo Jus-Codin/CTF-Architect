@@ -92,7 +92,7 @@ def stats_show(category: str = typer.Argument(None)):
         )
         for difficulty in config.difficulties:
             table.add_column(
-                difficulty.name,
+                difficulty.name.capitalize(),
                 header_style="bright_magenta",
                 style="magenta",
                 justify="center",
@@ -150,7 +150,9 @@ def stats_show(category: str = typer.Argument(None)):
         for difficulty in config.difficulties:
             is_last = difficulty == config.difficulties[-1]
             table.add_row(
-                difficulty.name, str(stats[difficulty.name]), end_section=is_last
+                difficulty.name.capitalize(),
+                str(stats[difficulty.name]),
+                end_section=is_last,
             )
 
         table.add_row("Total", str(sum(stats.values())))
