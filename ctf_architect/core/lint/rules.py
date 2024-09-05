@@ -188,20 +188,20 @@ def C004(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool | st
         if isinstance(file, Path):
             if file.is_absolute():
                 absolute_files.append(file)
-            if not file.exists():
+            if not (challenge_path / file).exists():
                 missing_files.append(file)
 
     result = ""
 
-    if missing_files:
-        s = "Files specified in chall.toml do not exist:\n"
-        for file in missing_files:
-            s += f"  - {file}\n"
-        result += s
-
     if absolute_files:
         s = "Files specified in chall.toml are absolute paths:\n"
         for file in absolute_files:
+            s += f"  - {file}\n"
+        result += s
+
+    if missing_files:
+        s = "Files specified in chall.toml do not exist:\n"
+        for file in missing_files:
             s += f"  - {file}\n"
         result += s
 
@@ -262,20 +262,20 @@ def S000(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool | st
     for service in challenge.services:
         if service.path.is_absolute():
             absolute_paths[service.name] = service.path
-        if not service.path.exists():
+        if not (challenge_path / service.path).exists():
             missing_paths[service.name] = service.path
 
     result = ""
 
-    if missing_paths:
-        s = "Paths specified in services do not exist:\n"
-        for name, path in missing_paths.items():
-            s += f"  - {name}: {path}\n"
-        result += s
-
     if absolute_paths:
         s = "Paths specified in services are absolute paths:\n"
         for name, path in absolute_paths.items():
+            s += f"  - {name}: {path}\n"
+        result += s
+
+    if missing_paths:
+        s = "Paths specified in services do not exist:\n"
+        for name, path in missing_paths.items():
             s += f"  - {name}: {path}\n"
         result += s
 
