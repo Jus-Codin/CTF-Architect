@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import re
 import shutil
 from pathlib import Path
@@ -15,23 +14,20 @@ from ctf_architect.core.constants import (
     CHALLENGE_CONFIG_FILE,
     CTF_CONFIG_FILE,
 )
-from ctf_architect.core.models import Challenge, ChallengeFile, CTFConfig
+from ctf_architect.core.models import Challenge, ChallengeFile
 
 
 def is_challenge_folder(path: str | Path) -> bool:
-    files = os.listdir(path)
+    """
+    Checks if the specified folder is a challenge folder.
 
-    # Do case insensitive check for challenge config and readme
-    has_chall_config = False
-    has_readme_md = False
+    If it has a chall.toml file, it is considered a challenge folder.
+    """
+    for file in Path(path).iterdir():
+        if file.name.lower() == CHALLENGE_CONFIG_FILE:
+            return True
 
-    for file in files:
-        if file.lower() == CHALLENGE_CONFIG_FILE:
-            has_chall_config = True
-        if file.lower() == "readme.md":
-            has_readme_md = True
-
-    return has_chall_config and has_readme_md
+    return False
 
 
 def is_challenge_repo() -> bool:
@@ -43,29 +39,31 @@ def is_challenge_repo() -> bool:
     return Path(CTF_CONFIG_FILE).exists() and Path("challenges").exists()
 
 
-def verify_challenge_config(
-    challenge: Challenge, config: CTFConfig | None = None
-) -> None:
-    if config is None:
-        config = load_config()
+def walk_challenge_folders(category: str | None = None) -> Generator[Path]:
+    """
+    Walks through all challenge folders in the challenges directory.
+    Can specify a category to only walk through challenges in that category.
+    """
+    config = load_config()
 
-    if challenge.category not in config.categories:
-        raise ValueError(f"Category {challenge.category} not in CTF config")
+    challenges_path = Path("challenges")
 
-    if challenge.difficulty not in [d.name for d in config.difficulties]:
-        raise ValueError(f"Difficulty {challenge.difficulty} not in CTF config")
+    if category is not None:
+        if category.lower() not in config.categories:
+            raise ValueError(f"Category {category} not in CTF config")
+        categories = [category.lower()]
+    else:
+        categories = config.categories
 
-    for extra in config.extras:
-        if extra not in challenge.extras:
-            raise ValueError(f'Required extra value "{extra}" not in challenge config')
+    for category in categories:
+        for directory in (challenges_path / category).iterdir():
+            if directory.is_dir():
+                yield directory
 
 
-def get_chall_config(path: str | Path, verify: bool = False) -> Challenge:
+def get_chall_config(path: str | Path) -> Challenge:
     if isinstance(path, str):
         path = Path(path)
-
-    if not is_challenge_folder(path):
-        raise FileNotFoundError("Challenge does not have chall.toml or README.md")
 
     with (path / CHALLENGE_CONFIG_FILE).open("r", encoding="utf-8") as f:
         data = load(f)
@@ -73,39 +71,25 @@ def get_chall_config(path: str | Path, verify: bool = False) -> Challenge:
     try:
         config_file = ChallengeFile.model_validate(data.unwrap())
     except ValidationError as e:
-        raise ValueError(f"Invalid challenge config: {e}")
+        raise ValueError(f"Invalid challenge config: {e}") from e
 
     challenge = config_file.challenge
-
-    if verify:
-        try:
-            verify_challenge_config(challenge)
-        except ValueError as e:
-            raise ValueError(f"Error verifying challenge config:\n{e}") from e
 
     return challenge
 
 
-def find_challenge(name: str) -> tuple[Challenge, Path] | None:
+def find_challenge(name: str) -> Challenge | None:
     """
     Tries to find a challenge with the given name.
-    Returns a tuple of the challenge info and the path to the challenge folder.
+    Returns the found challenge config
     """
 
     # Search Strategy:
     # 1. Search by the folder name, if match found, check challenge config file to verify
     # 2. Search every challenge config file for a name match
 
-    config = load_config()
-
-    challenges_path = Path("challenges")
-
     # Get all possible challenge folders
-    folders: list[Path] = []
-    for category in config.categories:
-        for directory in (challenges_path / category).iterdir():
-            if directory.is_dir():
-                folders.append(directory)
+    folders = list(walk_challenge_folders())
 
     searched = []
 
@@ -115,43 +99,47 @@ def find_challenge(name: str) -> tuple[Challenge, Path] | None:
         if folder_name.lower() in folder.name.lower():
             searched.append(folder)
             try:
-                challenge = get_chall_config(folder, verify=True)
+                challenge = get_chall_config(folder)
                 if challenge.name.lower() == name.lower():
-                    return challenge, folder
-            except ValueError:
+                    return challenge
+            except Exception:
                 pass
 
     for folder in folders:
         if folder in searched:
             continue
         try:
-            challenge = get_chall_config(folder, verify=True)
+            challenge = get_chall_config(folder)
             if challenge.name.lower() == name.lower():
-                return challenge, folder
-        except ValueError:
+                return challenge
+        except Exception:
             pass
 
 
-def add_challenge(
-    folder: str | Path, replace: bool = False, verify: bool = True
-) -> None:
+def add_challenge(folder: str | Path, replace: bool = False) -> None:
     """
     Adds a challenge from the specified path to the challenges folder.
 
     If replace is True, will overwrite the challenge if it already exists.
-    If verify is True, will verify the challenge before adding it.
     """
+    config = load_config()
+
     if isinstance(folder, str):
         folder = Path(folder)
 
     if not folder.is_dir():
         raise ValueError(f'"{folder.absolute()}" is not a directory')
 
-    challenge = get_chall_config(folder, verify=verify)
+    challenge = get_chall_config(folder)
+
+    # Check if the category exists
+    # This is to prevent a challenge from being added to a category that doesn't exist
+    if challenge.category not in config.categories:
+        raise ValueError(f'Invalid category "{challenge.category}" in chall.toml file')
 
     # Check if path for the challenge already exists
     if challenge.repo_path.exists():
-        # Check if the challenge in that path is the same name as the new challenge
+        # Check if te challenge in that path is the same name as the new challenge
         old_challenge = get_chall_config(challenge.repo_path)
         if old_challenge.name == challenge.name:
             if replace:
@@ -161,20 +149,24 @@ def add_challenge(
                     f"Challenge with name {challenge.name} already exists"
                 )
         else:
-            # If the challenge in that path is a different name, raise an error
+            # Folder name collision, throw error
             raise FileExistsError(
-                f"A challenge with a similar name already exists in the same category, unable to resolve conflict.\n    Old Challenge: {old_challenge.name}\n   New Challenge: {challenge.name}"
+                "Another challenge is using the same folder name. Please resolve the conflict.\n"
+                f"  Old Challenge: {old_challenge.name}\n"
+                f"  New Challenge: {challenge.name}"
             )
 
+    # Check if a challenge with the same name already exists
+    # Honestly if the challenge is in another category, we can have the same name
+    # but it's probably better practice to not have the same name
     elif (c := find_challenge(challenge.name)) is not None:
         if replace:
-            remove_challenge(path=c[1])
+            remove_challenge(path=c.repo_path)
         else:
             raise FileExistsError(
                 f"Challenge with name {challenge.name} already exists"
             )
 
-    # Move the challenge to the correct category folder
     new_path = challenge.repo_path
     folder.rename(new_path)
 
@@ -184,6 +176,7 @@ def remove_challenge(name: str | None = None, path: Path | str | None = None):
     Removes a challenge from the challenges folder.
     Can specify either the name or the path to the challenge folder.
     """
+
     if name is not None and path is not None:
         raise ValueError("Can only specify name or path, not both")
 
@@ -197,6 +190,9 @@ def remove_challenge(name: str | None = None, path: Path | str | None = None):
             path = Path(path)
         if not path.is_dir():
             raise ValueError(f'"{path.absolute()}" is not a directory')
+        # Safety check to make sure path is in the challenge repo
+        if path.resolve().parent in Path("challenges").resolve().iterdir():
+            challenge = get_chall_config(path)
     else:
         raise ValueError("Must specify name or path to remove challenge")
 
@@ -204,30 +200,20 @@ def remove_challenge(name: str | None = None, path: Path | str | None = None):
 
 
 def walk_challenges(
-    category: str | None = None, *, verify: bool = False
+    category: str | None = None, *, ignore_errors: bool = False
 ) -> Generator[Challenge]:
     """
     Walks through all challenges in the challenges folder.
     Can specify a category to only walk through challenges in that category.
     """
-    config = load_config()
-
-    challenges_path = Path("challenges")
-
-    if category is not None:
-        if category not in config.categories:
-            raise ValueError(f"Category {category} not in CTF config")
-        categories = [category]
-    else:
-        categories = config.categories
-
-    for category in categories:
-        for directory in (challenges_path / category).iterdir():
-            if directory.is_dir():
-                try:
-                    yield get_chall_config(directory, verify=verify)
-                except ValueError:
-                    pass
+    for folder in walk_challenge_folders(category):
+        if ignore_errors:
+            try:
+                yield get_chall_config(folder)
+            except ValueError:
+                pass
+        else:
+            yield get_chall_config(folder)
 
 
 def create_challenge_readme(challenge: Challenge):
