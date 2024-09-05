@@ -58,7 +58,7 @@ class Service(Model):
 
     Attributes:
         name (str): The name of the service. Must follow the pattern `/^[a-z0-9][a-z0-9_-]*$/`.
-        path (Path): The path to the service.
+        path (Path): The path to the service, relative to the root of the challenge folder.
         port (int, optional): The port number for the service. Only allowed to be None if type is "internal" or if `ports` is specified.
         ports (list[int], optional): The list of ports for the service. Only allowed to be None if type is "internal" or if `port` is specified.
         type (str): The type of the service. Must be one of "web", "nc", "ssh", "secret", or "internal".
@@ -109,6 +109,7 @@ class Challenge(Model):
         flags (list[Flag]): The list of flags for the challenge.
         hints (list[Hint], optional): The list of hints for the challenge.
         services (list[Service], optional): The list of services for the challenge.
+        folder_name (str, optional): The folder name for the challenge. Must follow the pattern `/^[a-zA-Z0-9-_ ]*$/`. If not provided, it will be generated from the challenge name.
     """
 
     author: str
@@ -122,26 +123,18 @@ class Challenge(Model):
     flags: Annotated[list[Flag], Len(min_length=1)]
     hints: list[Hint] | None = None
     services: list[Service] | None = None
+    folder_name: Annotated[str, StringConstraints(pattern=r"^[a-zA-Z0-9-_ ]*$")] = None
 
     @model_validator(mode="after")
-    def validate_folder_name(self) -> Challenge:
+    def ensure_folder_name(self) -> Challenge:
         if not self.folder_name:
-            raise ValueError(
-                f'Invalid challenge name, unable to create a valid folder name for "{self.name}"'
-            )
+            s = re.sub(r"[^a-zA-Z0-9-_ ]", "", self.name).strip()
+            if not s:
+                raise ValueError(
+                    f'Invalid challenge name, unable to create a valid folder name for "{self.name}"'
+                )
+            self.folder_name = s
         return self
-
-    @property
-    def folder_name(self) -> str:
-        """
-        Converts the challenge name to an alphanumeric string with spaces,
-        dashes, and underscores only that should be supported by Windows and
-        Linux filesystems.
-
-        Returns:
-            str: The folder name for the challenge.
-        """
-        return re.sub(r"[^a-zA-Z0-9-_ ]", "", self.name).strip()
 
     @property
     def repo_path(self) -> Path:
