@@ -3,7 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 from warnings import warn
 
-from ctf_architect.core.challenge import create_challenge_readme, get_chall_config
+from ctf_architect.core.challenge import (
+    create_challenge_readme_string,
+    get_chall_config,
+    walk_challenge_folders,
+)
 from ctf_architect.core.config import load_config
 from ctf_architect.core.constants import CATEGORY_README_TEMPLATE, ROOT_README_TEMPLATE
 from ctf_architect.core.models import Challenge
@@ -40,7 +44,7 @@ def get_category_difficulty_distribution(name: str) -> dict[str, int]:
 
 
 def update_challenge_readme(challenge: Challenge):
-    readme = create_challenge_readme(challenge)
+    readme = create_challenge_readme_string(challenge)
 
     with open(challenge.repo_path / "README.md", "w", encoding="utf-8") as f:
         f.write(readme)
@@ -52,43 +56,66 @@ def update_category_readme(name: str):
     """
     config = load_config()
 
-    if name.lower() not in config.categories:
-        raise ValueError(f"Category {name} does not exist")
+    challenges: list[list[str]] = []
+    services: list[list[str]] = []
 
-    category_path = Path("challenges") / name.lower()
-
-    # Check if the category directory exists
-    if not category_path.exists():
-        raise FileNotFoundError(
-            f"The directory {category_path.absolute()} does not exist, are you in the right directory?"
+    for challenge_path in walk_challenge_folders(name):
+        config = get_chall_config(challenge_path)
+        challenges.append(
+            [
+                config.name,
+                config.folder_name,
+                config.description,
+                config.difficulty,
+                config.author,
+            ]
         )
 
-    challenges: list[list[str]] = []
-
-    for challenge_path in category_path.iterdir():
-        if challenge_path.is_dir():
-            config = get_chall_config(challenge_path)
-            challenges.append(
-                [
-                    config.name,
-                    config.folder_name,
-                    config.description,
-                    config.difficulty,
-                    config.author,
-                ]
-            )
+        if config.services is not None:
+            for service in config.services:
+                services.append(
+                    [
+                        config.name,
+                        config.folder_name,
+                        service.name,
+                        service.path.as_posix(),
+                        ", ".join(map(str, service.ports_list)) or "None",
+                        service.type,
+                    ]
+                )
 
     # Get the difficulty distribution
     distribution = get_category_difficulty_distribution(name)
 
-    # Create the challenges table
-    challenges_table = "\n".join(
-        f"| [{name}](<./{folder_name}>) |"
-        + f" {description if len(description) <= 20 else description[:20]+'...'} |"
-        + f" {difficulty.capitalize()} |"
-        + f" {author} |"
-        for name, folder_name, description, difficulty, author in challenges
-    )
+    if len(challenges) == 0:
+        challenges_table = "None"
+        services_table = "None"
+    else:
+        # Create the challenges table
+        challenges_table = (
+            "| Name | Description | Difficulty | Author |\n"
+            "| ---- | ----------- | ---------- | ------ |\n"
+        )
+        challenges_table += "\n".join(
+            f"| [{name}](<./{folder_name}>) |"
+            f" {description if len(description) <= 30 else description[:30]+'...'} |"
+            f" {difficulty.capitalize()} |"
+            f" {author} |"
+            for name, folder_name, description, difficulty, author in challenges
+        )
+
+        # Create the services table
+        services_table = (
+            "| Service | Challenge | Ports | Type |\n"
+            "| ------- | --------- | ----- | ---- |\n"
+        )
+        services_table += "\n".join(
+            f"| [{service_name}](<./{folder_name}/{service_path}>) |"
+            f" [{name}](<./{folder_name}>) |"
+            f" {ports} |"
+            f" {service_type} |"
+            for name, folder_name, service_name, service_path, ports, service_type in services
+        )
 
     # Create the difficulty distribution table
     diff_table = "\n".join(
@@ -105,10 +132,12 @@ def update_category_readme(name: str):
         diff_table=diff_table,
         count=len(challenges),
         challenges_table=challenges_table,
+        service_count=len(services),
+        services_table=services_table,
     )
 
     # Write the README
-    with open(category_path / "README.md", "w", encoding="utf-8") as f:
+    with open(f"challenges/{name.lower()}/README.md", "w", encoding="utf-8") as f:
         f.write(readme)
 
 
@@ -129,6 +158,7 @@ def update_root_readme():
         )
 
     challenges: list[list[str]] = []
+    services: list[list[str]] = []
     distributions: dict[str, dict[str, int]] = {}
 
     for category in config.categories:
@@ -158,17 +188,51 @@ def update_root_readme():
                     ]
                 )
 
+                if chall_config.services is not None:
+                    for service in chall_config.services:
+                        services.append(
+                            [
+                                chall_config.name,
+                                chall_config.folder_name,
+                                service.name,
+                                service.path.as_posix(),
+                                ", ".join(map(str, service.ports_list)) or "None",
+                                service.type,
+                            ]
+                        )
+
         distributions[category] = stats
 
-    # Create the challenges table
-    challenges_table = "\n".join(
-        f"| [{name}](<./{category.lower()}/{folder_name}>) |"
-        + f" {description if len(description) <= 20 else description[:20]+'...'} |"
-        + f" {category.capitalize()} |"
-        + f" {difficulty.capitalize()} |"
-        + f" {author} |"
-        for name, folder_name, description, category, difficulty, author in challenges
-    )
+    if len(challenges) == 0:
+        challenges_table = "None"
+        services_table = "None"
+    else:
+        # Create the challenges table
+        challenges_table = (
+            "| Name | Description | Category | Difficulty | Author |\n"
+            "| ---- | ----------- | -------- | ---------- | ------ |\n"
+        )
+        challenges_table += "\n".join(
+            f"| [{name}](<./{category.lower()}/{folder_name}>) |"
+            f" {description if len(description) <= 30 else description[:30]+'...'} |"
+            f" {category.capitalize()} |"
+            f" {difficulty.capitalize()} |"
+            f" {author} |"
+            for name, folder_name, description, category, difficulty, author in challenges
+        )
+
+        # Create the services table
+        services_table = (
+            "| Service | Challenge | Ports | Type |\n"
+            "| ------- | --------- | ----- | ---- |\n"
+        )
+        services_table += "\n".join(
+            f"| [{service_name}](<./{folder_name}/{service_path}>) |"
+            f" [{name}](<./{folder_name}>) |"
+            f" {ports} |"
+            f" {service_type} |"
+            for name, folder_name, service_name, service_path, ports, service_type in services
+        )
 
     # Create the difficulty distribution table
     diff_table_header = diff_table_header = (
@@ -208,7 +272,11 @@ def update_root_readme():
 
     # Create the README
     readme = ROOT_README_TEMPLATE.format(
-        diff_table=diff_table, count=len(challenges), challenges_table=challenges_table
+        diff_table=diff_table,
+        count=len(challenges),
+        challenges_table=challenges_table,
+        service_count=len(services),
+        services_table=services_table,
     )
 
     # Write the README

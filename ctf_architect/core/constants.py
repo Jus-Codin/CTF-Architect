@@ -46,7 +46,6 @@ CHALL_README_TEMPLATE = """# {name}
 """
 
 CATEGORY_README_TEMPLATE = """# {name} Challenges
-This directory contains challenges related to {name}.
 
 ## Difficulty Distribution
 | Difficulty | Number of Challenges |
@@ -54,19 +53,20 @@ This directory contains challenges related to {name}.
 {diff_table}
 
 ## Challenges ({count} total)
-| Name | Description | Difficulty | Author |
-| ---- | ----------- | ---------- | ------ |
 {challenges_table}
+
+## Services ({service_count} total)
+{services_table}
 """
 
 ROOT_README_TEMPLATE = """# Challenges
-This directory contains all challenges.
 
 ## Difficulty Distribution
 {diff_table}
 
 ## Challenges ({count} total)
-| Name | Description | Category | Difficulty | Author |
-| ---- | ----------- | -------- | ---------- | ------ |
 {challenges_table}
+
+## Services ({service_count} total)
+{services_table}
 """

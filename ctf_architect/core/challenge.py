@@ -56,6 +56,8 @@ def walk_challenge_folders(category: str | None = None) -> Generator[Path]:
         categories = config.categories
 
     for category in categories:
+        if not (challenges_path / category).exists():
+            continue
         for directory in (challenges_path / category).iterdir():
             if directory.is_dir():
                 yield directory
@@ -216,10 +218,9 @@ def walk_challenges(
             yield get_chall_config(folder)
 
 
-def create_challenge_readme(challenge: Challenge):
-    flags = "\n".join(
-        f"- `{flag.flag}` ({'regex' if flag.regex else 'static'})"
-        for flag in challenge.flags
+def create_challenge_readme_string(challenge: Challenge) -> str:
+    extras = "\n".join(
+        f"- **{key.capitalize()}:** {value}" for key, value in challenge.extras.items()
     )
 
     if challenge.hints is None:
@@ -235,23 +236,27 @@ def create_challenge_readme(challenge: Challenge):
         files = ""
         for file in challenge.files:
             if isinstance(file, Path):
-                files += f"- [{file.name}]({file})\n"
+                files += f"- [{file.name}](<{file.as_posix()}>)\n"
             else:
                 files += f"- {file}\n"
         files = files.strip()
+
+    if challenge.flags is None:
+        flags = "None"
+    else:
+        flags = "\n".join(
+            f"- `{flag.flag}` ({'regex' if flag.regex else 'static', {'case-sensitive' if flag.case_sensitive else 'case-insensitive'}})"
+            for flag in challenge.flags
+        )
 
     if challenge.services is None:
         services = "None"
     else:
         services = "| Service | Port | Type |\n| ------- | ---- | ---- |\n"
         services += "\n".join(
-            f"| [`{service.name}`]({service.path}) | {service.port} | {service.type} |"
+            f"| [`{service.name}`](<{service.path.as_posix()}>) | {service.port} | {service.type} |"
             for service in challenge.services
         )
-
-    extras = "\n".join(
-        f"- **{key.capitalize()}:** {value}" for key, value in challenge.extras.items()
-    )
 
     readme = CHALL_README_TEMPLATE.format(
         name=challenge.name,
