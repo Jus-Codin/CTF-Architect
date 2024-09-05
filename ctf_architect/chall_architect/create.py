@@ -6,7 +6,7 @@ from pathlib import Path
 
 from tomlkit import comment, document, dump, nl
 
-from ctf_architect.core.challenge import create_challenge_readme
+from ctf_architect.core.challenge import create_challenge_readme_string
 from ctf_architect.core.constants import CHALLENGE_CONFIG_FILE, SPECIFICATION_VERSION
 from ctf_architect.core.models import Challenge, Flag, Hint, Service
 
@@ -180,6 +180,6 @@ def create_challenge(
 
     # Write README
     with open(path / "README.md", "w", encoding="utf-8") as f:
-        f.write(create_challenge_readme(challenge))
+        f.write(create_challenge_readme_string(challenge))
 
     return path

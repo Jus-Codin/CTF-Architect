@@ -60,6 +60,8 @@ requirements = [
     "challenge2"
 ]
 
+folder_name = "challenge_name"
+
 [challenge.extras]
 discord = "juscodin"
 
@@ -117,6 +119,7 @@ privileged = true
 - `name` (String): Name of the challenge
 - `files` (List of Strings) (Optional): List of files to give users attempting the challenge. The files are specified as a list of strings, where each string is a path to a file. The paths are relative to the challenge's directory. You can also specify a URL for users to download the file from. If you have no files to give, you do not need to specify this.
 - `requirements` (List of Strings) (Optional): List of challenge names for challenges that must be completed before this challenge can be attempted. If there are no requirements, you do not need to specify this.
+- `folder_name` (String) (Optional): The folder name for the challenge. Must follow the pattern `/^[a-zA-Z0-9-_ ]*$/`. If not provided, it will be generated from the challenge name.
 - `extras` (Table) (Optional): Extra information about the challenge. Extra fields specified in the CTF repository config must be specified here.
 - `flags` (List of Tables): List of flags for the challenge. Flags can be static or regex. The flag must have the following fields:
     - `flag` (String): The flag for the challenge

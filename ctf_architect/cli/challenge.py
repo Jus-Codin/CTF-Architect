@@ -113,7 +113,8 @@ def challenge_import(
 
         if not challenge_folders:
             console.print(
-                f"No challenge folders found in {zip_file}, skipping...", style="yellow"
+                f"No challenge folders found in {zip_file}, skipping...",
+                style="bright_yellow",
             )
             if delete_on_error:
                 shutil.rmtree(new_path, ignore_errors=True)
@@ -144,12 +145,12 @@ def challenge_import(
                     else:
                         console.print(
                             f'Challenge "{extracted.name}" imported successfully.',
-                            style="green",
+                            style="bright_green",
                         )
                         # Delete the extracted folder
                         shutil.rmtree(extracted, ignore_errors=True)
                         success += 1
-                    console.print(f'Skipping "{extracted.name}"', style="yellow")
+                    console.print(f'Skipping "{extracted.name}"', style="bright_yellow")
             except Exception as e:
                 console.print(
                     f"Error importing {extracted.name}:\n{e}", style="bright_red"
@@ -164,7 +165,7 @@ def challenge_import(
             else:
                 console.print(
                     f'Challenge "{extracted.name}" imported successfully.',
-                    style="green",
+                    style="bright_green",
                 )
                 # Delete the extracted folder
                 shutil.rmtree(extracted, ignore_errors=True)
@@ -207,14 +208,12 @@ def challenge_export(
         console.print(f"Could not find challenge: {name}", style="bright_red")
         return
 
-    challenge_path = challenge[1]
-
     if filename is None:
-        filename = challenge_path.name
+        filename = challenge.repo_path.name
 
     path = Path(path) / filename
 
-    zip_path = shutil.make_archive(path, "zip", challenge_path)
+    zip_path = shutil.make_archive(path, "zip", challenge.repo_path)
 
     console.print(f"Challenge exported to {zip_path}", style="green")
 
@@ -235,26 +234,24 @@ def challenge_info(name: str = typer.Argument(..., help="Name of the challenge."
         console.print(f"Could not find challenge: {name}", style="bright_red")
         return
 
-    config, path = challenge
-
     info = (
-        f"[bold]Name:[/] {config.name}\n"
-        f"[bold]Description:[/] {config.description.strip()}\n\n"
-        f"[bold]Difficulty:[/] {config.difficulty.capitalize()}\n"
-        f"[bold]Category:[/] {config.category.capitalize()}\n"
-        f"[bold]Author:[/] {config.author}\n"
+        f"[bold]Name:[/] {challenge.name}\n"
+        f"[bold]Description:[/] {challenge.description.strip()}\n\n"
+        f"[bold]Difficulty:[/] {challenge.difficulty.capitalize()}\n"
+        f"[bold]Category:[/] {challenge.category.capitalize()}\n"
+        f"[bold]Author:[/] {challenge.author}\n"
     )
 
-    for extra in config.extras:
-        info += f"[bold]{extra.capitalize()}[/]: {config.extras[extra]}\n"
+    for extra in challenge.extras:
+        info += f"[bold]{extra.capitalize()}[/]: {challenge.extras[extra]}\n"
 
-    if config.services is not None:
+    if challenge.services is not None:
         info += "\n[bold]Services[/]:\n"
-        for service in config.services:
+        for service in challenge.services:
             info += (
                 f"\n - [bold]Name:[/] {service.name}\n"
                 # f" - [bold]Path:[/] {service.path}\n"
-                f" - [bold]Path:[/] {(path / service.path).resolve()}\n"
+                f" - [bold]Path:[/] {(challenge.repo_path / service.path).resolve()}\n"
                 f" - [bold]Port:[/] {service.port}\n"
                 f" - [bold]Type:[/] {service.type.capitalize()}\n"
             )
@@ -262,7 +259,7 @@ def challenge_info(name: str = typer.Argument(..., help="Name of the challenge."
     console.print(
         Panel.fit(
             info,
-            title=f'Challenge Info for "{config.name}" ({path.resolve()})',
+            title=f'Challenge Info for "{challenge.name}" ({challenge.repo_path.resolve()})',
             border_style="bright_cyan",
         )
     )

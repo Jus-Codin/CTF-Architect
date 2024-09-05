@@ -173,7 +173,7 @@ def C003(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool | st
 @rule(
     "C004",
     level=SeverityLevel.ERROR,
-    message="File specified in chall.toml not found",
+    message="File specified in chall.toml not found or is absolute path",
 )
 def C004(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool | str:
     challenge = get_chall_config(challenge_path)
@@ -182,16 +182,30 @@ def C004(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool | st
         return True
 
     missing_files = []
+    absolute_files = []
 
     for file in challenge.files:
-        if isinstance(file, Path) and not (challenge_path / file).exists():
-            missing_files.append(file)
-            return f'File "{file}" specified in chall.toml does not exist'
+        if isinstance(file, Path):
+            if file.is_absolute():
+                absolute_files.append(file)
+            if not (challenge_path / file).exists():
+                missing_files.append(file)
+
+    result = ""
+
+    if absolute_files:
+        s = "Files specified in chall.toml are absolute paths:\n"
+        for file in absolute_files:
+            s += f"  - {file}\n"
+        result += s
 
     if missing_files:
-        return "Files specified in chall.toml do not exist: " + ", ".join(missing_files)
-    else:
-        return True
+        s = "Files specified in chall.toml do not exist:\n"
+        for file in missing_files:
+            s += f"  - {file}\n"
+        result += s
+
+    return result if result else True
 
 
 @rule(
@@ -202,7 +216,7 @@ def C004(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool | st
 def C005(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool:
     challenge = get_chall_config(challenge_path)
 
-    return len(challenge.flags) > 0
+    return challenge.flags is None or len(challenge.flags) == 0
 
 
 @rule(
@@ -214,6 +228,20 @@ def C006(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool:
     challenge = get_chall_config(challenge_path)
 
     return not (challenge.files or challenge.services)
+
+
+@rule(
+    "C007",
+    level=SeverityLevel.ERROR,
+    message="Challenge folder name and name in chall.toml do not match",
+)
+def C007(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool | str:
+    challenge = get_chall_config(challenge_path)
+
+    if challenge_path.name != challenge.folder_name:
+        return f'Folder name does not match name in chall.toml (expected "{challenge.folder_name}", got "{challenge_path.name}")'
+
+    return True
 
 
 # Service Configuration Rules
@@ -229,17 +257,29 @@ def S000(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool | st
         return True
 
     missing_paths = {}
+    absolute_paths = {}
 
     for service in challenge.services:
-        if service.path is not None and not (challenge_path / service.path).exists():
+        if service.path.is_absolute():
+            absolute_paths[service.name] = service.path
+        if not (challenge_path / service.path).exists():
             missing_paths[service.name] = service.path
 
+    result = ""
+
+    if absolute_paths:
+        s = "Paths specified in services are absolute paths:\n"
+        for name, path in absolute_paths.items():
+            s += f"  - {name}: {path}\n"
+        result += s
+
     if missing_paths:
-        return "Paths specified in services do not exist: " + ", ".join(
-            f"{name} ({path})" for name, path in missing_paths.items()
-        )
-    else:
-        return True
+        s = "Paths specified in services do not exist:\n"
+        for name, path in missing_paths.items():
+            s += f"  - {name}: {path}\n"
+        result += s
+
+    return result if result else True
 
 
 RULES = [
@@ -256,6 +296,7 @@ RULES = [
     C004,
     C005,
     C006,
+    C007,
     # Service Configuration Rules
     S000,
 ]
