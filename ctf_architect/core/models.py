@@ -120,7 +120,7 @@ class Challenge(Model):
     files: list[HttpUrl | Path] | None = None
     requirements: list[str] | None = None
     extras: dict[str, Any] | None = None
-    flags: Annotated[list[Flag], Len(min_length=1)]
+    flags: list[Flag] | None = None
     hints: list[Hint] | None = None
     services: list[Service] | None = None
     folder_name: Annotated[str, StringConstraints(pattern=r"^[a-zA-Z0-9-_ ]*$")] = None
