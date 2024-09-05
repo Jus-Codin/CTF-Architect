@@ -184,15 +184,15 @@ def remove_challenge(name: str | None = None, path: Path | str | None = None):
         challenge = find_challenge(name)
         if challenge is None:
             raise FileNotFoundError(f"Challenge with name {name} not found")
-        path = challenge[1]
+        path = challenge.repo_path
     elif path is not None:
         if isinstance(path, str):
             path = Path(path)
         if not path.is_dir():
             raise ValueError(f'"{path.absolute()}" is not a directory')
         # Safety check to make sure path is in the challenge repo
-        if path.resolve().parent in Path("challenges").resolve().iterdir():
-            challenge = get_chall_config(path)
+        if path.resolve().parent not in Path("challenges").resolve().iterdir():
+            raise ValueError(f'"{path.absolute()}" is not in the CTF repo')
     else:
         raise ValueError("Must specify name or path to remove challenge")
 
