@@ -230,6 +230,20 @@ def C006(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool:
     return not (challenge.files or challenge.services)
 
 
+@rule(
+    "C007",
+    level=SeverityLevel.ERROR,
+    message="Challenge folder name and name in chall.toml do not match",
+)
+def C007(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool | str:
+    challenge = get_chall_config(challenge_path)
+
+    if challenge_path.name != challenge.folder_name:
+        return f'Folder name does not match name in chall.toml (expected "{challenge.folder_name}", got "{challenge_path.name}")'
+
+    return True
+
+
 # Service Configuration Rules
 @rule(
     "S000",
@@ -282,6 +296,7 @@ RULES = [
     C004,
     C005,
     C006,
+    C007,
     # Service Configuration Rules
     S000,
 ]
