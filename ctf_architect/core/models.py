@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from pathlib import Path
 from typing import Annotated, Any, Literal
 
@@ -15,7 +14,10 @@ from pydantic import (
 )
 
 from ctf_architect.core.constants import SPECIFICATION_VERSION_STRING
-from ctf_architect.core.utils import is_supported_specification_version
+from ctf_architect.core.utils import (
+    is_supported_specification_version,
+    sanitize_challenge_name,
+)
 
 
 class Model(BaseModel):
@@ -128,7 +130,7 @@ class Challenge(Model):
     @model_validator(mode="after")
     def ensure_folder_name(self) -> Challenge:
         if not self.folder_name:
-            s = re.sub(r"[^a-zA-Z0-9-_ ]", "", self.name).strip()
+            s = sanitize_challenge_name(self.name)
             if not s:
                 raise ValueError(
                     f'Invalid challenge name, unable to create a valid folder name for "{self.name}"'
