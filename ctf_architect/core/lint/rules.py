@@ -9,7 +9,7 @@ from functools import total_ordering
 from pathlib import Path
 from typing import Callable
 
-from ctf_architect.core.challenge import get_chall_config
+from ctf_architect.core.challenge import find_challenge, get_chall_config
 from ctf_architect.core.models import CTFConfig
 
 
@@ -47,9 +47,27 @@ class Rule:
         self.message = message
 
 
+RULES: list[Rule] = []
+RULES_DICT: dict[str, Rule] = {}
+
+
+def get_rule(code: str) -> Rule:
+    return RULES_DICT[code]
+
+
+def add_rule(rule: Rule):
+    if rule.code in RULES_DICT:
+        raise ValueError(f"Rule with code {rule.code} already exists")
+
+    RULES_DICT[rule.code] = rule
+    RULES.append(rule)
+
+
 def rule(code: str, level: SeverityLevel, message: str | None = None):
-    def decorator(f: Callable[[Path, CTFConfig | None], bool | str]):
-        return Rule(code=code, level=level, check=f, message=message)
+    def decorator(f: Callable[[Path, CTFConfig | None], bool | str]) -> Rule:
+        rule = Rule(code=code, level=level, check=f, message=message)
+        add_rule(rule)
+        return rule
 
     return decorator
 
@@ -244,6 +262,31 @@ def C007(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool | st
     return True
 
 
+@rule(
+    "C008",
+    level=SeverityLevel.ERROR,
+    message="Challenge requirement not found in Challenge Repository",
+)
+def C008(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool | str:
+    if ctf_config is None:
+        # CTF config is not loaded, so we can't check this rule
+        return True
+
+    challenge = get_chall_config(challenge_path)
+
+    missing_reqs = []
+
+    if challenge.requirements is not None:
+        for req in challenge.requirements:
+            if not find_challenge(req):
+                missing_reqs.append(req)
+
+    if missing_reqs:
+        return f"Requirements in chall.toml file could not be found or loaded: {', '.join(missing_reqs)}"
+    else:
+        return True
+
+
 # Service Configuration Rules
 @rule(
     "S000",
@@ -280,37 +323,3 @@ def S000(challenge_path: Path, ctf_config: CTFConfig | None = None) -> bool | st
         result += s
 
     return result if result else True
-
-
-RULES = [
-    # File Structure Rules
-    F000,
-    F001,
-    F002,
-    F004,
-    # Challenge Configuration Rules
-    C000,
-    C001,
-    C002,
-    C003,
-    C004,
-    C005,
-    C006,
-    C007,
-    # Service Configuration Rules
-    S000,
-]
-
-RULES_DICT = {rule.code: rule for rule in RULES}
-
-
-def get_rule(code: str) -> Rule:
-    return RULES_DICT[code]
-
-
-def add_rule(rule: Rule):
-    if rule.code in RULES_DICT:
-        raise ValueError(f"Rule with code {rule.code} already exists")
-
-    RULES_DICT[rule.code] = rule
-    RULES.append(rule)
