@@ -4,14 +4,11 @@ from pathlib import Path
 from typing import Annotated, Literal
 
 import typer
-from rich.console import Console
 from rich.tree import Tree
 
+from ctf_architect._console import console
 from ctf_architect.core.config import load_config
 from ctf_architect.core.lint import Linter, LintResult, SeverityLevel
-
-console = Console()
-
 
 lint_app = typer.Typer()
 
@@ -26,13 +23,13 @@ def callback():
 @lint_app.command("run")
 def lint_run(
     ignore: Annotated[
-        str,
+        list[str] | None,
         typer.Option(
             "--ignore",
             "-i",
             help="Ignore specific rules by their codes. Separate multiple codes with commas.",
         ),
-    ] = "",
+    ] = None,
     level: Annotated[
         str,
         typer.Option(
@@ -53,8 +50,6 @@ def lint_run(
     """
     Lint the challenges in the CTF repo.
     """
-
-    ignore = ignore.split(",") if ignore else None
 
     match level.lower():
         case "info":
