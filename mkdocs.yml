@@ -1,5 +1,5 @@
 site_name: CTF Architect
-site_url: https://127.0.0.1:8000/
+site_url: https://jus-codin.github.io/CTF-Architect/
 site_author: JusCodin
 site_description: >-
   A tool for managing challenges for CTFs
@@ -77,7 +77,9 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
       combine_header_slug: true
-      slugify: !!python/object/apply:pymdownx.slugs.slugify {kwds: {case: lower}}
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
@@ -89,13 +91,13 @@ plugins:
       default_handler: python
       handlers:
         python:
-          paths: [.]
+          paths: [src]
           import:
           - https://docs.python.org/3/objects.inv
           options:
             show_source: true
             show_root_toc_entry: false
-            docstring_style: numpy
+            docstring_style: google
             members_order: source
             show_symbol_type_heading: true
             show_symbol_type_toc: true
@@ -105,8 +107,10 @@ plugins:
 
 nav:
   - Home: index.md
+  - Get Started:
+    - Introduction: introduction.md
+    - Installation: installation.md
   - Guides:
-    - Installation: guides/installation.md
     - Repository Setup: guides/repository-setup.md
     - Packaging Challenges: guides/packaging-challenges.md
   - Specifications:
@@ -114,11 +118,3 @@ nav:
     - Repository: spec/repository.md
   - API Reference:
     - Models: api/models.md
-
-extra_css:
-  - css/custom.css
-  - css/termynal.css
-
-extra_javascript:
-  - js/termynal.js
-  - js/custom.js

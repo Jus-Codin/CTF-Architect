@@ -1,14 +1,16 @@
 # Packaging Challenges
 
 !!! note
-    This guide assumes that you have successfully installed CTF-Architect. If you have not, please refer to the [installation guide](./installation.md).
+    This guide assumes that you have successfully installed CTF-Architect. If you have not, please refer to the [installation guide](../installation.md).
+
 
 ## Download ctf_config.toml
-Download the relavant `ctf_config.toml` file for the CTF. If you do not have this file, contact the CTF organizers for it.
+Download the relavant `ctf_config.toml` file for the CTF. This is required to properly package the challenge. If you do not have this file, contact the CTF organizers for it.
 
 ## Prepare Your Files
 Prepare the following files for your challenge:
 
+- **Source Files**: The source files, e.g. precompiled binaries, scripts, etc for the challenge.
 - **Solution Files**: The writeup or solution files for the challenge.
 - **Challenge Files**: The files that the participants will interact with to solve the challenge.
 - **Service Folders**: If your challenge requires a service, create a folder for the service. This folder should contain the files required to run the service and a `Dockerfile`.
@@ -16,167 +18,190 @@ Prepare the following files for your challenge:
 ## Packaging a Challenge
 To package a challenge for submission, run the following command:
 
-```bash
-chall-architect
-
-# or
-
-python3 -m ctf_architect.chall_architect # Linux and MacOS
-py -3 -m ctf_architect.chall_architect # Windows
+```console
+$ ctfa chall new
 ```
 
-<div class="termy">
+!!! note
+    The `ctfa chall new` command will create the challenge directory structure in a new folder in the current directory. If you would like it to be created in the current directory, use the `ctfa chall init` command instead.
 
 ```console
-$ chall-architect
-────────────────── ⚙ CTF Config ⚙ ───────────────────
-# Please select the CTF config file.$                                     
-╭──────────────── YCEP 2024 Config ─────────────────╮
-│ Categories:                                       │
-│   - Web                                           │
-│   - Forensics                                     │
-│   - Crypto                                        │
-│   - Misc                                          │
-│   - Re                                            │
-│   - Pwn                                           │
-│   - Osint                                         │
-│                                                   │
-│ Difficulties:                                     │
-│   - Easy (1000)                                   │
-│   - Medium (1000)                                 │
-│   - Hard (1000)                                   │
-│   - Insane (1000)                                 │
-│                                                   │
-│ Extra Fields:                                     │
-│   - discord                                       │
-│                                                   │
-│ Starting Port: 8000                               │
-╰───────────────────────────────────────────────────╯
-# Is this the correct config? [y/n]:$ y
-───────────── 🚀 Challenge Creation 🚀 ──────────────
-# 🚀 [1/6] Please enter the challenge name(case-insensitive):$ Gimme Cookie
-🚀 [2/6] Please enter the challenge description.
-Press Ctrl+D (or Ctrl+Z on Windows) on an empty line
-to finish.
-# >>>$ I want cookies!
-# >>>$ ^Z
+$ ctfa chall new
 
-Categories:
-1. Web
-2. Forensics
-3. Crypto
-4. Misc
-5. Re
-6. Pwn
-7. Osint
+Please select the Repo Configuration file.
+╭─ CTF Config ──────────────────────────────────────────────────────────╮
+│  CTF Name: Test CTF                                                   │
+│  Flag Format: flag{.*}                                                │
+│  Starting Port: 8000                                                  │
+╰───────────────────────────────────────────────────────────────────────╯
+╭─ Categories ──────────────────────────────────────────────────────────╮
+│   - Web                                                               │
+│   - Pwn                                                               │
+│   - Osint                                                             │
+│   - Forensics                                                         │
+│   - Re                                                                │
+│   - Misc                                                              │
+│   - Crypto                                                            │
+╰───────────────────────────────────────────────────────────────────────╯
+╭─ Difficulties ────────────────────────────────────────────────────────╮
+│   - Easy                                                              │
+│   - Medium                                                            │
+│   - Hard                                                              │
+╰───────────────────────────────────────────────────────────────────────╯
+╭─ Extras ──────────────────────────────────────────────────────────────╮
+│   - discord (string)                                                  │
+╰───────────────────────────────────────────────────────────────────────╯
+Is this the correct Repo Configuration? Yes
 
-# 🚀 [3/6] Please choose the challenge category [1-7]:$ 1
-Category selected: Web
+🚀 Enter the challenge name: Example Challenge
 
-Difficulties:
-1. Easy (1000)
-2. Medium (1000)
-3. Hard (1000)
-4. Insane (1000)
+📝 Would you like to specify the folder name manually? Yes
+🚀 Enter the challenge folder name: example-challenge
 
-# 🚀 [4/6] Please choose the challenge difficulty [1-4]:$ 1
-Difficulty selected: Easy
+Press Ctrl-D (or Ctrl-Z on Windows) to finish input.
+📝 Enter the challenge description:
 
+This is an example challenge desciption
+^Z
 
-# 🚀 [5/6] Please enter your name:$ JusCodin
+🏷 Select the challenge category: misc
 
-# 🚀 [6/6] Please enter info for discord:$ juscodin
-Discord: juscodin
-# ─ 📁 Please select the source files for the challe… ─$                                     
-Source files selected:
-  C:\Users\Admin\Git\Gryphons\YCEP-Challenges-2024\ch
-allenges\web\Gimme Cookie\service\gimme-cookie\app.py
-  C:\Users\Admin\Git\Gryphons\YCEP-Challenges-2024\ch
-allenges\web\Gimme
-Cookie\service\gimme-cookie\Dockerfile
-# ─ 📁 Please select the solution files for the chal… ─$                                     
-Solution files selected:
-  C:\Users\Admin\Git\Gryphons\YCEP-Challenges-2024\ch
-allenges\web\Gimme Cookie\solution\writeup.md
-─────────────── 🚩 Challenge Flags 🚩 ───────────────
-# 🚩 Is the flag a regex flag? [y/n]:$ n
-# 🚩 Is the flag case-sensitive? [y/n]:$ y
-# 🚩 Enter the flag:$ YCEP24{v3Ry_EZ_C0oK1e_MAn1pU1@t!0N}
-# Do you want to add another flag? [y/n]:$ n
-─────────────── 💡 Challenge Hints 💡 ───────────────
-# 💡 Does the challenge have hints? [y/n]:$ n
-─────────────── 📁 Challenge Files 📁 ───────────────
-# 📁 Does the challenge have files to give to players? [y/n]:$ y
+📊 Select the challenge difficulty: easy
 
-# 📁 Are there any files from URLs? [y/n]:$ n
+👤 Enter the challenge author: JusCodin
 
-# 📁 Are there any files from the local system? [y/n]:$ y
-$                                     
-Files selected:
--
-C:\Users\Admin\Git\Gryphons\YCEP-Challenges-2024\chal
-lenges\web\Gimme
-Cookie\service\gimme-cookie\Dockerfile
-────────────── ⚙ Challenge Services ⚙ ───────────────
-# ⚙ Does the challenge have services? [y/n]:$ y
+Enter your discord tag: example
 
-# ⚙ Please enter the service name:$ gimme-cookie
-# ⚙ Please enter the service port:$ 1337
-⚙ Please enter the service type
-# [web/nc/ssh/secret/internal]:$ web
-# ⚙ Please select the service folder...$                                     
-# ⚙ Does the service have any extra fields? [y/n]:$ n
-# Do you want to add another service? [y/n]:$ n
-🚀 Does the service(s) need a Docker Compose file?
-# [y/n]:$ n
+Would you like to specify the requirements for the challenge? Yes
+⚙ Enter a requirement: Example Requirement
+Do you want to add another requirement? No
 
-──────────── ⚙ Challenge Requirements ⚙ ─────────────
-# ⚙ Does the challenge have requirements? [y/n]:$ n
-╭──────────────── Challenge Details ────────────────╮
-│ Name: Gimme Cookie                                │
-│ Description: I want cookies!                      │
-│ Category: Web                                     │
-│ Difficulty: Easy                                  │
-│ Author: JusCodin                                  │
-│                                                   │
-│ Extra Fields:                                     │
-│ Discord: juscodin                                 │
-│ None                                              │
-│                                                   │
-│ Solution Files:                                   │
-│ -                                                 │
-│ C:/Users/Admin/Git/Gryphons/YCEP-Challenges-2024/ │
-│ challenges/web/Gimme Cookie/solution/writeup.md   │
-│                                                   │
-│ Flags: YCEP24{v3Ry_EZ_C0oK1e_MAn1pU1@t!0N}        │
-│                                                   │
-│ Hints:                                            │
-│ None                                              │
-│                                                   │
-│ Files:                                            │
-│ -                                                 │
-│ C:/Users/Admin/Git/Gryphons/YCEP-Challenges-2024/ │
-│ challenges/web/Gimme                              │
-│ Cookie/service/gimme-cookie/Dockerfile            │
-│                                                   │
-│ Services:                                         │
-│ - gimme-cookie (web)                              │
-│                                                   │
-│ Docker Compose:                                   │
-│ None                                              │
-│ Requirements:                                     │
-│ None                                              │
-│                                                   │
-╰───────────────────────────────────────────────────╯
-# Do you want to create the challenge? [y/n]:$ y
-Successfully created challenge `Gimme Cookie` at
-`C:\Users\Admin\Gimme Cookie`
+🚩 Select the type of flag to add: Static
+Is the flag case-insensitive? No
+🚩 Enter the flag: flag{test}
+Would you like to add another flag? No
+
+💡 Does the challenge have hints? Yes
+Press Ctrl-D (or Ctrl-Z on Windows) to finish input.
+💡 Enter the hint:
+
+This is a hint
+^Z
+💰 Enter the hint cost: 100
+Would you like to add another hint? No
+
+Does the challenge have distributable files? Yes
+Select the type of files to add: Local file
+How would you like to select the file?: Browse for file
+Added file: C:/example-file.txt
+
+Select the type of files to add: URL
+📁 Enter the URL of the file: http://example-file.com
+Added URL: http://example-file.com
+
+Select the type of files to add: Done
+
+Does the challenge have source files? No
+
+Does the challenge have solution files? No
+
+💻 Would you like to import a service into this challenge? Yes
+💻 Select the service type: TCP
+💻 Enter the service name: example-service
+💻 Enter the service port: 5000
+Would you like to add another port? Yes
+💻 Enter the service port: 5001
+Would you like to add another port? No
+How would you like to select the folder?: Browse for folder
+Selected folder: C:/Example-Service
+Would you like to add another service? No
+
+╭─ ⚙ Challenge Config ──────────────────────────────────────────────────╮
+│  Name: Example Challenge                                              │
+│  Author: JusCodin                                                     │
+│  Category: Misc                                                       │
+│  Difficulty: Easy                                                     │
+│  Description: This is an example challenge desciption                 │
+│                                                                       │
+│  Folder Name: example-challenge                                       │
+╰───────────────────────────────────────────────────────────────────────╯
+╭─ ⚙ Requirements ──────────────────────────────────────────────────────╮
+│   - Example Requirement                                               │
+╰───────────────────────────────────────────────────────────────────────╯
+╭─ 📦 Extras ───────────────────────────────────────────────────────────╮
+│   - discord: example                                                  │
+╰───────────────────────────────────────────────────────────────────────╯
+╭─ 💡 Hints ────────────────────────────────────────────────────────────╮
+│   - This is a hint                                                    │
+│  (100 points)                                                         │
+╰───────────────────────────────────────────────────────────────────────╯
+╭─ 📁 Dist Files ───────────────────────────────────────────────────────╮
+│   - C:\example-file.txt                                               │
+│   - http://example-file.com                                           │
+╰───────────────────────────────────────────────────────────────────────╯
+╭─ 📁 Source Files ─────────────────────────────────────────────────────╮
+│   - None                                                              │
+╰───────────────────────────────────────────────────────────────────────╯
+╭─ 📁 Solution Files ───────────────────────────────────────────────────╮
+│   - None                                                              │
+╰───────────────────────────────────────────────────────────────────────╯
+╭─ 🚩 Flags ────────────────────────────────────────────────────────────╮
+│ ┏━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━━━━━┓                            │
+│ ┃ Flag       ┃ Type   ┃ Case-Insensitive ┃                            │
+│ ┡━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━━━━━┩                            │
+│ │ flag{test} │ static │ False            │                            │
+│ └────────────┴────────┴──────────────────┘                            │
+╰───────────────────────────────────────────────────────────────────────╯
+╭─ 💻 Services ─────────────────────────────────────────────────────────╮
+│ ┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━┓ │
+│ ┃ Service Name    ┃ Path                        ┃ Ports      ┃ Type ┃ │
+│ ┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━┩ │
+│ │ example-service │ C:/Example-Service          │ 5000, 5001 │ tcp  │ │
+│ └─────────────────┴─────────────────────────────┴────────────┴──────┘ │
+╰───────────────────────────────────────────────────────────────────────╯
+Is the challenge configuration correct? Yes
+✨ Challenge initialized successfully! ✨
 ```
 
-</div>
+## Linting the Challenge
+To ensure that the challenge is correctly formatted, you can lint the challenge to find any potential issues. To do this, run the following command in the challenge directory:
 
-## Submitting a Challenge
-If everything goes well, your challenge should be nicely packaged in a folder. You can now **zip** the folder and submit it. 
+```console
+$ ctfa chall lint
+Would you like to select a CTF config file? Yes
+Please select the Repo Configuration file.
+╭─ CTF Config ──────────────────────────────────────────────────────────╮
+│  CTF Name: Test CTF                                                   │
+│  Flag Format: flag{.*}                                                │
+│  Starting Port: 8000                                                  │
+╰───────────────────────────────────────────────────────────────────────╯
+╭─ Categories ──────────────────────────────────────────────────────────╮
+│   - Web                                                               │
+│   - Pwn                                                               │
+│   - Osint                                                             │
+│   - Forensics                                                         │
+│   - Re                                                                │
+│   - Misc                                                              │
+│   - Crypto                                                            │
+╰───────────────────────────────────────────────────────────────────────╯
+╭─ Difficulties ────────────────────────────────────────────────────────╮
+│   - Easy                                                              │
+│   - Medium                                                            │
+│   - Hard                                                              │
+╰───────────────────────────────────────────────────────────────────────╯
+╭─ Extras ──────────────────────────────────────────────────────────────╮
+│   - discord (string)                                                  │
+╰───────────────────────────────────────────────────────────────────────╯
+Is this the correct Repo Configuration? Yes
+╭─────────────────── example-challenge Lint Results ────────────────────╮
+│ example-challenge (all passed)                                        │
+│ └── ✓ All checks passed                                               │
+╰───────────────────────────────────────────────────────────────────────╯
+```
 
-!!! warning
-    Ensure that it is a **.zip** file, and not a **.rar** or **.7z** file.
+## Submitting the Challenge
+Once you have packaged the challenge, you can submit it to the CTF organizers. To do this, compress the challenge folder into a `.zip` file and send it to the organizers.
+
+!!! tip
+    You can actually submit multiple challenges at once by compressing multiple challenge folders into a single `.zip` file. However, if your organization requires you to submit challenges individually, you should follow their guidelines.
+    
