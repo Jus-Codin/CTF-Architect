@@ -1,7 +1,7 @@
 [project]
 name = "ctf-architect"
 version = "0.1.0a10"
-description = "Add your description here"
+description = "A CTF challenge management tool"
 license = "MIT"
 readme = "README.md"
 authors = [
