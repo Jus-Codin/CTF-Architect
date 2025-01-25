@@ -1,0 +1,45 @@
+# CTF Repository Metadata File (version 0.1)
+# This file is machine generated. DO NOT EDIT unless you know what you are doing.
+# This is the file to specify to ctf-architect when creating a new challenge.
+
+# ----------------- CTF Config Specification Version (required) ------------------
+version = "0.1"
+
+
+# --------------------------- CTF Config Info (required) -------------------------
+# This section specifies the information about the CTF repository.
+# Some fields are required, while others are optional:
+# - categories: The categories of challenges
+# - difficulties: The difficulties of challenges
+# - flag_format (optional): The format of the flags
+# - starting_port (optional): The starting port for the challenge services
+# - name: The name of the CTF
+
+[config]
+categories = ["web", "crypto", "pwn", "re", "misc", "forensics", "osint"]
+difficulties = ["easy", "medium", "hard"]
+flag_format = "flag{.*}"
+starting_port = 8000
+name = "Demo CTF"
+
+
+# ------------------------- CTF Config Extras (optional) -------------------------
+# This section specifies extra fields that challenges should have.
+# The fields can be required or optional, and can be of the following types:
+# - string: A string value
+# - integer: An integer value
+# - float: A float value
+# - boolean: A boolean value
+#
+# The fields are specified as a list of tables, where each table has the following fields:
+# - name: The name of the field
+# - description: The description of the field
+# - prompt: The prompt to display to the user when entering the field
+# - required: Whether the field is required or not
+# - type: The type of the field
+[[config.extras]]
+name = "discord"
+description = "Discord username"
+prompt = "Enter your Discord username"
+required = true
+type = "string"
