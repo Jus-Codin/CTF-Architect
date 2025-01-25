@@ -2,8 +2,8 @@
 
 A CTF challenge management tool
 
-!!! warning
-    This tool is still a work in progress, bugs are to be expected. If you find any, please open an [issue](https://github.com/Jus-Codin/CTF-Architect/issues)
+> [!WARNING]
+>  This tool is still a work in progress, bugs are to be expected. If you find any, please open an [issue](https://github.com/Jus-Codin/CTF-Architect/issues)
 
 ---
 
