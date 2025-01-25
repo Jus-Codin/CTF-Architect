@@ -12,7 +12,7 @@
         <meta name="author" content="JusCodin">
       
       
-        <link rel="canonical" href="https://127.0.0.1:8000/spec/challenge/">
+        <link rel="canonical" href="https://jus-codin.github.io/CTF-Architect/spec/challenge/">
       
       
         <link rel="prev" href="../../guides/packaging-challenges/">
@@ -53,10 +53,6 @@
     
     
       <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
-    
-      <link rel="stylesheet" href="../../css/custom.css">
-    
-      <link rel="stylesheet" href="../../css/termynal.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -250,7 +246,25 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../guides/installation/" class="md-tabs__link">
+        <a href="../../introduction/" class="md-tabs__link">
+          
+  
+  Get Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guides/repository-setup/" class="md-tabs__link">
           
   
   Guides
@@ -394,7 +408,7 @@
             
   
   <span class="md-ellipsis">
-    Guides
+    Get Started
   </span>
   
 
@@ -404,7 +418,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
-            Guides
+            Get Started
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -415,7 +429,28 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/installation/" class="md-nav__link">
+      <a href="../../introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -428,6 +463,51 @@
   
 
               
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Guides
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -500,10 +580,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -514,8 +594,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Specifications
           </label>
@@ -574,28 +654,205 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#challenge-structure" class="md-nav__link">
+  <a href="#challenge-folder-structure" class="md-nav__link">
     <span class="md-ellipsis">
-      Challenge Structure
+      Challenge Folder Structure
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#challtoml-specification" class="md-nav__link">
+  <a href="#example" class="md-nav__link">
     <span class="md-ellipsis">
-      chall.toml Specification
+      Example
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="chall.toml Specification">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
+</li>
+      
+        <li class="md-nav__item">
   <a href="#fields" class="md-nav__link">
     <span class="md-ellipsis">
       Fields
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fields">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#author" class="md-nav__link">
+    <span class="md-ellipsis">
+      author
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#category" class="md-nav__link">
+    <span class="md-ellipsis">
+      category
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#difficulty" class="md-nav__link">
+    <span class="md-ellipsis">
+      difficulty
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#name" class="md-nav__link">
+    <span class="md-ellipsis">
+      name
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#files-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      files (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requirements-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      requirements (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#folder_name-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      folder_name (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extras-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      extras (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      flags
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hints-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      hints (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#services-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      services (optional)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      Service Fields
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Service Fields">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#name_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      name
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#path" class="md-nav__link">
+    <span class="md-ellipsis">
+      path
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#port-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      port (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ports-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      ports (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type" class="md-nav__link">
+    <span class="md-ellipsis">
+      type
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extras-optional_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      extras (optional)
     </span>
   </a>
   
@@ -660,10 +917,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -674,8 +931,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             API Reference
           </label>
@@ -736,28 +993,205 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#challenge-structure" class="md-nav__link">
+  <a href="#challenge-folder-structure" class="md-nav__link">
     <span class="md-ellipsis">
-      Challenge Structure
+      Challenge Folder Structure
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#challtoml-specification" class="md-nav__link">
+  <a href="#example" class="md-nav__link">
     <span class="md-ellipsis">
-      chall.toml Specification
+      Example
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="chall.toml Specification">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
+</li>
+      
+        <li class="md-nav__item">
   <a href="#fields" class="md-nav__link">
     <span class="md-ellipsis">
       Fields
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fields">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#author" class="md-nav__link">
+    <span class="md-ellipsis">
+      author
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#category" class="md-nav__link">
+    <span class="md-ellipsis">
+      category
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      description
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#difficulty" class="md-nav__link">
+    <span class="md-ellipsis">
+      difficulty
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#name" class="md-nav__link">
+    <span class="md-ellipsis">
+      name
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#files-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      files (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requirements-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      requirements (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#folder_name-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      folder_name (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extras-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      extras (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      flags
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hints-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      hints (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#services-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      services (optional)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      Service Fields
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Service Fields">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#name_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      name
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#path" class="md-nav__link">
+    <span class="md-ellipsis">
+      path
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#port-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      port (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ports-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      ports (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type" class="md-nav__link">
+    <span class="md-ellipsis">
+      type
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extras-optional_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      extras (optional)
     </span>
   </a>
   
@@ -787,9 +1221,7 @@
 
 
 <h1 id="challenge-specification-v01">Challenge Specification v0.1<a class="headerlink" href="#challenge-specification-v01" title="Permanent link">&para;</a></h1>
-<p>This page describes the structure of a challenge in CTF-Architect.</p>
-<h2 id="challenge-structure">Challenge Structure<a class="headerlink" href="#challenge-structure" title="Permanent link">&para;</a></h2>
-<p>A challenge in CTF-Architect is a directory that contains the following files and directories:</p>
+<h2 id="challenge-folder-structure">Challenge Folder Structure<a class="headerlink" href="#challenge-folder-structure" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>.
 └── 📁 {challenge_name}/
     ├── 📁 src/
@@ -800,7 +1232,7 @@
     │   ├── 📁 {service_name}/
     │   │   ├── 📄...
     │   │   └── 🐋 Dockerfile
-    │   └── 🐋 docker-compose.yml (optional)
+    │   └── 🐋 compose.yml (optional)
     ├── 📁 solution/
     │   └── 📄...
     ├── 📄 chall.toml
@@ -828,10 +1260,10 @@
 </tr>
 <tr>
 <td><code>service/{service_name}/</code></td>
-<td>Directory containing the files for the service. This folder must container a <code>Dockerfile</code></td>
+<td>Directory containing the files for the service. This folder must contain a <code>Dockerfile</code></td>
 </tr>
 <tr>
-<td><code>service/docker-compose.yml</code></td>
+<td><code>service/compose.yml</code></td>
 <td>Docker Compose file to run the services. Useful if extra configurations in the compose file is needed for the challenge to work. This file will be added directly to the root compose file in the repo using the <a href="https://docs.docker.com/compose/multiple-compose-files/include/"><code>include</code></a> element.</td>
 </tr>
 <tr>
@@ -840,22 +1272,31 @@
 </tr>
 <tr>
 <td><code>chall.toml</code></td>
-<td>TOML file containing the metadata for the challenge. This is generated automatically by <code>chall-architect</code></td>
+<td>TOML file containing the metadata for the challenge. This is generated automatically.</td>
 </tr>
 <tr>
 <td><code>README.md</code></td>
-<td>Markdown file containing the description of the challenge. This is generated automatically by <code>chall-architect</code></td>
+<td>Markdown file containing a text summary of the challenge's details. This is generated automatically.`</td>
 </tr>
 </tbody>
 </table>
-<h2 id="challtoml-specification"><code>chall.toml</code> Specification<a class="headerlink" href="#challtoml-specification" title="Permanent link">&para;</a></h2>
-<p>The <code>chall.toml</code> file contains the metadata for the challenge. The file is in the following format:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Challenge info file (version 0.1)</span>
+<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Challenge Metadata File (version 0.1)</span>
 <span class="c1"># This file is machine generated. DO NOT EDIT unless you know what you are doing.</span>
-<span class="c1"># If you want to create or edit a challenge, use chall-architect instead.</span>
+<span class="c1"># If you want to create or edit a challenge, use the CLI instead.</span>
 
+<span class="c1"># ------------------- Challenge Specification Version (required) -------------------</span>
 <span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;0.1&quot;</span>
 
+
+<span class="c1"># --------------------------- Challenge Info (required) ----------------------------</span>
+<span class="c1"># This section specifies the information about the challenge.</span>
+<span class="c1"># The section must have the following fields:</span>
+<span class="c1"># - author: The author of the challenge</span>
+<span class="c1"># - category: The category of the challenge</span>
+<span class="c1"># - description: The description of the challenge</span>
+<span class="c1"># - difficulty: The difficulty of the challenge</span>
+<span class="c1"># - name: The name of the challenge</span>
 <span class="k">[challenge]</span>
 <span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Author Name&quot;</span>
 <span class="n">category</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;category&quot;</span>
@@ -863,19 +1304,50 @@
 <span class="n">difficulty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;difficulty&quot;</span>
 <span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Challenge Name&quot;</span>
 
+<span class="c1"># ------------------------ Challenge Folder Name (optional) ------------------------</span>
+<span class="c1"># Specifies the folder name to use to store the challenge files.</span>
+<span class="c1"># If not specified, the folder name will be generated from the challenge name.</span>
+<span class="c1"># Must be a valid folder name, restricted to the pattern \^[a-zA-Z][a-zA-Z0-9 _-]*$\</span>
+
+<span class="n">folder_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;folder_name&quot;</span>
+
+
+<span class="c1"># --------------------------- Challenge Files (optional) ---------------------------</span>
+<span class="c1"># Specifies the files that are part of the challenge.</span>
+<span class="c1"># The files are specified as a list of strings, where each string is a path to a file.</span>
+<span class="c1"># The paths are relative to the challenge directory.</span>
+<span class="c1"># Alternatively, specify a URL to download the file from the internet.</span>
+
 <span class="n">files</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="s">&quot;file1&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="s">&quot;file2&quot;</span>
 <span class="p">]</span>
+
+<span class="c1"># ----------------------- Challenge Requirements (optional) ------------------------</span>
+<span class="c1"># Specifies the challenges that must be solved before this challenge can be unlocked.</span>
+<span class="c1"># The requirements are specified as a list of strings, where each string is the name of a challenge.</span>
 
 <span class="n">requirements</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="s">&quot;challenge1&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="s">&quot;challenge2&quot;</span>
 <span class="p">]</span>
 
-<span class="k">[challenge.extras]</span>
-<span class="n">discord</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;juscodin&quot;</span>
 
+<span class="c1"># ------------------------ Challenge Extra Info (optional) -------------------------</span>
+<span class="c1"># This section specifies extra information about the challenge.</span>
+<span class="c1"># The fields in this section must be specified if it is required by the ctf_config.toml file</span>
+
+<span class="k">[challenge.extras]</span>
+<span class="n">discord</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;a_discord_username&quot;</span>
+
+
+<span class="c1"># --------------------------- Challenge Flags (required) ---------------------------</span>
+<span class="c1"># Specifies the flags that are part of the challenge.</span>
+<span class="c1"># To specify multiple flags, create another table in the array of tables.</span>
+<span class="c1"># The flag table must have the following fields:</span>
+<span class="c1"># - flag: The flag value</span>
+<span class="c1"># - regex (optional): If the flag is a regex flag, otherwise it is a static flag. Defaults to false</span>
+<span class="c1"># - case_insensitive (optional): If the flag is case insensitive or not. Defaults to false</span>
 
 <span class="c1"># Static case-sensitive flag</span>
 <span class="k">[[challenge.flags]]</span>
@@ -898,6 +1370,15 @@
 <span class="n">case_insensitive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
 
 
+<span class="c1"># --------------------------- Challenge Hints (optional) ---------------------------</span>
+<span class="c1"># Specifies the hints that are part of the challenge.</span>
+<span class="c1"># To specify multiple hints, create another table in the array of tables.</span>
+<span class="c1"># The hint table must have the following fields:</span>
+<span class="c1"># - cost: The cost of the hint</span>
+<span class="c1"># - content: The content of the hint</span>
+<span class="c1"># - requirements (optional): The requirements to unlock the hint. This should be</span>
+<span class="c1">#   an index referencing a hint in the array of tables. Defualts to null</span>
+
 <span class="c1"># Example hint</span>
 <span class="k">[[challenge.hints]]</span>
 <span class="n">cost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span>
@@ -910,6 +1391,23 @@
 <span class="n">requirements</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
 
 
+<span class="c1"># ------------------------- Challenge Services (optional) --------------------------</span>
+<span class="c1"># Specifies the services that are part of the challenge.</span>
+<span class="c1"># To specify multiple services, create another table in the array of tables.</span>
+<span class="c1"># The service table must have the following fields:</span>
+<span class="c1"># - name: The name of the service. This will be the name of the docker container. Restricted to [a-z0-9_-] and must be unique</span>
+<span class="c1"># - path: The path to the service&#39;s directory. This path is relative to the challenge directory</span>
+<span class="c1"># - port: The port that the docker container exposes. This is an integer. Only one of port or ports should be specified</span>
+<span class="c1"># - ports: The ports that the docker container exposes. This is an array of integers. Only one of port or ports should be specified</span>
+<span class="c1"># - type: The type of the service. This must be one of the following:</span>
+<span class="c1">#   - web      : A web service, must have a port exposed</span>
+<span class="c1">#   - tcp      : A tcp service, must have a port exposed</span>
+<span class="c1">#   - ssh      : An ssh service, must have a port exposed</span>
+<span class="c1">#   - secret   : A secret service, it must have a port exposed, but will not be shown in the challenge info</span>
+<span class="c1">#                This is useful for challenges where the service must be discovered by the player</span>
+<span class="c1">#   - internal : An internal service, does not need to expose a port, and will not be shown in the challenge info</span>
+<span class="c1">#                This is useful for challenges where the service should not be accessed directly, i.e. web admin bots</span>
+
 <span class="c1"># Example service</span>
 <span class="k">[[challenge.services]]</span>
 <span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;service1&quot;</span>
@@ -917,48 +1415,189 @@
 <span class="n">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1337</span>
 <span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;web&quot;</span>
 
+<span class="c1"># Extra service info (optional)</span>
 <span class="k">[challenge.services.extras]</span>
-<span class="n">privileged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">privileged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">true</span><span class="w">  </span><span class="c1"># Make the docker container privileged</span>
 </code></pre></div>
-<h3 id="fields">Fields<a class="headerlink" href="#fields" title="Permanent link">&para;</a></h3>
+<h2 id="fields">Fields<a class="headerlink" href="#fields" title="Permanent link">&para;</a></h2>
+<h3 id="author">author<a class="headerlink" href="#author" title="Permanent link">&para;</a></h3>
+<p>Defines the author of the challenge. Must be a string.
+<div class="highlight"><pre><span></span><code><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Author Name&quot;</span>
+</code></pre></div></p>
+<h3 id="category">category<a class="headerlink" href="#category" title="Permanent link">&para;</a></h3>
+<p>Specifies the category of the challenge. This should be a lowercase string, and must be located in the <a href="../repository/#categories"><code>categories</code></a> field in the CTF repository config.
+<div class="highlight"><pre><span></span><code><span class="n">category</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;category&quot;</span>
+</code></pre></div></p>
+<h3 id="description">description<a class="headerlink" href="#description" title="Permanent link">&para;</a></h3>
+<p>Description of the challenge. This can be a multi-line string.
+<div class="highlight"><pre><span></span><code><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Description&quot;</span>
+</code></pre></div></p>
+<div class="highlight"><pre><span></span><code><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;&quot;This is a multi-line description</span>
+<span class="s">of the challenge&quot;&quot;&quot;</span>
+</code></pre></div>
+<h3 id="difficulty">difficulty<a class="headerlink" href="#difficulty" title="Permanent link">&para;</a></h3>
+<p>Specifies the difficulty of the challenge. This should be a lowercase string, and must be located in the <a href="../repository/#difficulties"><code>difficulties</code></a> field in the CTF repository config.
+<div class="highlight"><pre><span></span><code><span class="n">difficulty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;difficulty&quot;</span>
+</code></pre></div></p>
+<h3 id="name">name<a class="headerlink" href="#name" title="Permanent link">&para;</a></h3>
+<p>Name of the challenge. If the <code>folder_name</code> field is not provided, this will be used to generate the folder name for the challenge by substituting using the regex expression <code>/^[^a-zA-Z]+|[^a-zA-Z0-9 _-]/</code>.
+<div class="highlight"><pre><span></span><code><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Challenge Name&quot;</span>
+</code></pre></div></p>
+<h3 id="files-optional">files (optional)<a class="headerlink" href="#files-optional" title="Permanent link">&para;</a></h3>
+<p>List of files to give users attempting the challenge. Each item in the list can either be a path or a URL. Paths must be relative to the challenge directory.
+<div class="highlight"><pre><span></span><code><span class="n">files</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s">&quot;http://example.com/file1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;./dist/file2&quot;</span>
+<span class="p">]</span>
+</code></pre></div></p>
+<h3 id="requirements-optional">requirements (optional)<a class="headerlink" href="#requirements-optional" title="Permanent link">&para;</a></h3>
+<p>List of challenge names for challenges that must be completed before this challenge can be attempted.
+<div class="highlight"><pre><span></span><code><span class="n">requirements</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s">&quot;challenge1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;challenge2&quot;</span>
+<span class="p">]</span>
+</code></pre></div></p>
+<h3 id="folder_name-optional">folder_name (optional)<a class="headerlink" href="#folder_name-optional" title="Permanent link">&para;</a></h3>
+<p>Specify the folder name for the challenge. Must follow the pattern <code>/^[a-zA-Z][a-zA-Z0-9 _-]*$/</code>. This is useful if you want to have a challenge name that cannot be converted to a folder name. (e.g. <code>🦈 -&gt; [empty_string]</code>)
+<div class="highlight"><pre><span></span><code><span class="n">folder_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;challenge_name&quot;</span>
+</code></pre></div></p>
+<h3 id="extras-optional">extras (optional)<a class="headerlink" href="#extras-optional" title="Permanent link">&para;</a></h3>
+<p>Extra information about the challenge. Extra fields specified in the <a href="../repository/#extras">CTF repository config</a> must be specified here.
+<div class="highlight"><pre><span></span><code><span class="k">[challenge.extras]</span>
+<span class="n">discord</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;foobar&quot;</span>
+</code></pre></div></p>
+<h3 id="flags">flags<a class="headerlink" href="#flags" title="Permanent link">&para;</a></h3>
+<p>List of flags for the challenge. Apart from the <code>flag</code> field, the following fields can be optionally specified:</p>
 <ul>
-<li><code>author</code> (String): Author of the challenge</li>
-<li><code>category</code> (String): Category of the challenge</li>
-<li><code>description</code> (String): Description of the challenge</li>
-<li><code>difficulty</code> (String): Difficulty of the challenge</li>
-<li><code>name</code> (String): Name of the challenge</li>
-<li><code>files</code> (List of Strings) (Optional): List of files to give users attempting the challenge. The files are specified as a list of strings, where each string is a path to a file. The paths are relative to the challenge's directory. You can also specify a URL for users to download the file from. If you have no files to give, you do not need to specify this.</li>
-<li><code>requirements</code> (List of Strings) (Optional): List of challenge names for challenges that must be completed before this challenge can be attempted. If there are no requirements, you do not need to specify this.</li>
-<li><code>extras</code> (Table) (Optional): Extra information about the challenge. Extra fields specified in the CTF repository config must be specified here.</li>
-<li><code>flags</code> (List of Tables): List of flags for the challenge. Flags can be static or regex. The flag must have the following fields:<ul>
-<li><code>flag</code> (String): The flag for the challenge</li>
-<li><code>regex</code> (Boolean) (Optional): Whether the flag is a regex. Default is <code>false</code>.</li>
-<li><code>case_insensitive</code> (Boolean) (Optional): Whether the flag is case-insensitive. Default is <code>false</code>.</li>
+<li><code>regex</code> (Boolean): Whether the flag is a regex expression. Default is <code>false</code>.</li>
+<li><code>case_insensitive</code> (Boolean): Whether the flag is case-insensitive. Default is <code>false</code>.</li>
 </ul>
-</li>
-<li><code>hints</code> (List of Tables) (Optional): List of hints for the challenge. Hints can have a cost and requirements. The hint must have the following fields:<ul>
+<p>Examples:
+<div class="highlight"><pre><span></span><code><span class="c1"># Static case-sensitive flag</span>
+<span class="k">[[challenge.flags]]</span>
+<span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;flag{example}&quot;</span>
+
+<span class="c1"># Static case-insensitive flag</span>
+<span class="k">[[challenge.flags]]</span>
+<span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;flag{example2}&quot;</span>
+<span class="n">case_insensitive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="c1"># Regex case-sensitive flag</span>
+<span class="k">[[challenge.flags]]</span>
+<span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;flag{example3}&quot;</span>
+<span class="n">regex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="c1"># Regex case-insensitive flag</span>
+<span class="k">[[challenge.flags]]</span>
+<span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;flag{example4}&quot;</span>
+<span class="n">regex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">case_insensitive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</code></pre></div></p>
+<h3 id="hints-optional">hints (optional)<a class="headerlink" href="#hints-optional" title="Permanent link">&para;</a></h3>
+<p>List of hints for the challenge. Each hint must have the following fields:</p>
+<ul>
 <li><code>cost</code> (Integer): The cost of the hint</li>
 <li><code>content</code> (String): The content of the hint</li>
 <li><code>requirements</code> (Integer) (Optional): The index of the hint that must be purchased before this hint can be purchased.</li>
 </ul>
-</li>
-<li><code>services</code> (List of Tables) (Optional): List of services for the challenge. The service must have the following fields:<ul>
-<li><code>name</code> (String): Name of the service</li>
-<li><code>path</code> (String): Path to the service directory, relative to the root of the challenge folder</li>
-<li><code>port</code> (Integer): Port the docker container exposes. Only <code>port</code> or <code>ports</code> can be specified, not both.</li>
-<li><code>ports</code> (List of Integers) (Optional): List of ports the docker container exposes. Only <code>port</code> or <code>ports</code> can be specified, not both.</li>
-<li><code>type</code> (String): The type of service. This must be one of the following:<ul>
+<p>Examples:
+<div class="highlight"><pre><span></span><code><span class="c1"># Example hint</span>
+<span class="k">[[challenge.hints]]</span>
+<span class="n">cost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span>
+<span class="n">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;This is a hint&quot;</span>
+
+<span class="c1"># Example hint with requirements</span>
+<span class="k">[[challenge.hints]]</span>
+<span class="n">cost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span>
+<span class="n">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;This is a hint with requirements&quot;</span>
+<span class="n">requirements</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+</code></pre></div></p>
+<h3 id="services-optional">services (optional)<a class="headerlink" href="#services-optional" title="Permanent link">&para;</a></h3>
+<p>List of services for the challenge. A service is allows you to specify configurations for a docker container that will be used to host the challenge.</p>
+<p>Examples:
+<div class="highlight"><pre><span></span><code><span class="c1"># Example service</span>
+<span class="k">[[challenge.services]]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;service1&quot;</span>
+<span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;./service/service1&quot;</span>
+<span class="n">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1337</span>
+<span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;web&quot;</span>
+
+<span class="c1"># Example service with multiple ports</span>
+<span class="k">[[challenge.services]]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;service2&quot;</span>
+<span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;./service/service2&quot;</span>
+<span class="n">ports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1337</span><span class="p">,</span><span class="w"> </span><span class="mi">1338</span><span class="p">]</span>
+<span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;nc&quot;</span>
+
+<span class="c1"># Example service with extras</span>
+<span class="k">[[challenge.services]]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;service3&quot;</span>
+<span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;./service/service3&quot;</span>
+<span class="n">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1337</span>
+<span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;web&quot;</span>
+
+<span class="k">[challenge.services.extras]</span>
+<span class="n">privileged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</code></pre></div></p>
+<h2 id="service-fields">Service Fields<a class="headerlink" href="#service-fields" title="Permanent link">&para;</a></h2>
+<h3 id="name_1">name<a class="headerlink" href="#name_1" title="Permanent link">&para;</a></h3>
+<p>The name of the service. Must be a string.
+<div class="highlight"><pre><span></span><code><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;service1&quot;</span>
+</code></pre></div></p>
+<h3 id="path">path<a class="headerlink" href="#path" title="Permanent link">&para;</a></h3>
+<p>Path to the service directory, relative to the root of the challenge folder. Must be a string.
+<div class="highlight"><pre><span></span><code><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;./service/service1&quot;</span>
+</code></pre></div></p>
+<h3 id="port-optional">port (optional)<a class="headerlink" href="#port-optional" title="Permanent link">&para;</a></h3>
+<p>Port the docker container exposes. Must be specified unless <code>ports</code> is specified or <code>type</code> is <code>"internal"</code>. Must be an integer.
+<div class="highlight"><pre><span></span><code><span class="n">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1337</span>
+</code></pre></div></p>
+<h3 id="ports-optional">ports (optional)<a class="headerlink" href="#ports-optional" title="Permanent link">&para;</a></h3>
+<p>List of ports the docker container exposes. Must be specified unless <code>port</code> is specified or <code>type</code> is <code>"internal"</code>. Must be a list of integers.
+<div class="highlight"><pre><span></span><code><span class="n">ports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1337</span><span class="p">,</span><span class="w"> </span><span class="mi">1338</span><span class="p">]</span>
+</code></pre></div></p>
+<h3 id="type">type<a class="headerlink" href="#type" title="Permanent link">&para;</a></h3>
+<p>The type of service. Must be one of the following:</p>
+<ul>
 <li><code>web</code>     : A web service, must have a port exposed</li>
 <li><code>nc</code>      : A netcat service, must have a port exposed</li>
 <li><code>ssh</code>     : An ssh service, must have a port exposed</li>
 <li><code>secret</code>  : A secret service, it must have a port exposed, but will not be shown in the challenge info. This is useful for challenges where the service must be discovered by the player</li>
 <li><code>internal</code>: An internal service, does not need to expose a port, and will not be shown in the challenge info. This is useful for challenges where the service should not be accessed directly, i.e. web admin bots</li>
 </ul>
-</li>
-<li><code>extras</code> (Table) (Optional): Extra configurations for the service to be passed to the compose file. Note that configurations set here will not overwrite configurations generated by <code>ctf-architect</code>.</li>
-</ul>
-</li>
-</ul>
+<div class="highlight"><pre><span></span><code><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;web&quot;</span>
+</code></pre></div>
+<h3 id="extras-optional_1">extras (optional)<a class="headerlink" href="#extras-optional_1" title="Permanent link">&para;</a></h3>
+<p>Extra configurations for the service to be passed to the docker compose file.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The configurations set here will not overwrite configurations generated by <code>ctf-architect</code>.</p>
+</div>
+<p>The following service configuration:
+<div class="highlight"><pre><span></span><code><span class="k">[[challenge.services]]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;service1&quot;</span>
+<span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;./service/service1&quot;</span>
+<span class="n">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1337</span>
+<span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;web&quot;</span>
+
+<span class="k">[challenge.services.extras]</span>
+<span class="n">privileged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</code></pre></div></p>
+<p>Will look similar to this in the generated docker compose file:
+<div class="highlight"><pre><span></span><code><span class="nt">networks</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">challengename-network</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">challenge_name-service1</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./service/service1</span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">challenge_name-service1</span>
+<span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">challengename-network</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8000:1337</span>
+<span class="w">    </span><span class="nt">privileged</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
+</code></pre></div></p>
 
 
 
@@ -1057,10 +1696,6 @@
     
     
       <script src="../../assets/javascripts/bundle.bd41221c.min.js"></script>
-      
-        <script src="../../js/termynal.js"></script>
-      
-        <script src="../../js/custom.js"></script>
       
     
   </body>
