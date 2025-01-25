@@ -157,7 +157,7 @@ def create_compose_dicts() -> tuple[dict, dict]:
                 network_name = f"{sanitize_name(challenge.name)}-network"
 
                 if network_name not in networks:
-                    networks[network_name] = {}
+                    networks[network_name] = {"driver": "bridge"}
             else:
                 include.append(compose_file.as_posix())
 

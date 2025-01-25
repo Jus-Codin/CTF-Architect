@@ -15,6 +15,7 @@ class RuleViolation(TypedDict):
 
 class LintResult(TypedDict):
     violations: list[RuleViolation]
+    passed: list[str]
     ignored: list[str]
 
 
@@ -49,6 +50,7 @@ class Linter:
 
     def lint(self, challenge_path: Path) -> LintResult:
         violations = []
+        passed = []
 
         fatal_rules = [rule for rule in RULES if rule.level == SeverityLevel.FATAL]
 
@@ -56,6 +58,8 @@ class Linter:
             violation = self.process_rule(challenge_path, rule)
             if violation is not None:
                 violations.append(violation)
+            elif rule.code not in self.ignore:
+                passed.append(rule.code)
 
         if violations:
             return {"violations": violations, "ignored": self.ignore}
@@ -66,5 +70,7 @@ class Linter:
             violation = self.process_rule(challenge_path, rule)
             if violation is not None:
                 violations.append(violation)
+            elif rule.code not in self.ignore:
+                passed.append(rule.code)
 
-        return {"violations": violations, "ignored": self.ignore}
+        return {"violations": violations, "passed": passed, "ignored": self.ignore}

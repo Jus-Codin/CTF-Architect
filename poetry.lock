@@ -792,6 +792,17 @@ files = [
 pyyaml = "*"
 
 [[package]]
+name = "readchar"
+version = "4.2.0"
+description = "Library to easily read single chars and key strokes"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "readchar-4.2.0-py3-none-any.whl", hash = "sha256:2a587a27c981e6d25a518730ad4c88c429c315439baa6fda55d7a8b3ac4cb62a"},
+    {file = "readchar-4.2.0.tar.gz", hash = "sha256:44807cbbe377b72079fea6cba8aa91c809982d7d727b2f0dbb2d1a8084914faa"},
+]
+
+[[package]]
 name = "regex"
 version = "2024.7.24"
 description = "Alternative regular expression module, to replace re."
@@ -1068,4 +1079,4 @@ watchmedo = ["PyYAML (>=3.10)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "883822c67f9691a5f7a967412e148395fbcf5e0eb205f08f7459e8e0bdd29412"
+content-hash = "7d396282d461a6de157dc79ce05795a874594f203471ebf3196f98b25d44b756"

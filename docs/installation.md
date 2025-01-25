@@ -108,5 +108,5 @@ $ chall-architect --help
 
 Now that you have successfully installed CTF-Architect, read these guides to get started:
 
-- [Packaging a challenge for submission](./packaging-challenges.md)
-- [Setting up a challenge repository](./repository-setup.md)
+- [Packaging a challenge for submission](./guides/packaging-challenges.md)
+- [Setting up a challenge repository](./guides/repository-setup.md)

@@ -43,6 +43,7 @@ class Rule:
 
         # This is the function that will be called to check the rule
         self.check = check
+        self.__doc__ = check.__doc__
 
         self.message = message
 

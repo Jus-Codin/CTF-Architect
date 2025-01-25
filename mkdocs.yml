@@ -105,8 +105,10 @@ plugins:
 
 nav:
   - Home: index.md
+  - Get Started:
+    - Introduction: introduction.md
+    - Installation: installation.md
   - Guides:
-    - Installation: guides/installation.md
     - Repository Setup: guides/repository-setup.md
     - Packaging Challenges: guides/packaging-challenges.md
   - Specifications:

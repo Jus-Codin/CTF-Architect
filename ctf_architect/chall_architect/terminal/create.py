@@ -9,8 +9,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm, IntPrompt, Prompt
 
+from ctf_architect.chall_architect.core.utils import get_config, is_valid_service_folder
 from ctf_architect.chall_architect.create import create_challenge
-from ctf_architect.chall_architect.utils import get_config, is_valid_service_folder
 
 console = Console()
 

@@ -27,7 +27,7 @@ def lint_run(
         typer.Option(
             "--ignore",
             "-i",
-            help="Ignore specific rules by their codes. Separate multiple codes with commas.",
+            help="Ignore specific rules by their codes.",
         ),
     ] = None,
     level: Annotated[

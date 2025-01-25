@@ -1,7 +1,7 @@
 # Packaging Challenges
 
 !!! note
-    This guide assumes that you have successfully installed CTF-Architect. If you have not, please refer to the [installation guide](./installation.md).
+    This guide assumes that you have successfully installed CTF-Architect. If you have not, please refer to the [installation guide](../installation.md).
 
 ## Download ctf_config.toml
 Download the relavant `ctf_config.toml` file for the CTF. If you do not have this file, contact the CTF organizers for it.
