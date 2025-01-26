@@ -352,7 +352,7 @@ ports = [1337, 1338]
 The type of service. Must be one of the following:
 
 - `web`     : A web service, must have a port exposed
-- `nc`      : A netcat service, must have a port exposed
+- `tcp`     : A tcp service, must have a port exposed
 - `ssh`     : An ssh service, must have a port exposed
 - `secret`  : A secret service, it must have a port exposed, but will not be shown in the challenge info. This is useful for challenges where the service must be discovered by the player
 - `internal`: An internal service, does not need to expose a port, and will not be shown in the challenge info. This is useful for challenges where the service should not be accessed directly, i.e. web admin bots
