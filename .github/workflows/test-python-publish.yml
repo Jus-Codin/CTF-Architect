@@ -1,0 +1,36 @@
+name: Test Publish Python Package
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+    environment: pypi-testing
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: "0.5.24"
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version-file: "pyproject.toml"
+
+    - name: Build package
+      run: uv build
+
+    - name: Publish package
+      run: uv publish
+      env:
+        UV_DEFAULT_INDEX: "https://test.pypi.org/simple"
