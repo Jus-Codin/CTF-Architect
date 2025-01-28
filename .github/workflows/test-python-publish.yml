@@ -3,11 +3,10 @@ name: Test Publish Python Package
 on:
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
   deploy:
+    permissions:
+      id-token: write
 
     runs-on: ubuntu-latest
     environment: pypi-testing
