@@ -100,7 +100,7 @@ def update_category_readme(name: str):
             "|------|--------|-------------|------------|--------|\n"
         )
         challenges_table += "\n".join(
-            f"| [{name}](<./{folder}>) | {description} | {difficulty} | {author} |"
+            f"| [{name}](<./{folder}>) | [{folder}](<./{folder}>) | {description} | {difficulty} | {author} |"
             for name, folder, description, difficulty, author in challenges
         )
 
@@ -195,7 +195,7 @@ def update_root_readme():
             "|------|--------|-------------|----------|------------|--------|\n"
         )
         challenges_table += "\n".join(
-            f"| [{name}](<./{category.lower()}/{folder}>) | {description} | {category.capitalize()} | {difficulty} | {author} |"
+            f"| [{name}](<./{category.lower()}/{folder}>) | [{folder}](<./{category.lower()}/{folder}>) | {description} | {category.capitalize()} | {difficulty} | {author} |"
             for name, folder, description, category, difficulty, author in challenges
         )
 
