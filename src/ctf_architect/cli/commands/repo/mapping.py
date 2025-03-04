@@ -36,7 +36,7 @@ def show():
 
 
 @app.command
-def generate():
+def generate(yes: bool = False):
     """Generates port mappings for challenge services"""
     if not is_challenge_repo():
         console.print(
@@ -50,8 +50,10 @@ def generate():
     table = create_mapping_table(mapping)
     console.print(table)
 
-    if not confirm("Do you want to save the port mapping?").execute():
-        return
+    # If --yes flag is not provided, ask for confirmation interactively
+    if not yes:
+        if not confirm("Do you want to save the port mapping?").execute():
+            return
 
     save_port_mapping(mapping)
     console.print("Port mapping saved successfully", style="ctfa.success")
