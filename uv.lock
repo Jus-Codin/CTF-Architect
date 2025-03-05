@@ -1,4 +1,5 @@
 version = 1
+revision = 1
 requires-python = ">=3.11"
 
 [[package]]
@@ -108,7 +109,7 @@ wheels = [
 
 [[package]]
 name = "ctf-architect"
-version = "0.1.0a10"
+version = "0.1.0a11"
 source = { editable = "." }
 dependencies = [
     { name = "cyclopts" },
