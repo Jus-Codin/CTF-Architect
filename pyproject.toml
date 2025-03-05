@@ -7,15 +7,6 @@ readme = "README.md"
 authors = [
     { name = "Jus-Codin", email = "70018166+Jus-Codin@users.noreply.github.com" }
 ]
-requires-python = ">=3.11"
-dependencies = [
-    "cyclopts>=3.1.2",
-    "pydantic>=2.10.4",
-    "pyyaml>=6.0.2",
-    "readchar>=4.2.1",
-    "rich>=13.9.4",
-    "tomlkit>=0.13.2",
-]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Programming Language :: Python",
@@ -29,6 +20,15 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "cyclopts>=3.1.2",
+    "pydantic>=2.10.4",
+    "pyyaml>=6.0.2",
+    "readchar>=4.2.1",
+    "rich>=13.9.4",
+    "tomlkit>=0.13.2",
 ]
 
 [project.scripts]
