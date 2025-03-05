@@ -4,7 +4,14 @@ import re
 from pathlib import Path
 from typing import Annotated, Any, Literal
 
-from pydantic import Field, HttpUrl, StringConstraints, field_validator, model_validator
+from pydantic import (
+    Field,
+    HttpUrl,
+    StringConstraints,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 
 from ctf_architect.constants import CHALL_README_TEMPLATE
 from ctf_architect.models.base import Model
@@ -76,6 +83,10 @@ class Service(Model):
 
         return self
 
+    @field_serializer("path")
+    def _serialize_path(self, path: Path) -> str:
+        return path.as_posix()
+
     @property
     def ports_list(self) -> list[PortInt]:
         """
@@ -138,6 +149,12 @@ class Challenge(Model):
                 )
             self.folder_name = sanitized
         return self
+
+    @field_serializer("files")
+    def _serialize_files(self, files: list[HttpUrl | Path]) -> list[str]:
+        return [
+            file.as_posix() if isinstance(file, Path) else str(file) for file in files
+        ]
 
     @property
     def network_name(self) -> str:
