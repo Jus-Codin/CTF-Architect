@@ -78,13 +78,11 @@ def load_repo_config(path: str | Path | None = None) -> CTFConfig:
         if is_challenge_repo(path):
             ctf_config_file = path / CTF_CONFIG_FILE
         else:
-            raise NotInChallengeRepositoryError(
-                f'"{path.resolve()}" is not a challenge repository'
-            )
+            raise NotInChallengeRepositoryError(f'"{path.resolve()}" is not a challenge repository')
     else:
         ctf_config_file = path
 
-    with open(ctf_config_file, "r", encoding="utf-8") as f:
+    with open(ctf_config_file, encoding="utf-8") as f:
         data = load(f)
 
     config_file = ConfigFile.model_validate(data.unwrap())
@@ -99,16 +97,14 @@ def save_repo_config(config: CTFConfig) -> None:
         doc.add(comment(line))
     doc.add(nl())
 
-    doc.add("version", str(CTF_CONFIG_SPEC_VERSION))
-    doc.add("config", config.model_dump(mode="json", exclude_defaults=True))
+    doc.add("version", str(CTF_CONFIG_SPEC_VERSION))  # type: ignore
+    doc.add("config", config.model_dump(mode="json", exclude_defaults=True))  # type: ignore
 
     with open(CTF_CONFIG_FILE, "w", encoding="utf-8") as f:
         dump(doc, f)
 
 
-def walk_challenge_folders(
-    category: str | None = None, *, ignore_invalid: bool = True
-) -> Generator[Path]:
+def walk_challenge_folders(category: str | None = None, *, ignore_invalid: bool = True) -> Generator[Path]:
     """Walks through all challenge folders in the challenges directory.
 
     Can specify a category to only walk through challenges in that category.
@@ -143,9 +139,7 @@ def walk_challenge_folders(
                 if not is_challenge_folder(directory):
                     if ignore_invalid:
                         continue
-                    raise InvalidChallengeFolderError(
-                        f"Invalid challenge folder: {directory}"
-                    )
+                    raise InvalidChallengeFolderError(f"Invalid challenge folder: {directory}")
 
                 yield directory
 
@@ -160,7 +154,6 @@ def find_challenge_folder(name: str, verify: bool = True) -> Path | None:
     Returns:
         Path | None: The path to the challenge folder if found, None otherwise.
     """
-
     folders = walk_challenge_folders(ignore_invalid=True)
 
     folder_name = re.sub(r"^[^a-zA-Z]+|[^a-zA-Z0-9 _-]", "", name).strip()
@@ -186,7 +179,6 @@ def find_challenge(name: str) -> Challenge | None:
     Returns:
         Challenge | None: The challenge object if found, None otherwise.
     """
-
     # Search Strategy:
     # 1. Search by the folder name, if match found, check challenge config file to verify
     # 2. Search every challenge config file for a name match
@@ -237,7 +229,6 @@ def add_challenge(folder: str | Path, replace: bool = False) -> None:
         ChallengeExistsError: If a challenge with the same name already exists.
         FolderNameCollisionError: If another challenge is using the same folder name.
     """
-
     if isinstance(folder, str):
         folder = Path(folder)
 
@@ -261,9 +252,7 @@ def add_challenge(folder: str | Path, replace: bool = False) -> None:
             if replace:
                 remove_challenge(folder=challenge.repo_path)
             else:
-                raise ChallengeExistsError(
-                    f"Challenge with name {challenge.name} already exists"
-                )
+                raise ChallengeExistsError(f"Challenge with name {challenge.name} already exists")
         else:
             # Folder name collision
             raise FolderNameCollisionError(
@@ -285,9 +274,7 @@ def add_challenge(folder: str | Path, replace: bool = False) -> None:
     folder.rename(new_path)
 
 
-def remove_challenge(
-    *, name: str | None = None, folder: str | Path | None = None
-) -> None:
+def remove_challenge(*, name: str | None = None, folder: str | Path | None = None) -> None:
     """Removes a challenge from the challenges directory.
 
     Can specify either the name or the path to the challenge folder.
@@ -320,9 +307,7 @@ def remove_challenge(
             raise NotADirectoryError(f'"{folder.absolute()}" is not a directory')
         # Safety check to make sure path is in the challenge repo
         if folder.resolve().parent not in Path("challenges").resolve().iterdir():
-            raise NotInChallengeRepositoryError(
-                f'"{folder.absolute()}" is not in the CTF repo'
-            )
+            raise NotInChallengeRepositoryError(f'"{folder.absolute()}" is not in the CTF repo')
     else:
         raise ValueError("Must specify name or path to remove challenge")
 

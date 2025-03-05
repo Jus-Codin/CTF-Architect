@@ -41,7 +41,7 @@ def load_chall_config(path: str | Path) -> Challenge:
     if isinstance(path, str):
         path = Path(path)
 
-    with open(path / CHALLENGE_CONFIG_FILE, "r", encoding="utf-8") as f:
+    with open(path / CHALLENGE_CONFIG_FILE, encoding="utf-8") as f:
         data = load(f)
 
     config_file = ChallengeFile.model_validate(data.unwrap())
@@ -65,9 +65,9 @@ def save_chall_config(path: str | Path, challenge: Challenge) -> None:
         doc.add(comment(line))
     doc.add(nl())
 
-    doc.add("version", str(CHALLENGE_SPEC_VERSION))
+    doc.add("version", str(CHALLENGE_SPEC_VERSION))  # type: ignore
 
-    doc.add("challenge", challenge.model_dump(mode="json", exclude_defaults=True))
+    doc.add("challenge", challenge.model_dump(mode="json", exclude_defaults=True))  # type: ignore
 
     with open(path / CHALLENGE_CONFIG_FILE, "w", encoding="utf-8") as f:
         dump(doc, f)

@@ -52,7 +52,6 @@ def init_repo_no_config(
         extras (list[ExtraFieldDict] | None, optional): The list of extra fields for challenges in the CTF. Defaults to None.
         config_only (bool, optional): Whether to only save the config file. Defaults to False.
     """
-
     extra_fields = None
     if extras is not None:
         extra_fields = [ExtraField.model_validate(extra) for extra in extras]
@@ -86,7 +85,6 @@ def init_repo_no_config(
 
 def init_repo_from_config() -> None:
     """Initialize a new challenge repository from a config file."""
-
     config = load_repo_config()
 
     # Create the challenge folder
@@ -161,7 +159,6 @@ def init_chall(
         hints (list[HintDict] | None, optional): The list of hints for the challenge. Defaults to None.
         services (list[ServiceDict] | None, optional): The list of services for the challenge. Defaults to None.
     """
-
     if target_dir is not None:
         if isinstance(target_dir, str):
             target_dir = Path(target_dir)
@@ -197,9 +194,7 @@ def init_chall(
                         raise IsADirectoryError(f'"{file}" is a directory.')
 
                     shutil.copy(file, temp_path / "dist")
-                    _files.append(
-                        (temp_path / "dist" / file.name).relative_to(temp_path)
-                    )
+                    _files.append((temp_path / "dist" / file.name).relative_to(temp_path))
                 else:
                     # TODO: Validate the URL
                     _files.append(file)
@@ -248,19 +243,13 @@ def init_chall(
                 _service = Service.model_validate(service)
 
                 if not _service.path.exists():
-                    raise FileNotFoundError(
-                        f'Service folder "{_service.path}" does not exist.'
-                    )
+                    raise FileNotFoundError(f'Service folder "{_service.path}" does not exist.')
 
                 if not _service.path.is_dir():
                     raise NotADirectoryError(f'"{_service.path}" is not a directory.')
 
-                shutil.copytree(
-                    _service.path, temp_path / "service" / _service.path.name
-                )
-                _service.path = (
-                    temp_path / "service" / _service.path.name
-                ).relative_to(temp_path)
+                shutil.copytree(_service.path, temp_path / "service" / _service.path.name)
+                _service.path = (temp_path / "service" / _service.path.name).relative_to(temp_path)
 
                 _services.append(_service)
         else:

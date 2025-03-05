@@ -74,12 +74,10 @@ class Service(Model):
             raise ValueError("Port and ports cannot both be specified")
 
         if self.port is None and self.ports is None and self.type != "internal":
-            raise ValueError(
-                "Port or ports must be specified for non-internal services"
-            )
+            raise ValueError("Port or ports must be specified for non-internal services")
 
         if self.ports is None:
-            self.ports = [self.port]
+            self.ports = [self.port]  # type: ignore
 
         return self
 
@@ -89,21 +87,16 @@ class Service(Model):
 
     @property
     def ports_list(self) -> list[PortInt]:
-        """
-        The list of ports for the service.
+        """The list of ports for the service.
 
         Returns:
             list[int]: The list of ports for the service.
         """
         # TODO: remove this method and use `self.ports` directly
-        return self.ports or [self.port]
+        return self.ports or [self.port]  # type: ignore
 
     def unique_name(self, challenge: Challenge) -> str:
-        return (
-            f"{challenge.category}-{challenge.folder_name}-{self.name}".lower().replace(
-                " ", "-"
-            )
-        )
+        return f"{challenge.category}-{challenge.folder_name}-{self.name}".lower().replace(" ", "-")
 
 
 class Challenge(Model):
@@ -129,9 +122,7 @@ class Challenge(Model):
     description: str
     difficulty: Annotated[str, StringConstraints(to_lower=True)]
     name: str
-    folder_name: Annotated[
-        str, StringConstraints(pattern=r"^[a-zA-Z][a-zA-Z0-9 _-]*$")
-    ] = None  # type: ignore
+    folder_name: Annotated[str, StringConstraints(pattern=r"^[a-zA-Z][a-zA-Z0-9 _-]*$")] = None  # type: ignore
     files: Annotated[list[HttpUrl | Path], Field(min_length=1)] | None = None
     requirements: Annotated[list[str], Field(min_length=1)] | None = None
     extras: dict[str, str | int | float | bool] | None = None
@@ -144,9 +135,7 @@ class Challenge(Model):
         if not self.folder_name:
             sanitized = re.sub(r"^[^a-zA-Z]+|[^a-zA-Z0-9 _-]", "", self.name).strip()
             if not sanitized:
-                raise ValueError(
-                    f'Invalid challenge name, unable to create a valid folder name for "{self.name}"'
-                )
+                raise ValueError(f'Invalid challenge name, unable to create a valid folder name for "{self.name}"')
             self.folder_name = sanitized
         return self
 
@@ -168,21 +157,15 @@ class Challenge(Model):
     @property
     def readme(self) -> str:
         """The README content for the challenge."""
-
         if self.extras is None:
             extras = ""
         else:
-            extras = "\n".join(
-                f"- **{key.capitalize()}:** {value}"
-                for key, value in self.extras.items()
-            )
+            extras = "\n".join(f"- **{key.capitalize()}:** {value}" for key, value in self.extras.items())
 
         if self.hints is None:
             hints = "None"
         else:
-            hints = "\n".join(
-                f"- `{hint.content}` ({hint.cost} points)" for hint in self.hints
-            )
+            hints = "\n".join(f"- `{hint.content}` ({hint.cost} points)" for hint in self.hints)
 
         if self.files is None:
             files = "None"

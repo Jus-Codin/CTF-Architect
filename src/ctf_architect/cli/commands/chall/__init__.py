@@ -48,16 +48,12 @@ app = App(
 )
 
 
-def _ask_and_create_chall(
-    config: CTFConfig, target_dir: str | Path | None = None
-) -> None:
+def _ask_and_create_chall(config: CTFConfig, target_dir: str | Path | None = None) -> None:
     # Challenge Name
     _must_specify_folder_name = False
 
     while True:
-        name = input_str(
-            ":rocket: Enter the challenge name", allow_empty=False
-        ).execute()
+        name = input_str(":rocket: Enter the challenge name", allow_empty=False).execute()
 
         if not valid_chall_name(name):
             console.print(
@@ -90,12 +86,7 @@ def _ask_and_create_chall(
     console.print()  # Add spacing
 
     # Folder name
-    if (
-        _must_specify_folder_name
-        or confirm(
-            ":pencil: Would you like to specify the folder name manually?"
-        ).execute()
-    ):
+    if _must_specify_folder_name or confirm(":pencil: Would you like to specify the folder name manually?").execute():
         folder_name = input_str(
             ":rocket: Enter the challenge folder name",
             validator=valid_chall_folder_name,
@@ -161,15 +152,11 @@ def _ask_and_create_chall(
     console.print()  # Add spacing
 
     # Requirements
-    if confirm(
-        "Would you like to specify the requirements for the challenge?"
-    ).execute():
+    if confirm("Would you like to specify the requirements for the challenge?").execute():
         requirements = []
 
         while True:
-            requirement = input_str(
-                ":gear: Enter a requirement", allow_empty=False
-            ).execute()
+            requirement = input_str(":gear: Enter a requirement", allow_empty=False).execute()
 
             requirements.append(requirement)
 
@@ -205,9 +192,7 @@ def _ask_and_create_chall(
             while True:
                 _flag_content = input_str(":triangular_flag: Enter the flag").execute()
 
-                if config.flag_format is not None and not re.match(
-                    config.flag_format, _flag_content
-                ):
+                if config.flag_format is not None and not re.match(config.flag_format, _flag_content):
                     if not confirm(
                         "Flag does not match the expected format, are you sure you want to continue?"
                     ).execute():
@@ -228,9 +213,7 @@ def _ask_and_create_chall(
             )
         elif _flag_type == "Regex":
             # TODO: Figure out how to validate regex
-            _flag_content = input_str(
-                ":triangular_flag: Enter the flag regex"
-            ).execute()
+            _flag_content = input_str(":triangular_flag: Enter the flag regex").execute()
 
             flags.append(
                 {
@@ -253,17 +236,10 @@ def _ask_and_create_chall(
         hints = []
 
         while True:
-            _hint_content = multiline_input(
-                ":bulb: Enter the hint", allow_empty=False
-            ).execute()
+            _hint_content = multiline_input(":bulb: Enter the hint", allow_empty=False).execute()
             _hint_cost = input_int(":moneybag: Enter the hint cost").execute()
 
-            if (
-                hints
-                and confirm(
-                    ":lock: Does this hint require a previous hint to be unlocked?"
-                ).execute()
-            ):
+            if hints and confirm(":lock: Does this hint require a previous hint to be unlocked?").execute():
                 _hint_requirements = multi_select(
                     choices=[
                         shorten(
@@ -335,9 +311,7 @@ def _ask_and_create_chall(
     console.print()  # Add spacing
 
     # Services
-    if confirm(
-        ":computer: Would you like to import a service into this challenge?"
-    ).execute():
+    if confirm(":computer: Would you like to import a service into this challenge?").execute():
         services = []
 
         while True:
@@ -349,20 +323,13 @@ def _ask_and_create_chall(
             if _service_type == "Finish":
                 break
 
-            _service_name = input_str(
-                ":computer: Enter the service name", validator=valid_service_name
-            ).execute()
+            _service_name = input_str(":computer: Enter the service name", validator=valid_service_name).execute()
 
-            if (
-                _service_type != "Internal"
-                or confirm("Does the service have a port?").execute()
-            ):
+            if _service_type != "Internal" or confirm("Does the service have a port?").execute():
                 _service_ports = []
 
                 while True:
-                    _service_port = input_int(
-                        ":computer: Enter the service port", validator=valid_port
-                    ).execute()
+                    _service_port = input_int(":computer: Enter the service port", validator=valid_port).execute()
 
                     _service_ports.append(_service_port)
 
@@ -450,12 +417,9 @@ def _ask_and_create_chall(
 @app.command(group="Initialization")
 def init(
     *,
-    config_path: Annotated[
-        ResolvedExistingFile | None, Parameter(name=["--config", "-c"])
-    ] = None,
+    config_path: Annotated[ResolvedExistingFile | None, Parameter(name=["--config", "-c"])] = None,
 ):
     """Initialize a new challenge repository."""
-
     # Load the repo config
     if config_path is None:
         config = ask_repo_config()
@@ -475,12 +439,9 @@ def init(
 @app.command(group="Initialization")
 def new(
     *,
-    config_path: Annotated[
-        ResolvedExistingFile | None, Parameter(name=["--config", "-c"])
-    ] = None,
+    config_path: Annotated[ResolvedExistingFile | None, Parameter(name=["--config", "-c"])] = None,
 ):
     """Create a challenge in a new folder."""
-
     # Load the repo config
     if config_path is None:
         config = ask_repo_config()
@@ -499,16 +460,10 @@ def new(
 
 @app.command(group="Linting")
 def lint(
-    chall_path: Annotated[
-        ResolvedExistingDirectory | None, Parameter(name=["--path", "-p"])
-    ] = None,
-    ctf_config: Annotated[
-        ResolvedExistingFile | None, Parameter(name=["--config", "-c"], negative="")
-    ] = None,
+    chall_path: Annotated[ResolvedExistingDirectory | None, Parameter(name=["--path", "-p"])] = None,
+    ctf_config: Annotated[ResolvedExistingFile | None, Parameter(name=["--config", "-c"], negative="")] = None,
     *,
-    level: Annotated[
-        SeverityLevel, Parameter(name=["--level", "-l"])
-    ] = SeverityLevel.WARNING,
+    level: Annotated[SeverityLevel, Parameter(name=["--level", "-l"])] = SeverityLevel.WARNING,
     ignore: Annotated[list[str] | None, Parameter(name=["--ignore", "-i"])] = None,
     show_passed: Annotated[bool, Parameter(name=["--show-passed", "-P"])] = False,
     show_ignored: Annotated[bool, Parameter(name=["--show-ignored", "-I"])] = False,
@@ -529,9 +484,7 @@ def lint(
         chall_path = Path.cwd()
 
     if not is_challenge_folder(chall_path):
-        console.print(
-            ":x: Specified path is not a challenge folder.", style="ctfa.error"
-        )
+        console.print(":x: Specified path is not a challenge folder.", style="ctfa.error")
         return
 
     if ctf_config is None:

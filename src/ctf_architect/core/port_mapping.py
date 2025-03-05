@@ -43,9 +43,7 @@ def save_port_mapping(mapping: dict[str, list[PortMapping]]) -> None:
         yaml.safe_dump(data.model_dump(), f)
 
 
-def generate_port_mapping(
-    seperation: int | None = 1000, max_port: int = 65535
-) -> dict[str, list[PortMapping]]:
+def generate_port_mapping(seperation: int | None = 1000, max_port: int = 65535) -> dict[str, list[PortMapping]]:
     """Generate a port mapping for services in the repository.
 
     Args:
@@ -81,9 +79,7 @@ def generate_port_mapping(
                     service_name = service.unique_name(challenge)
 
                     if service_name in mapping:
-                        raise DuplicateServiceNameError(
-                            f"Duplicate service name: {service_name}"
-                        )
+                        raise DuplicateServiceNameError(f"Duplicate service name: {service_name}")
 
                     service_mapping = []
 
@@ -92,13 +88,9 @@ def generate_port_mapping(
                         # if service.type == "secret":
                         #     secret_services.append((service_name, service))
                         if service.type == "internal":
-                            service_mapping.append(
-                                PortMapping(from_port=service_port, to_port=None)
-                            )
+                            service_mapping.append(PortMapping(from_port=service_port, to_port=None))
                         else:
-                            service_mapping.append(
-                                PortMapping(from_port=service_port, to_port=port)
-                            )
+                            service_mapping.append(PortMapping(from_port=service_port, to_port=port))
                             port += 1
 
                     mapping[service_name] = service_mapping

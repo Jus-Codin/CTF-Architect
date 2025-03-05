@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from enum import Enum, StrEnum
 from functools import total_ordering
 from pathlib import Path
 from traceback import format_exception_only
-from typing import Any, Callable
+from typing import Any
 
 from ctf_architect.models.base import Model
 from ctf_architect.models.ctf_config import CTFConfig
@@ -63,19 +64,14 @@ class CheckResult(Model):
 class Rule(Model):
     code: str
     level: SeverityLevel
-    func: (
-        Callable[[Path], bool | str | CheckResult]
-        | Callable[[Path, CTFConfig], bool | str | CheckResult]
-    )
+    func: Callable[[Path], bool | str | CheckResult] | Callable[[Path, CTFConfig], bool | str | CheckResult]
     message: str | None = None
     requires_ctf_config: bool = False
 
     def model_post_init(self, __context: Any) -> None:
         self.__doc__ = self.func.__doc__
 
-    def check(
-        self, challenge_path: Path, ctf_config: CTFConfig | None = None
-    ) -> CheckResult:
+    def check(self, challenge_path: Path, ctf_config: CTFConfig | None = None) -> CheckResult:
         if ctf_config is None and self.requires_ctf_config:
             return CheckResult(
                 status=CheckStatus.SKIPPED,
@@ -95,8 +91,7 @@ class Rule(Model):
                 status=CheckStatus.ERROR,
                 code=self.code,
                 level=self.level,
-                message="Error running check: "
-                + "".join(format_exception_only(e)).strip(),
+                message="Error running check: " + "".join(format_exception_only(e)).strip(),
             )
 
         if isinstance(result, str):

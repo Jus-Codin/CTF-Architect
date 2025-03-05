@@ -55,12 +55,8 @@ app.command(stats_app)
 @app.command(group="Initialization")
 def init(
     *,
-    config_only: Annotated[
-        bool, Parameter(name=["--config-only", "-c"], negative="")
-    ] = False,
-    name: Annotated[
-        str | None, Parameter(name=["--name", "-n"], group="CTF Config")
-    ] = None,
+    config_only: Annotated[bool, Parameter(name=["--config-only", "-c"], negative="")] = False,
+    name: Annotated[str | None, Parameter(name=["--name", "-n"], group="CTF Config")] = None,
     categories: Annotated[
         list[str] | None,
         Parameter(
@@ -79,12 +75,8 @@ def init(
             consume_multiple=True,
         ),
     ] = None,
-    flag_format: Annotated[
-        str | None, Parameter(name=["--flag-format", "-f"], group="CTF Config")
-    ] = None,
-    starting_port: Annotated[
-        int | None, Parameter(name=["--starting-port", "-p"], group="CTF Config")
-    ] = None,
+    flag_format: Annotated[str | None, Parameter(name=["--flag-format", "-f"], group="CTF Config")] = None,
+    starting_port: Annotated[int | None, Parameter(name=["--starting-port", "-p"], group="CTF Config")] = None,
 ):
     """Initialize a new challenge repository.
 
@@ -96,12 +88,9 @@ def init(
         starting_port (int, optional): The starting port for services in the CTF. Defaults to None.
         config_only (bool, optional): Whether to only save the config file. Defaults to False.
     """
-
     if Path(CTF_CONFIG_FILE).exists():
         if config_only:
-            console.print(
-                "A config file already exists. Exiting...", style="ctfa.error"
-            )
+            console.print("A config file already exists. Exiting...", style="ctfa.error")
             return
 
         choice = select(
@@ -120,9 +109,7 @@ def init(
 
         elif choice == "Use existing config":
             if any([name, categories, difficulties, flag_format, starting_port]):
-                console.print(
-                    ":warning: Ignoring provided arguments...", style="ctfa.warning"
-                )
+                console.print(":warning: Ignoring provided arguments...", style="ctfa.warning")
 
             init_repo_from_config()
             console.print(
@@ -132,35 +119,21 @@ def init(
             return
 
         elif choice == "Overwrite existing config":
-            console.print(
-                ":warning: Overwriting existing config...", style="ctfa.warning"
-            )
+            console.print(":warning: Overwriting existing config...", style="ctfa.warning")
 
     if not name:
-        name = input_str(
-            prompt="Enter the name of the CTF", validator=no_empty_string
-        ).execute()
+        name = input_str(prompt="Enter the name of the CTF", validator=no_empty_string).execute()
 
     console.print(f"CTF Name: {name}", style="ctfa.info")
 
-    if (
-        flag_format is None
-        and confirm("Would you like to specify a flag format?").execute()
-    ):
+    if flag_format is None and confirm("Would you like to specify a flag format?").execute():
         flag_format = input_str("Enter the flag format").execute()
 
     console.print()
-    console.print(
-        f"Flag Format: {flag_format if flag_format else 'None'}", style="ctfa.info"
-    )
+    console.print(f"Flag Format: {flag_format if flag_format else 'None'}", style="ctfa.info")
 
-    if (
-        starting_port is None
-        and confirm("Would you like to specify a starting port?").execute()
-    ):
-        starting_port = input_int(
-            "Enter the starting port", validator=valid_port
-        ).execute()
+    if starting_port is None and confirm("Would you like to specify a starting port?").execute():
+        starting_port = input_int("Enter the starting port", validator=valid_port).execute()
 
     console.print()
     console.print(
@@ -176,9 +149,7 @@ def init(
 
         def _at_least_one_category(response: str) -> None:
             if response == "" and not _categories:
-                raise InvalidResponse(
-                    "[ctfa.prompt.error]At least one category is required"
-                )
+                raise InvalidResponse("[ctfa.prompt.error]At least one category is required")
 
         console.print(
             "Enter the categories for the CTF (one per line, empty line to stop).",
@@ -186,9 +157,7 @@ def init(
         )
 
         while True:
-            category = input_str(
-                "Category Name (empty to stop)", validator=_at_least_one_category
-            ).execute()
+            category = input_str("Category Name (empty to stop)", validator=_at_least_one_category).execute()
 
             if category == "":
                 break
@@ -213,9 +182,7 @@ def init(
 
         def _at_least_one_difficulty(response: str) -> None:
             if response == "" and not _difficulties:
-                raise InvalidResponse(
-                    "[ctfa.prompt.error]At least one difficulty is required"
-                )
+                raise InvalidResponse("[ctfa.prompt.error]At least one difficulty is required")
 
         console.print(
             "Enter the difficulties for the CTF (empty name to stop).",
@@ -223,9 +190,7 @@ def init(
         )
 
         while True:
-            difficulty = input_str(
-                "Difficulty Name (empty to stop)", validator=_at_least_one_difficulty
-            ).execute()
+            difficulty = input_str("Difficulty Name (empty to stop)", validator=_at_least_one_difficulty).execute()
 
             if difficulty == "":
                 break
@@ -259,9 +224,7 @@ def init(
 
             extra_description = input_str("Extra Field Description").execute()
 
-            extra_prompt = input_str(
-                "Extra Field Prompt (shown to challenge creators)"
-            ).execute()
+            extra_prompt = input_str("Extra Field Prompt (shown to challenge creators)").execute()
 
             extra_required = confirm("Is this extra field required?").execute()
 
@@ -377,13 +340,9 @@ def init(
 @app.command(name="import", group="Challenges")
 def challenge_import(
     *,
-    directory: Annotated[
-        ResolvedExistingDirectory, Parameter(name=["--dir", "-d"])
-    ] = Path.cwd(),
+    directory: Annotated[ResolvedExistingDirectory, Parameter(name=["--dir", "-d"])] = Path.cwd(),
     replace: Annotated[bool, Parameter(name=["--replace", "-r"], negative="")] = False,
-    no_update_stats: Annotated[
-        bool, Parameter(name=["--no-update-stats", "-n"], negative="")
-    ] = False,
+    no_update_stats: Annotated[bool, Parameter(name=["--no-update-stats", "-n"], negative="")] = False,
 ):
     """Import challenges from a directory.
 
@@ -392,7 +351,6 @@ def challenge_import(
         replace (bool, optional): Whether to overwrite existing challenges. Defaults to False.
         no_update_stats (bool, optional): Whether to skip updating repo stats. Defaults to False.
     """
-
     try:
         config = load_repo_config()
     except FileNotFoundError:
@@ -463,9 +421,7 @@ def challenge_import(
                         success += 1
                         break
                     except ChallengeExistsError:
-                        if not confirm(
-                            f"Challenge already exists. Replace {challenge_folder.name}?"
-                        ).execute():
+                        if not confirm(f"Challenge already exists. Replace {challenge_folder.name}?").execute():
                             break
                         asked_allow_replace = True
                     except Exception as e:
@@ -487,14 +443,10 @@ def challenge_import(
         console.print(":sparkles: Repository stats updated.", style="ctfa.info")
 
     if unzip_failed:
-        console.print(
-            f":x: Failed to extract {len(unzip_failed)} zip files.", style="ctfa.error"
-        )
+        console.print(f":x: Failed to extract {len(unzip_failed)} zip files.", style="ctfa.error")
 
     if import_failed:
-        console.print(
-            f":x: Failed to import {len(import_failed)} challenges.", style="ctfa.error"
-        )
+        console.print(f":x: Failed to import {len(import_failed)} challenges.", style="ctfa.error")
 
     console.print(
         f":sparkles: Successfully imported {success} challenges. :sparkles:",
@@ -506,9 +458,7 @@ def challenge_import(
 def challenge_export(
     name: Annotated[str, Parameter(name=["--name", "-n"])],
     *,
-    path: Annotated[
-        ResolvedExistingDirectory, Parameter(name=["--path", "-p"])
-    ] = Path.cwd(),
+    path: Annotated[ResolvedExistingDirectory, Parameter(name=["--path", "-p"])] = Path.cwd(),
     file_name: Annotated[str | None, Parameter(name=["--filename", "-f"])] = None,
 ):
     """Export challenges to a zip file.
@@ -518,7 +468,6 @@ def challenge_export(
         path (ResolvedExistingDirectory, optional): The path to the zip file to export to. Defaults to the current directory.
         file_name (str, optional): The name of the zip file to export to. Defaults to None.
     """
-
     if not is_challenge_repo():
         console.print(
             "This is not a challenge repository. Are you in the right directory?",
@@ -541,9 +490,7 @@ def challenge_export(
         for file in challenge.repo_path.rglob("*"):
             zip_ref.write(file, file.relative_to(challenge.repo_path))
 
-    console.print(
-        f"Successfully exported challenge to {zip_path}", style="ctfa.success"
-    )
+    console.print(f"Successfully exported challenge to {zip_path}", style="ctfa.success")
 
 
 @app.command(group="Linting")
@@ -553,22 +500,14 @@ def lint(
         Parameter(name=["--challenge", "-c"], negative="", consume_multiple=True),
     ] = None,
     *,
-    level: Annotated[
-        SeverityLevel, Parameter(name=["--level", "-l"])
-    ] = SeverityLevel.WARNING,
+    level: Annotated[SeverityLevel, Parameter(name=["--level", "-l"])] = SeverityLevel.WARNING,
     ignore: Annotated[
         list[str] | None,
         Parameter(name=["--ignore", "-i"], negative="", consume_multiple=True),
     ] = None,
-    show_passed: Annotated[
-        bool, Parameter(name=["--show-passed", "-P"], negative="")
-    ] = False,
-    show_ignored: Annotated[
-        bool, Parameter(name=["--show-ignored", "-I"], negative="")
-    ] = False,
-    show_skipped: Annotated[
-        bool, Parameter(name=["--show-skipped", "-S"], negative="")
-    ] = False,
+    show_passed: Annotated[bool, Parameter(name=["--show-passed", "-P"], negative="")] = False,
+    show_ignored: Annotated[bool, Parameter(name=["--show-ignored", "-I"], negative="")] = False,
+    show_skipped: Annotated[bool, Parameter(name=["--show-skipped", "-S"], negative="")] = False,
 ):
     """Lint the challenges in the CTF repo.
 
@@ -580,7 +519,6 @@ def lint(
         show_ignored (bool, optional): Show rules that were ignored. If no challenge is specified, this flag does nothing. Defaults to False.
         show_skipped (bool, optional): Show rules that were skipped. If no challenge is specified, this flag does nothing. Defaults to False.
     """
-
     try:
         config = load_repo_config()
     except FileNotFoundError:
@@ -602,10 +540,7 @@ def lint(
         results = lint_challenge_repo(level=level, ignore=ignore, by_category=True)
 
         failed_challenges = [
-            result
-            for category in results.values()
-            for result in category.values()
-            if result.failed or result.errors
+            result for category in results.values() for result in category.values() if result.failed or result.errors
         ]
 
         if len(failed_challenges) == 0:
@@ -648,9 +583,7 @@ def lint(
                                 style="ctfa.lint.error",
                             )
                     else:
-                        challenge_tree = category_tree.add(
-                            f"{challenge} ({len(result.failed)} violations)"
-                        )
+                        challenge_tree = category_tree.add(f"{challenge} ({len(result.failed)} violations)")
 
                         highest_severity = level
 
@@ -660,9 +593,7 @@ def lint(
 
                         style, icon = VIOLATION_STYLES[failed.level]
 
-                        challenge_tree.add(
-                            f"{icon} {failed.code} - {failed.message}", style=style
-                        )
+                        challenge_tree.add(f"{icon} {failed.code} - {failed.message}", style=style)
 
                     challenge_tree.style = VIOLATION_STYLES[highest_severity][0]
 
@@ -673,14 +604,10 @@ def lint(
             # Show challenges that passed all checks
             if show_passed:
                 for challenge, result in category_passed.items():
-                    challenge_tree = category_tree.add(
-                        f"{challenge} (passed)", style="ctfa.lint.passed"
-                    )
+                    challenge_tree = category_tree.add(f"{challenge} (passed)", style="ctfa.lint.passed")
                     challenge_tree.add("✓ All checks passed", style="ctfa.lint.passed")
 
-        lint_panel = Panel(
-            tree, title="Lint Results", style="ctfa.info", border_style="green"
-        )
+        lint_panel = Panel(tree, title="Lint Results", style="ctfa.info", border_style="green")
 
         console.print(lint_panel)
 
@@ -693,27 +620,23 @@ def lint(
             challenge_folder = find_challenge_folder(challenge_name)
 
             if challenge_folder is None:
-                console.print(
-                    f"Could not find challenge: {challenge_name}", style="ctfa.error"
-                )
+                console.print(f"Could not find challenge: {challenge_name}", style="ctfa.error")
                 return
 
             _challenge_paths.append(challenge_folder)
 
         for challenge_path in _challenge_paths:
-            result = lint_challenge(
-                challenge_path, ctf_config=config, level=level, ignore=ignore
-            )
+            result = lint_challenge(challenge_path, ctf_config=config, level=level, ignore=ignore)
 
             if result.failed or result.errors:
                 if result.errors:
-                    challenge_label = f"{challenge_path.name} ({len(result.failed)} violations, {len(result.errors)} errors)"
+                    challenge_label = (
+                        f"{challenge_path.name} ({len(result.failed)} violations, {len(result.errors)} errors)"
+                    )
 
                     highest_severity = SeverityLevel.FATAL
                 else:
-                    challenge_label = (
-                        f"{challenge_path.name} ({len(result.failed)} violations)"
-                    )
+                    challenge_label = f"{challenge_path.name} ({len(result.failed)} violations)"
 
                     highest_severity = level
 
@@ -731,9 +654,7 @@ def lint(
 
                     style, icon = VIOLATION_STYLES[failed.level]
 
-                    challenge_tree.add(
-                        f"{icon} {failed.code} - {failed.message}", style=style
-                    )
+                    challenge_tree.add(f"{icon} {failed.code} - {failed.message}", style=style)
 
                 challenge_tree.style = VIOLATION_STYLES[highest_severity][0]
 
@@ -756,9 +677,7 @@ def lint(
 
             if show_passed and result.passed:
                 for passed in result.passed:
-                    challenge_tree.add(
-                        f"✓ PASSED - {passed.code}", style="ctfa.lint.passed"
-                    )
+                    challenge_tree.add(f"✓ PASSED - {passed.code}", style="ctfa.lint.passed")
 
             if len(challenge_tree.children) == 0:
                 challenge_tree.add("✓ All checks passed", style="ctfa.lint.passed")

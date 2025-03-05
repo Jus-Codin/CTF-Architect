@@ -30,9 +30,7 @@ def get_app_dir(app_name: str, roaming: bool = True, force_posix: bool = False) 
     if force_posix:
         return os.path.join(os.path.expanduser(f"~/.{_posixify(app_name)}"))
     if sys.platform == "darwin":
-        return os.path.join(
-            os.path.expanduser("~/Library/Application Support"), app_name
-        )
+        return os.path.join(os.path.expanduser("~/Library/Application Support"), app_name)
     return os.path.join(
         os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config")),
         _posixify(app_name),
