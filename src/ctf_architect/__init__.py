@@ -1,4 +1,4 @@
-from importlib.metadata import version
+import importlib.metadata
 
 from ctf_architect.core.challenge import is_challenge_folder, load_chall_config, save_chall_config, save_chall_readme
 from ctf_architect.core.compose import create_compose_files, update_compose_files
@@ -50,4 +50,4 @@ __all__ = [
     "update_root_readme",
 ]
 
-__version__ = version("ctf-architect")
+__version__ = importlib.metadata.version("ctf-architect")
