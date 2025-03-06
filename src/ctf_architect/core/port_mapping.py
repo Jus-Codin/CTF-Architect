@@ -27,7 +27,7 @@ def load_port_mapping() -> dict[str, list[PortMapping]]:
     if not os.path.exists(PORT_MAPPING_FILE):
         raise FileNotFoundError(f"Could not find {PORT_MAPPING_FILE}")
 
-    with open(PORT_MAPPING_FILE, "r") as f:
+    with open(PORT_MAPPING_FILE) as f:
         data = yaml.safe_load(f)
 
     mapping_file = PortMappingFile.model_validate(data)
