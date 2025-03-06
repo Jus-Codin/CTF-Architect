@@ -1,6 +1,4 @@
-"""
-Constants used throughout CTF Architect.
-"""
+"""Constants used throughout CTF Architect."""
 
 from ctf_architect.version import CHALLENGE_SPEC_VERSION, CTF_CONFIG_SPEC_VERSION
 
