@@ -34,7 +34,7 @@ from ctf_architect.cli.validators import (
     valid_port,
     valid_service_name,
 )
-from ctf_architect.core.challenge import is_challenge_folder
+from ctf_architect.core.challenge import is_challenge_folder, load_chall_config, save_chall_config, save_chall_readme
 from ctf_architect.core.initialize import init_chall
 from ctf_architect.core.lint import lint_challenge
 from ctf_architect.core.repo import load_repo_config
@@ -575,3 +575,35 @@ def lint(
 
     console.print(challenge_panel)
     console.print()  # Add spacing
+
+
+@app.command(group="Updating")
+def update(
+    chall_path: Annotated[ResolvedExistingDirectory | None, Parameter(name=["--path", "-p"])] = None,
+    *,
+    remake_config: Annotated[bool, Parameter(name=["--remake-config", "-c"], negative="")] = False,
+):
+    """Update the challenge's README, and optionally remake the config.
+
+    Args:
+        chall_path (ResolvedExistingDirectory, optional): The path to the challenge directory. If not specified, the current directory is used.
+        remake_config (bool, optional): Whether to remake the config.
+    """
+    if chall_path is None:
+        chall_path = Path.cwd()
+
+    if not is_challenge_folder(chall_path):
+        console.print(":x: Specified path is not a challenge folder.", style="ctfa.error")
+        return
+
+    chall_config = load_chall_config(chall_path)
+
+    save_chall_readme(chall_path, chall_config)
+
+    if remake_config:
+        save_chall_config(chall_path, chall_config)
+
+    console.print(
+        ":sparkles: Challenge updated! :sparkles:",
+        style="ctfa.success",
+    )
