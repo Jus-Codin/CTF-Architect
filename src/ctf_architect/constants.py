@@ -26,7 +26,7 @@ This is the file to specify to ctf-architect when creating a new challenge.
 PORT_MAPPING_FILE = "port_mapping.yaml"
 
 # README FILE TEMPLATES
-CHALL_README_TEMPLATE = """
+CHALL_README_TEMPLATE = """\
 # {name}
 {description}
 
@@ -49,7 +49,7 @@ CHALL_README_TEMPLATE = """
 {services}
 """
 
-CATEGORY_README_TEMPLATE = """
+CATEGORY_README_TEMPLATE = """\
 # {name} Challenges
 
 ## Difficulty Distribution
