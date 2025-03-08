@@ -140,10 +140,10 @@ class Challenge(Model):
         return self
 
     @field_serializer("files")
-    def _serialize_files(self, files: list[HttpUrl | Path]) -> list[str]:
-        return [
-            file.as_posix() if isinstance(file, Path) else str(file) for file in files
-        ]
+    def _serialize_files(self, files: list[HttpUrl | Path] | None) -> list[str] | None:
+        if files is None:
+            return None
+        return [file.as_posix() if isinstance(file, Path) else str(file) for file in files]
 
     @property
     def network_name(self) -> str:

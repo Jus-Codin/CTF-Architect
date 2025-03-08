@@ -67,7 +67,11 @@ def save_chall_config(path: str | Path, challenge: Challenge) -> None:
 
     doc.add("version", str(CHALLENGE_SPEC_VERSION))  # type: ignore
 
-    doc.add("challenge", challenge.model_dump(mode="json", exclude_defaults=True))  # type: ignore
+    # NOTE: We have to do exclude_none=True because pydantic ignores exclude_defaults for fields with
+    #       custom field serializers. We need it for `challenge.files`, but it can be None, so we need
+    #       to exclude it here. This is fine since None cannot be serialized in TOML anyway.
+    #       See: https://github.com/pydantic/pydantic/issues/6575
+    doc.add("challenge", challenge.model_dump(mode="json", exclude_defaults=True, exclude_none=True))  # type: ignore
 
     with open(path / CHALLENGE_CONFIG_FILE, "w", encoding="utf-8") as f:
         dump(doc, f)
