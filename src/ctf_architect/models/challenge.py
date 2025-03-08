@@ -76,8 +76,8 @@ class Service(Model):
         if self.port is None and self.ports is None and self.type != "internal":
             raise ValueError("Port or ports must be specified for non-internal services")
 
-        if self.ports is None:
-            self.ports = [self.port]  # type: ignore
+        if self.ports is None and self.port is not None:
+            self.ports = [self.port]
 
         return self
 
