@@ -7,6 +7,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Literal, TypedDict
 
+from ctf_architect.constants import CTF_CONFIG_FILE
 from ctf_architect.core.challenge import save_chall_config, save_chall_readme
 from ctf_architect.core.repo import load_repo_config, save_repo_config
 from ctf_architect.core.stats import update_category_readme, update_root_readme
@@ -85,7 +86,7 @@ def init_repo_no_config(
 
 def init_repo_from_config() -> None:
     """Initialize a new challenge repository from a config file."""
-    config = load_repo_config()
+    config = load_repo_config(Path(CTF_CONFIG_FILE))
 
     # Create the challenge folder
     Path("challenges").mkdir(exist_ok=True)
