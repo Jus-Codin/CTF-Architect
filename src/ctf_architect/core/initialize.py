@@ -281,4 +281,5 @@ def init_chall(
         if target_dir is None:
             target_dir = Path(chall.folder_name)
 
-        shutil.move(temp_path, target_dir)
+        for file in temp_path.iterdir():
+            shutil.move(file, target_dir / file.name)
