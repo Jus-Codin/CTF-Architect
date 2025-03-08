@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from pathlib import Path
 from types import EllipsisType
-from typing import Iterable
 
 from rich.panel import Panel
 from rich.table import Table
@@ -77,7 +77,7 @@ def create_repo_config_panels(
     )
     _panels.append(extras_panel)
 
-    for panel in _panels:
+    for panel in _panels:  # noqa: UP028
         yield panel
 
 
@@ -134,9 +134,7 @@ def create_chall_config_panels(
     _panels.append(chall_config_panel)
 
     requirements_panel = Panel(
-        "\n".join([f"  - {requirement}" for requirement in requirements])
-        if requirements
-        else "  - None",
+        "\n".join([f"  - {requirement}" for requirement in requirements]) if requirements else "  - None",
         title=":gear: Requirements",
         title_align="left",
         style="ctfa.info",
@@ -145,9 +143,7 @@ def create_chall_config_panels(
     _panels.append(requirements_panel)
 
     extras_panel = Panel(
-        "\n".join([f"  - {key}: {value}" for key, value in extras.items()])
-        if extras
-        else "  - None",
+        "\n".join([f"  - {key}: {value}" for key, value in extras.items()]) if extras else "  - None",
         title=":package: Extras",
         title_align="left",
         style="ctfa.info",
@@ -184,9 +180,7 @@ def create_chall_config_panels(
 
     if source_files != ...:
         source_files_panel = Panel(
-            "\n".join([f"  - {file}" for file in source_files])
-            if source_files
-            else "  - None",
+            "\n".join([f"  - {file}" for file in source_files]) if source_files else "  - None",
             title=":file_folder: Source Files",
             title_align="left",
             style="ctfa.info",
@@ -196,9 +190,7 @@ def create_chall_config_panels(
 
     if solution_files != ...:
         solution_files_panel = Panel(
-            "\n".join([f"  - {file}" for file in solution_files])
-            if solution_files
-            else "  - None",
+            "\n".join([f"  - {file}" for file in solution_files]) if solution_files else "  - None",
             title=":file_folder: Solution Files",
             title_align="left",
             style="ctfa.info",
@@ -209,9 +201,7 @@ def create_chall_config_panels(
     flags_table = Table()
     flags_table.add_column("Flag", header_style="bright_cyan", style="cyan")
     flags_table.add_column("Type", header_style="bright_green", style="green")
-    flags_table.add_column(
-        "Case-Insensitive", header_style="bright_green", style="green"
-    )
+    flags_table.add_column("Case-Insensitive", header_style="bright_green", style="green")
 
     for flag in flags:
         if isinstance(flag, dict):
@@ -246,9 +236,7 @@ def create_chall_config_panels(
         )
     else:
         services_table = Table()
-        services_table.add_column(
-            "Service Name", header_style="bright_cyan", style="cyan"
-        )
+        services_table.add_column("Service Name", header_style="bright_cyan", style="cyan")
         services_table.add_column("Path", header_style="bright_green", style="green")
         services_table.add_column("Ports", header_style="bright_green", style="green")
         services_table.add_column("Type", header_style="bright_green", style="green")
@@ -286,5 +274,5 @@ def create_chall_config_panels(
         )
     _panels.append(service_panel)
 
-    for panel in _panels:
+    for panel in _panels:  # noqa: UP028
         yield panel

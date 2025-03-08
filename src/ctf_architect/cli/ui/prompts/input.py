@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import sys
-from typing import Any, Callable, Generic, TypeVar
+from collections.abc import Callable
+from typing import Any, Generic, TypeVar
 
 from rich.console import Console
 from rich.text import Text, TextType
@@ -43,11 +44,7 @@ class InputPromptBase(PromptBase, Generic[InputType]):
         prompt = self.prompt.copy()
         prompt.end = ""
 
-        if (
-            self.default != ...
-            and self.show_default
-            and isinstance(self.default, (str, self.response_type))
-        ):
+        if self.default != ... and self.show_default and isinstance(self.default, (str, self.response_type)):  # noqa: UP038
             prompt.append(" ")
             _default = self.render_default(self.default)
             prompt.append(_default)
@@ -157,9 +154,7 @@ class MultilineInput(PromptBase):
                 .append_text(NEWLINE_RESET)
             )
         else:
-            prompt = Text(self.helper_text, style="ctfa.prompt.message").append_text(
-                NEWLINE_RESET
-            )
+            prompt = Text(self.helper_text, style="ctfa.prompt.message").append_text(NEWLINE_RESET)
 
         prompt.end = ""
 

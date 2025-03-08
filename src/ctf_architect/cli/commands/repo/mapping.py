@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from cyclopts import App
+from typing import Annotated
+
+from cyclopts import App, Parameter
 from rich.align import Align
 
 from ctf_architect.cli.ui.components import create_mapping_table
@@ -23,7 +25,7 @@ app = App(
 @app.default
 @app.command
 def show():
-    """Show the port mappings for challenge services"""
+    """Show the port mappings for challenge services."""
     try:
         mapping = load_port_mapping()
         table = create_mapping_table(mapping)
@@ -34,10 +36,11 @@ def show():
             style="ctfa.error",
         )
 
-
-@app.command
-def generate(yes: bool = False):
-    """Generates port mappings for challenge services"""
+def generate(
+    *,
+    yes: Annotated[bool, Parameter(name=["--yes", "-y"], negative="")] = False,
+):
+    """Generates port mappings for challenge services."""
     if not is_challenge_repo():
         console.print(
             "This is not a challenge repository. Are you in the right directory?",
@@ -50,7 +53,6 @@ def generate(yes: bool = False):
     table = create_mapping_table(mapping)
     console.print(table)
 
-    # If --yes flag is not provided, ask for confirmation interactively
     if not yes:
         if not confirm("Do you want to save the port mapping?").execute():
             return

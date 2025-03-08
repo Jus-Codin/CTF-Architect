@@ -92,9 +92,7 @@ def _validate_service_folder_path(response: str):
         raise InvalidResponse("[ctfa.prompt.error]Path is not a folder.")
 
     if not valid_service_folder(path):
-        raise InvalidResponse(
-            "[ctfa.prompt.error]Folder does not contain a Dockerfile."
-        )
+        raise InvalidResponse("[ctfa.prompt.error]Folder does not contain a Dockerfile.")
 
 
 def ask_dist_files() -> list[Path | str]:
@@ -128,9 +126,7 @@ def ask_dist_files() -> list[Path | str]:
 
                 console.print(f"Added file: {file_path}", style="ctfa.success")
             else:
-                file_paths = askopenfilenames(
-                    title="Select the dist files for the challenge"
-                )
+                file_paths = askopenfilenames(title="Select the dist files for the challenge")
                 if file_paths == "":
                     # User cancelled or dialog is unsupported
                     continue
@@ -141,9 +137,7 @@ def ask_dist_files() -> list[Path | str]:
                     console.print(f"Added file: {file_path}", style="ctfa.success")
         elif file_type == "URL":
             # TODO: Add URL validation
-            url = input_str(
-                ":file_folder: Enter the URL of the file", allow_empty=False
-            ).execute()
+            url = input_str(":file_folder: Enter the URL of the file", allow_empty=False).execute()
             files.append(url)
 
             console.print(f"Added URL: {url}", style="ctfa.success")
@@ -184,9 +178,7 @@ def ask_source_files() -> list[Path]:
 
             console.print(f"Added file: {file_path}", style="ctfa.success")
         elif input_method == "Browse for file":
-            file_path = askopenfilename(
-                title="Select the source file for the challenge"
-            )
+            file_path = askopenfilename(title="Select the source file for the challenge")
             if file_path == "":
                 # User cancelled or dialog is unsupported
                 continue
@@ -231,9 +223,7 @@ def ask_solution_files() -> list[Path]:
 
             console.print(f"Added file: {file_path}", style="ctfa.success")
         elif input_method == "Browse for file":
-            file_path = askopenfilename(
-                title="Select the solution file for the challenge"
-            )
+            file_path = askopenfilename(title="Select the solution file for the challenge")
             if file_path == "":
                 # User cancelled or dialog is unsupported
                 continue

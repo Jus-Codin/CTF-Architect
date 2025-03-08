@@ -43,9 +43,7 @@ def get_category_difficulty_distribution(name: str) -> dict[str, int]:
             chall_config = load_chall_config(challenge_path)
 
             if chall_config.difficulty.lower() not in stats:
-                warn(
-                    f'Ignoring unknown difficulty "{chall_config.difficulty}" in {challenge_path.absolute()}'
-                )
+                warn(f'Ignoring unknown difficulty "{chall_config.difficulty}" in {challenge_path.absolute()}')
                 continue
 
             stats[chall_config.difficulty.lower()] += 1
@@ -104,19 +102,13 @@ def update_category_readme(name: str):
             for name, folder, description, difficulty, author in challenges
         )
 
-        services_table = (
-            "| Service | Challenge | Ports | Type |\n"
-            "|---------|-----------|-------|------|\n"
-        )
+        services_table = "| Service | Challenge | Ports | Type |\n|---------|-----------|-------|------|\n"
         services_table += "\n".join(
             f"| [{service_name}](<./{folder}/{service_path}>) | [{name}](<./{folder}>) | {ports} | {service_type} |"
             for name, folder, service_name, service_path, ports, service_type in services
         )
 
-    diff_table = "\n".join(
-        f"| {difficulty.capitalize()} | {count} |"
-        for difficulty, count in distribution.items()
-    )
+    diff_table = "\n".join(f"| {difficulty.capitalize()} | {count} |" for difficulty, count in distribution.items())
     diff_table += f"\n| **Total** | **{sum(distribution.values())}** |"
 
     category_readme = CATEGORY_README_TEMPLATE.format(
@@ -176,9 +168,7 @@ def update_root_readme():
                                     placeholder="...",
                                 ),
                                 chall_config.folder_name,
-                                shorten(
-                                    service.name, MAX_NAME_LENGTH, placeholder="..."
-                                ),
+                                shorten(service.name, MAX_NAME_LENGTH, placeholder="..."),
                                 service.path.as_posix(),
                                 category,
                                 ", ".join(map(str, service.ports_list)) or "None",
@@ -200,8 +190,7 @@ def update_root_readme():
         )
 
         services_table = (
-            "| Service | Challenge | Category | Ports | Type |\n"
-            "|---------|-----------|----------|-------|------|\n"
+            "| Service | Challenge | Category | Ports | Type |\n|---------|-----------|----------|-------|------|\n"
         )
         services_table += "\n".join(
             f"| [{service_name}](<./{category.lower()}/{folder}/{service_path}>) | [{name}](<./{category.lower()}/{folder}>) | {category.capitalize()} | {ports} | {service_type} |"
@@ -209,21 +198,14 @@ def update_root_readme():
         )
 
     diff_table_header = (
-        "| Category | "
-        + " | ".join(difficulty.capitalize() for difficulty in config.difficulties)
-        + " | Total |\n"
+        "| Category | " + " | ".join(difficulty.capitalize() for difficulty in config.difficulties) + " | Total |\n"
     )
-    diff_table_header += "|----------|:" + ":|:".join(
-        "-" * len(difficulty) for difficulty in config.difficulties
-    )
+    diff_table_header += "|----------|:" + ":|:".join("-" * len(difficulty) for difficulty in config.difficulties)
     diff_table_header += ":|:-----:|"
 
     diff_table_body = "\n".join(
         f"| {category.capitalize()} | "
-        + " | ".join(
-            str(distributions[category][difficulty])
-            for difficulty in config.difficulties
-        )
+        + " | ".join(str(distributions[category][difficulty]) for difficulty in config.difficulties)
         + f" | {sum(distributions[category].values())} |"
         for category in config.categories
     )
@@ -231,12 +213,7 @@ def update_root_readme():
     diff_table_total = (
         "| **Total** |"
         + " | ".join(
-            str(
-                sum(
-                    distributions[category][difficulty]
-                    for category in config.categories
-                )
-            )
+            str(sum(distributions[category][difficulty] for category in config.categories))
             for difficulty in config.difficulties
         )
         + f" | {sum(sum(distributions[category].values()) for category in config.categories)} |"

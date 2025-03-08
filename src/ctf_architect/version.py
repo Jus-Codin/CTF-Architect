@@ -30,10 +30,7 @@ def is_supported_challenge_version(version: str) -> bool:
 
     # In the future there may be a CTF Config version that is incompatible with
     # previous challenge versions, so we may want to check the CTF Config version here in the future
-    return (
-        int(major) == CHALLENGE_SPEC_VERSION.MAJOR
-        and int(minor) <= CHALLENGE_SPEC_VERSION.MINOR
-    )
+    return int(major) == CHALLENGE_SPEC_VERSION.MAJOR and int(minor) <= CHALLENGE_SPEC_VERSION.MINOR
 
 
 def is_supported_ctf_config_version(version: str) -> bool:
@@ -47,7 +44,4 @@ def is_supported_ctf_config_version(version: str) -> bool:
     else:
         major, minor = segments
 
-    return (
-        int(major) == CTF_CONFIG_SPEC_VERSION.MAJOR
-        and int(minor) <= CTF_CONFIG_SPEC_VERSION.MINOR
-    )
+    return int(major) == CTF_CONFIG_SPEC_VERSION.MAJOR and int(minor) <= CTF_CONFIG_SPEC_VERSION.MINOR

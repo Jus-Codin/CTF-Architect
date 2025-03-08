@@ -56,22 +56,16 @@ class Select(PromptBase, Generic[SelectType]):
                 .append_text(NEWLINE_RESET)
             )
         else:
-            choices_text = Text(
-                self.helper_text, style="ctfa.prompt.message"
-            ).append_text(NEWLINE_RESET)
+            choices_text = Text(self.helper_text, style="ctfa.prompt.message").append_text(NEWLINE_RESET)
 
         indent_str = " " * self.indent
 
         for i, choice in enumerate(self.choices):
             if i == selected_index:
-                choices_text.append(
-                    f"{indent_str}{self.prompt_pointer}", style="ctfa.prompt.pointer"
-                )
+                choices_text.append(f"{indent_str}{self.prompt_pointer}", style="ctfa.prompt.pointer")
                 choices_text.append(f"{choice}", style="ctfa.prompt.selected")
             else:
-                choices_text.append(
-                    f"{indent_str}  {choice}", style="ctfa.prompt.unselected"
-                )
+                choices_text.append(f"{indent_str}  {choice}", style="ctfa.prompt.unselected")
 
             choices_text.append("\n")
 
@@ -83,9 +77,7 @@ class Select(PromptBase, Generic[SelectType]):
         else:
             result_text = Text("Answer:", style="ctfa.prompt.message")
 
-        result_text.append(
-            f" {self.choices[selected_index]}", style="ctfa.prompt.selected"
-        )
+        result_text.append(f" {self.choices[selected_index]}", style="ctfa.prompt.selected")
         return result_text
 
     def make_prompt(self, session: PromptSession) -> TextType:
@@ -95,9 +87,7 @@ class Select(PromptBase, Generic[SelectType]):
         selected_index = session.state["selected_index"]
         return self.render_choices(selected_index)
 
-    def get_input(
-        self, session: PromptSession, prompt: TextType | None = None
-    ) -> SelectType | int:
+    def get_input(self, session: PromptSession, prompt: TextType | None = None) -> SelectType | int:
         # session.live will always be set if this method is called
         live = cast(Live, session.live)
 
@@ -121,9 +111,7 @@ class Select(PromptBase, Generic[SelectType]):
 
         return selected_index if self.return_index else self.choices[selected_index]
 
-    def process_response(
-        self, session: PromptSession, response: SelectType | int
-    ) -> SelectType | int:
+    def process_response(self, session: PromptSession, response: SelectType | int) -> SelectType | int:
         return response
 
     def execute(self, *args, **kwargs) -> SelectType | int:
@@ -132,9 +120,7 @@ class Select(PromptBase, Generic[SelectType]):
 
 
 class MultiSelect(PromptBase, Generic[SelectType]):
-    helper_text = (
-        "Use arrow keys (↑/↓) or k/j to move, press Space to toggle and Enter to submit"
-    )
+    helper_text = "Use arrow keys (↑/↓) or k/j to move, press Space to toggle and Enter to submit"
     prompt_pointer = "\u276f "
     prompt_toggled_on = "\u2611 "
     prompt_toggled_off = "\u2610 "
@@ -157,9 +143,7 @@ class MultiSelect(PromptBase, Generic[SelectType]):
         self.prompt_suffix = prompt_suffix
         super().__init__(prompt, console=console)
 
-    def render_choices(
-        self, current_index: int, selected_indexes: set[int], final: bool = False
-    ) -> TextType:
+    def render_choices(self, current_index: int, selected_indexes: set[int], final: bool = False) -> TextType:
         if self.prompt.plain:
             # choices_text = (
             #     self.prompt.copy()
@@ -176,29 +160,21 @@ class MultiSelect(PromptBase, Generic[SelectType]):
                 .append_text(NEWLINE_RESET)
             )
         else:
-            choices_text = Text(
-                self.helper_text, style="ctfa.prompt.message"
-            ).append_text(NEWLINE_RESET)
+            choices_text = Text(self.helper_text, style="ctfa.prompt.message").append_text(NEWLINE_RESET)
 
         indent_str = " " * self.indent
 
         for i, choice in enumerate(self.choices):
             if i == current_index and not final:
-                choices_text.append(
-                    f"{indent_str}{self.prompt_pointer}", style="ctfa.prompt.pointer"
-                )
+                choices_text.append(f"{indent_str}{self.prompt_pointer}", style="ctfa.prompt.pointer")
             else:
                 choices_text.append(f"{indent_str}  ")
 
             if i in selected_indexes:
-                choices_text.append(
-                    self.prompt_toggled_on, style="ctfa.prompt.toggled_on"
-                )
+                choices_text.append(self.prompt_toggled_on, style="ctfa.prompt.toggled_on")
                 choices_text.append(f"{choice}", style="ctfa.prompt.selected")
             else:
-                choices_text.append(
-                    self.prompt_toggled_off, style="ctfa.prompt.toggled_off"
-                )
+                choices_text.append(self.prompt_toggled_off, style="ctfa.prompt.toggled_off")
                 choices_text.append(f"{choice}", style="ctfa.prompt.unselected")
 
             choices_text.append("\n")
@@ -216,9 +192,7 @@ class MultiSelect(PromptBase, Generic[SelectType]):
         selected_indexes = session.state["selected_indexes"]
         return self.render_choices(current_index, selected_indexes)
 
-    def get_input(
-        self, session: PromptSession, prompt: TextType | None = None
-    ) -> list[SelectType] | list[int]:
+    def get_input(self, session: PromptSession, prompt: TextType | None = None) -> list[SelectType] | list[int]:
         # session.live will always be set if this method is called
         live = cast(Live, session.live)
 
@@ -245,18 +219,12 @@ class MultiSelect(PromptBase, Generic[SelectType]):
                 live.stop()
                 break
 
-            live.update(
-                self.render_choices(current_index, selected_indexes), refresh=True
-            )
+            live.update(self.render_choices(current_index, selected_indexes), refresh=True)
 
             session.state["current_index"] = current_index
             session.state["selected_indexes"] = selected_indexes
 
-        return (
-            list(selected_indexes)
-            if self.return_indexes
-            else [self.choices[i] for i in selected_indexes]
-        )
+        return list(selected_indexes) if self.return_indexes else [self.choices[i] for i in selected_indexes]
 
     def process_response(
         self, session: PromptSession, response: list[SelectType] | list[int]
@@ -264,7 +232,5 @@ class MultiSelect(PromptBase, Generic[SelectType]):
         return response
 
     def execute(self, *args, **kwargs) -> list[SelectType] | list[int]:
-        session = PromptSession(
-            self.console, self, state={"current_index": 0, "selected_indexes": set()}
-        )
+        session = PromptSession(self.console, self, state={"current_index": 0, "selected_indexes": set()})
         return session.run(live=True, transient=self.transient)

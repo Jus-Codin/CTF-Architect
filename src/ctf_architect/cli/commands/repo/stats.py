@@ -25,9 +25,7 @@ app = App(
 
 @app.default
 @app.command
-def show(
-    *, category: Annotated[str | None, Parameter(name=["--category", "-c"])] = None
-):
+def show(*, category: Annotated[str | None, Parameter(name=["--category", "-c"])] = None):
     """Show the challenge repository statistics.
 
     Args:
@@ -52,9 +50,7 @@ def show(
         # | ...      | ...  | ...    | ... | ...   |
         # | Total    | ...  | ...    | ... | ...   |
 
-        table.add_column(
-            "Category", header_style="bright_cyan", style="cyan", no_wrap=True
-        )
+        table.add_column("Category", header_style="bright_cyan", style="cyan", no_wrap=True)
 
         for difficulty in config.difficulties:
             table.add_column(
@@ -64,23 +60,15 @@ def show(
                 justify="center",
             )
 
-        table.add_column(
-            "Total", header_style="bright_green", style="green", justify="center"
-        )
+        table.add_column("Total", header_style="bright_green", style="green", justify="center")
 
-        stats = {
-            category: get_category_difficulty_distribution(category)
-            for category in config.categories
-        }
+        stats = {category: get_category_difficulty_distribution(category) for category in config.categories}
 
         for category in stats:
             is_last = category == config.categories[-1]
             table.add_row(
                 category.capitalize(),
-                *[
-                    str(stats[category][difficulty])
-                    for difficulty in config.difficulties
-                ],
+                *[str(stats[category][difficulty]) for difficulty in config.difficulties],
                 str(sum(stats[category].values())),
                 end_section=is_last,
             )
@@ -113,9 +101,7 @@ def show(
         # | Total      | ...   |
 
         table.add_column("Difficulty", header_style="bright_cyan", style="cyan")
-        table.add_column(
-            "Count", header_style="bright_green", style="green", justify="center"
-        )
+        table.add_column("Count", header_style="bright_green", style="green", justify="center")
 
         stats = get_category_difficulty_distribution(category)
 
@@ -137,9 +123,7 @@ def show(
 
 @app.command
 def update(
-    update_challenges: Annotated[
-        bool, Parameter(name=["--update-challenges", "-u"], negative="")
-    ] = False,
+    update_challenges: Annotated[bool, Parameter(name=["--update-challenges", "-u"], negative="")] = False,
 ):
     """Update the challenge repository statistics.
 

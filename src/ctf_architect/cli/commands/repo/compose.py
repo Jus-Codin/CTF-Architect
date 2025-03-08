@@ -26,7 +26,6 @@ def generate(
     Args:
         force: Force generation of compose files.
     """
-
     if not is_challenge_repo():
         console.print(
             "This is not a valid challenge repo. Are you in the right directory?",
@@ -35,9 +34,7 @@ def generate(
         return
 
     if not force and get_compose_file_path(Path.cwd()):
-        if not confirm(
-            "This will overwrite the current compose file. Do you want to continue?"
-        ).execute():
+        if not confirm("This will overwrite the current compose file. Do you want to continue?").execute():
             return
 
     create_compose_files()

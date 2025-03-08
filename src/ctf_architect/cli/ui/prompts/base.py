@@ -17,11 +17,7 @@ class PromptBase(ABC):
         *,
         console: Console | None = None,
     ):
-        self.prompt = (
-            Text.from_markup(prompt, style="ctfa.prompt.message")
-            if isinstance(prompt, str)
-            else prompt
-        )
+        self.prompt = Text.from_markup(prompt, style="ctfa.prompt.message") if isinstance(prompt, str) else prompt
         self.console = console or _console
 
     @abstractmethod
@@ -65,9 +61,7 @@ class PromptBase(ABC):
             Any: The processed response.
         """
 
-    def on_validation_error(
-        self, session: PromptSession, response: str, error: Exception
-    ) -> None:
+    def on_validation_error(self, session: PromptSession, response: str, error: Exception) -> None:
         """Called when a validation error occurs.
 
         Args:

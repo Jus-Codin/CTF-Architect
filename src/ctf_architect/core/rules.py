@@ -1,11 +1,12 @@
-"""Lint rules for challenges in CTF Architect"""
+"""Lint rules for challenges in CTF Architect."""
 
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from pathlib import Path
 from traceback import format_exception_only
-from typing import Callable, Literal
+from typing import Literal
 
 from ctf_architect.constants import CHALLENGE_CONFIG_FILE
 from ctf_architect.core.challenge import load_chall_config
@@ -36,8 +37,7 @@ def rule(
     requires_ctf_config: bool = False,
 ):
     def decorator(
-        f: Callable[[Path], bool | str | CheckResult]
-        | Callable[[Path, CTFConfig], bool | str | CheckResult],
+        f: Callable[[Path], bool | str | CheckResult] | Callable[[Path, CTFConfig], bool | str | CheckResult],
     ) -> Rule:
         rule = Rule(
             code=code,
@@ -70,9 +70,7 @@ def F000(challenge_path: Path) -> bool:
 )
 def F001(challenge_path: Path) -> bool:
     """Check if the challenge directory contains a solution folder."""
-    return (challenge_path / "solution").exists() and any(
-        (challenge_path / "solution").iterdir()
-    )
+    return (challenge_path / "solution").exists() and any((challenge_path / "solution").iterdir())
 
 
 @rule(
@@ -107,10 +105,7 @@ def C000(challenge_path: Path) -> Literal[True] | str:
     try:
         load_chall_config(challenge_path)
     except Exception as e:
-        return (
-            f"Failed to load {CHALLENGE_CONFIG_FILE} file: "
-            + "".join(format_exception_only(e)).strip()
-        )
+        return f"Failed to load {CHALLENGE_CONFIG_FILE} file: " + "".join(format_exception_only(e)).strip()
 
     return True
 
@@ -125,9 +120,7 @@ def C001(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str:
     challenge = load_chall_config(challenge_path)
 
     if challenge.category not in ctf_config.categories:
-        return (
-            f'Invalid category "{challenge.category}" in {CHALLENGE_CONFIG_FILE} file'
-        )
+        return f'Invalid category "{challenge.category}" in {CHALLENGE_CONFIG_FILE} file'
     else:
         return True
 
@@ -294,9 +287,7 @@ def C007(challenge_path: Path) -> bool:
     message="Challenge flag does not match the format specified in the CTF config",
     requires_ctf_config=True,
 )
-def C008(
-    challenge_path: Path, ctf_config: CTFConfig
-) -> Literal[True] | str | CheckResult:
+def C008(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str | CheckResult:
     """Check if the challenge flag matches the format specified in the CTF config."""
     challenge = load_chall_config(challenge_path)
 

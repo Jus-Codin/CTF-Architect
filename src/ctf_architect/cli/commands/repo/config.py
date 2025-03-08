@@ -13,7 +13,6 @@ app = App(name="config", group="Subcommands")
 @app.command
 def show():
     """Show the challenge repository configuration."""
-
     try:
         config = load_repo_config()
     except FileNotFoundError:
