@@ -209,10 +209,10 @@ def init_chall(
                 if not file.exists():
                     raise FileNotFoundError(f'File "{file}" does not exist.')
 
-                if not file.is_file():
-                    raise IsADirectoryError(f'"{file}" is a directory.')
-
-                shutil.copy(file, temp_path / "src")
+                if file.is_file():
+                    shutil.copy(file, temp_path / "src")
+                else:
+                    shutil.copytree(file, temp_path / "src" / file.name)
 
         (temp_path / "solution").mkdir()
 
@@ -225,10 +225,10 @@ def init_chall(
                 if not file.exists():
                     raise FileNotFoundError(f'File "{file}" does not exist.')
 
-                if not file.is_file():
-                    raise IsADirectoryError(f'"{file}" is a directory.')
-
-                shutil.copy(file, temp_path / "solution")
+                if file.is_file():
+                    shutil.copy(file, temp_path / "solution")
+                else:
+                    shutil.copytree(file, temp_path / "solution" / file.name)
 
                 if file.name == "writeup.md":
                     create_writeup_md = False
