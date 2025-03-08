@@ -155,11 +155,11 @@ def C003(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str:
     challenge_extras = challenge.extras or {}
 
     for extra in config_extras:
-        if extra.name not in challenge_extras:
+        if extra.name not in challenge_extras and extra.required:
             missing_extras.append(extra)
 
     if missing_extras:
-        result = f"Missing extras in {CHALLENGE_CONFIG_FILE} file:\n"
+        result = f"Missing required extras in {CHALLENGE_CONFIG_FILE} file:\n"
         for extra in missing_extras:
             result += f"  - {extra.name} ({extra.description})\n"
         return result.rstrip()
