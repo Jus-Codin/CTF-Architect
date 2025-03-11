@@ -170,7 +170,7 @@ def init_chall(
             elif any(target_dir.iterdir()):
                 raise NotADirectoryError(f'"{target_dir}" is not empty.')
         else:
-            target_dir.mkdir()
+            target_dir.mkdir(parents=True, exist_ok=True)
 
     _flags = [Flag.model_validate(flag) for flag in flags]
 
@@ -280,6 +280,8 @@ def init_chall(
 
         if target_dir is None:
             target_dir = Path(chall.folder_name)
+            # Ensure directory exists
+            target_dir.mkdir(parents=True, exist_ok=True)
 
         for file in temp_path.iterdir():
             shutil.move(file, target_dir / file.name)
