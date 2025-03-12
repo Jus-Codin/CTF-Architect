@@ -207,3 +207,61 @@ def author():
         Align.center(table, vertical="middle"),
         style="ctfa.info",
     )
+
+
+@app.command
+def filter(
+    difficulty: Annotated[str | None, Parameter(name=["--difficulty", "-d"])] = None,
+    category: Annotated[str | None, Parameter(name=["--category", "-c"])] = None,
+):
+    """Filter challenges by difficulty and/or category.
+
+    Args:
+        difficulty: The difficulty level to filter by.
+        category: The category to filter by.
+    """
+    try:
+        config = load_repo_config()
+    except FileNotFoundError:
+        console.print(
+            "Could not find Repository config file. Are you in the right directory?",
+            style="ctfa.error",
+        )
+        return
+
+    challenges = list(walk_challenges())
+
+    if difficulty is not None:
+        difficulty = difficulty.lower()
+        if difficulty not in config.difficulties:
+            console.print(
+                f"Difficulty '{difficulty}' is not recognized. Valid difficulties: {', '.join(config.difficulties)}",
+                style="ctfa.error",
+            )
+            return
+        challenges = [ch for ch in challenges if ch.difficulty.lower() == difficulty]
+
+    if category is not None:
+        category_lower = category.lower()
+        if category_lower not in config.categories:
+            console.print(
+                f"Category '{category}' does not exist. Valid categories: {', '.join(config.categories)}",
+                style="ctfa.error",
+            )
+            return
+        challenges = [ch for ch in challenges if ch.category.lower() == category_lower]
+
+    if not challenges:
+        console.print("No challenges found with the specified filters.", style="ctfa.info")
+        return
+    
+    table = Table(title="Filtered Challenges")
+    table.add_column("Name", style="cyan")
+    table.add_column("Category", style="magenta")
+    table.add_column("Difficulty", style="yellow")
+    table.add_column("Author", style="green")
+
+    for ch in challenges:
+        table.add_row(ch.name, ch.category.capitalize(), ch.difficulty.capitalize(), ch.author)
+
+    console.print(table)
