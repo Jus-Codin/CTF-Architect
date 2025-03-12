@@ -155,3 +155,55 @@ def update(
         )
     else:
         console.print("Stats updated successfully", style="ctfa.success")
+
+@app.command
+def author():
+    """Show challenge statistics grouped by author.
+
+    This displays the number of challenges per difficulty for each author.
+    """
+    try:
+        config = load_repo_config()
+    except FileNotFoundError:
+        console.print(
+            "Could not find Repository config file. Are you in the right directory?",
+            style="ctfa.error",
+        )
+        return
+
+    author_stats: dict[str, dict[str, int]] = {}
+
+    for challenge in walk_challenges():
+        author = challenge.author
+        diff = challenge.difficulty.lower()
+        if author not in author_stats:
+            author_stats[author] = {d: 0 for d in config.difficulties}
+        if diff in author_stats[author]:
+            author_stats[author][diff] += 1
+        else:
+            # Skip challenges with unknown difficulty, we might want to throw a warning here
+            continue
+
+    table = Table(title="Challenge Statistics by Author")
+    table.add_column("Author", header_style="bright_cyan", style="cyan", no_wrap=True)
+    for difficulty in config.difficulties:
+        table.add_column(
+            difficulty.capitalize(),
+            header_style="bright_yellow",
+            style="yellow",
+            justify="center",
+        )
+    table.add_column("Total", header_style="bright_green", style="green", justify="center")
+
+    for author, stats in author_stats.items():
+        total = sum(stats.values())
+        table.add_row(
+            author,
+            *[str(stats[d]) for d in config.difficulties],
+            str(total),
+        )
+
+    console.print(
+        Align.center(table, vertical="middle"),
+        style="ctfa.info",
+    )
