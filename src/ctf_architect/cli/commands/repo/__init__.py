@@ -264,49 +264,6 @@ def init(
     else:
         console.print("  - None", style="ctfa.info")
 
-    # ctf_config_panel = Panel(
-    #     (
-    #         f" CTF Name: {name}\n"
-    #         f" Flag Format: {flag_format if flag_format else 'None'}\n"
-    #         f" Starting Port: {starting_port if starting_port else 'None'}\n"
-    #     ),
-    #     title="CTF Config",
-    #     title_align="left",
-    #     style="ctfa.info",
-    #     border_style="green",
-    # )
-
-    # categories_panel = Panel(
-    #     "\n".join([f"  - {category.capitalize()}" for category in categories]),
-    #     title="Categories",
-    #     title_align="left",
-    #     style="ctfa.info",
-    #     border_style="green",
-    # )
-
-    # difficulties_panel = Panel(
-    #     "\n".join([f"  - {difficulty.capitalize()}" for difficulty in difficulties]),
-    #     title="Difficulties",
-    #     title_align="left",
-    #     style="ctfa.info",
-    #     border_style="green",
-    # )
-
-    # extras_panel = Panel(
-    #     "\n".join([f"  - {extra['name']} ({extra['type']})" for extra in extras])
-    #     if extras
-    #     else "  - None",
-    #     title="Extras",
-    #     title_align="left",
-    #     style="ctfa.info",
-    #     border_style="green",
-    # )
-
-    # console.print(ctf_config_panel)
-    # console.print(categories_panel)
-    # console.print(difficulties_panel)
-    # console.print(extras_panel)
-
     for panel in create_repo_config_panels(
         name=name,
         flag_format=flag_format,
