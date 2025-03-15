@@ -91,7 +91,6 @@ def update_category_readme(name: str):
 
     if len(challenges) == 0:
         challenges_table = "None"
-        services_table = "None"
     else:
         challenges_table = (
             "| Name | Folder | Description | Difficulty | Author |\n"
@@ -102,6 +101,9 @@ def update_category_readme(name: str):
             for name, folder, description, difficulty, author in challenges
         )
 
+    if len(services) == 0:
+        services_table = "None"
+    else:
         services_table = "| Service | Challenge | Ports | Type |\n|---------|-----------|-------|------|\n"
         services_table += "\n".join(
             f"| [{service_name}](<./{folder}/{service_path}>) | [{name}](<./{folder}>) | {ports} | {service_type} |"
