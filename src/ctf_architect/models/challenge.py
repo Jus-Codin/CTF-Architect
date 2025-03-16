@@ -189,7 +189,8 @@ class Challenge(Model):
         if self.services is None:
             services = "None"
         else:
-            services = "\n".join(
+            services = "| Service | Port | Type |\n" "| ------- | ---- | ---- |\n"
+            services += "\n".join(
                 f"| [`{service.name}`](<{service.path.as_posix()}>) | {service.port} | {service.type} |"
                 for service in self.services
             )
