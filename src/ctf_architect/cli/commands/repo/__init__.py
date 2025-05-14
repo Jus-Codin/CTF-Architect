@@ -501,7 +501,7 @@ def lint(
         ]
 
         if len(failed_challenges) == 0:
-            root_label = "challegnes/ (all passed)"
+            root_label = "challenges/ (all passed)"
         else:
             root_label = f"challenges/ ({len(failed_challenges)} failed)"
 
