@@ -64,7 +64,7 @@ class ConfigFile(Model):
     def _validate_version(cls, value: str) -> str:
         if not is_supported_ctf_config_version(value):
             raise ValueError(
-                f'Unsupported specification version: "{value}", current version "{CTF_CONFIG_SPEC_VERSION}"'
+                f'Unsupported CTF Config specification version: "{value}", current version "{CTF_CONFIG_SPEC_VERSION}"'
             )
         return value
 

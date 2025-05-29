@@ -224,7 +224,7 @@ class ChallengeFile(Model):
     def _validate_version(cls, value: str) -> str:
         if not is_supported_challenge_version(value):
             raise ValueError(
-                f'Unsupported specification version: "{value}", current version "{CHALLENGE_SPEC_VERSION}"'
+                f'Unsupported Challenge specification version: "{value}", current version "{CHALLENGE_SPEC_VERSION}"'
             )
         return value
 
