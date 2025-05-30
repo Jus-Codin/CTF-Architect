@@ -55,29 +55,21 @@ class Service(Model):
     Attributes:
         name (str): The name of the service.
         path (Path): The path to the service.
-        port (int, optional): The port of the service. Allowed to be unspecified if the service is internal or `ports` is specified.
-        ports (list[int], optional): The list of ports of the service. Allowed to be unspecified if the service is internal or `port` is specified.
+        ports (list[int], optional): The list of ports of the service. Allowed to be unspecified if the service is internal.
         type (Literal["web", "tcp", "ssh", "secret", "internal"]): The type of the service.
         extras (dict[str, Any], optional): The extra information about the service to be passed to the docker compose file. Defaults to None.
     """
 
     name: Annotated[str, StringConstraints(pattern=r"^[a-z][a-z0-9_-]*$")]
     path: Path
-    port: PortInt | None = None
     ports: Annotated[list[PortInt], Field(min_length=1)] | None = None
     type: Literal["web", "tcp", "ssh", "secret", "internal"]
     extras: dict[str, Any] | None = None
 
     @model_validator(mode="after")
-    def _validate_port(self) -> Service:
-        if self.port is not None and self.ports is not None:
-            raise ValueError("Port and ports cannot both be specified")
-
-        if self.port is None and self.ports is None and self.type != "internal":
+    def _validate_ports(self) -> Service:
+        if self.ports is None and self.type != "internal":
             raise ValueError("Port or ports must be specified for non-internal services")
-
-        if self.ports is None and self.port is not None:
-            self.ports = [self.port]
 
         return self
 
@@ -92,8 +84,7 @@ class Service(Model):
         Returns:
             list[int]: The list of ports for the service.
         """
-        # TODO: remove this method and use `self.ports` directly
-        return self.ports or [self.port]  # type: ignore
+        return self.ports or []
 
     def unique_name(self, challenge: Challenge) -> str:
         return f"{challenge.category}-{challenge.folder_name}-{self.name}".lower().replace(" ", "-")
@@ -189,9 +180,9 @@ class Challenge(Model):
         if self.services is None:
             services = "None"
         else:
-            services = "| Service | Port | Type |\n" "| ------- | ---- | ---- |\n"
+            services = "| Service | Ports | Type |\n" "| ------- | ---- | ---- |\n"
             services += "\n".join(
-                f"| [`{service.name}`](<{service.path.as_posix()}>) | {service.port} | {service.type} |"
+                f"| [`{service.name}`](<{service.path.as_posix()}>) | {', '.join(str(port) for port in service.ports) or 'None'} | {service.type} |"
                 for service in self.services
             )
 
