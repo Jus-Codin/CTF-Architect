@@ -155,3 +155,113 @@ def update(
         )
     else:
         console.print("Stats updated successfully", style="ctfa.success")
+
+@app.command
+def author():
+    """Show challenge statistics grouped by author.
+
+    This displays the number of challenges per difficulty for each author.
+    """
+    try:
+        config = load_repo_config()
+    except FileNotFoundError:
+        console.print(
+            "Could not find Repository config file. Are you in the right directory?",
+            style="ctfa.error",
+        )
+        return
+
+    author_stats: dict[str, dict[str, int]] = {}
+
+    for challenge in walk_challenges():
+        author = challenge.author
+        diff = challenge.difficulty.lower()
+        if author not in author_stats:
+            author_stats[author] = {d: 0 for d in config.difficulties}
+        if diff in author_stats[author]:
+            author_stats[author][diff] += 1
+        else:
+            # Skip challenges with unknown difficulty, we might want to throw a warning here
+            continue
+
+    table = Table(title="Challenge Statistics by Author")
+    table.add_column("Author", header_style="bright_cyan", style="cyan", no_wrap=True)
+    for difficulty in config.difficulties:
+        table.add_column(
+            difficulty.capitalize(),
+            header_style="bright_yellow",
+            style="yellow",
+            justify="center",
+        )
+    table.add_column("Total", header_style="bright_green", style="green", justify="center")
+
+    for author, stats in author_stats.items():
+        total = sum(stats.values())
+        table.add_row(
+            author,
+            *[str(stats[d]) for d in config.difficulties],
+            str(total),
+        )
+
+    console.print(
+        Align.center(table, vertical="middle"),
+        style="ctfa.info",
+    )
+
+
+@app.command
+def filter(
+    difficulty: Annotated[str | None, Parameter(name=["--difficulty", "-d"])] = None,
+    category: Annotated[str | None, Parameter(name=["--category", "-c"])] = None,
+):
+    """Filter challenges by difficulty and/or category.
+
+    Args:
+        difficulty: The difficulty level to filter by.
+        category: The category to filter by.
+    """
+    try:
+        config = load_repo_config()
+    except FileNotFoundError:
+        console.print(
+            "Could not find Repository config file. Are you in the right directory?",
+            style="ctfa.error",
+        )
+        return
+
+    challenges = list(walk_challenges())
+
+    if difficulty is not None:
+        difficulty = difficulty.lower()
+        if difficulty not in config.difficulties:
+            console.print(
+                f"Difficulty '{difficulty}' is not recognized. Valid difficulties: {', '.join(config.difficulties)}",
+                style="ctfa.error",
+            )
+            return
+        challenges = [ch for ch in challenges if ch.difficulty.lower() == difficulty]
+
+    if category is not None:
+        category_lower = category.lower()
+        if category_lower not in config.categories:
+            console.print(
+                f"Category '{category}' does not exist. Valid categories: {', '.join(config.categories)}",
+                style="ctfa.error",
+            )
+            return
+        challenges = [ch for ch in challenges if ch.category.lower() == category_lower]
+
+    if not challenges:
+        console.print("No challenges found with the specified filters.", style="ctfa.info")
+        return
+    
+    table = Table(title="Filtered Challenges")
+    table.add_column("Name", style="cyan")
+    table.add_column("Category", style="magenta")
+    table.add_column("Difficulty", style="yellow")
+    table.add_column("Author", style="green")
+
+    for ch in challenges:
+        table.add_row(ch.name, ch.category.capitalize(), ch.difficulty.capitalize(), ch.author)
+
+    console.print(table)
