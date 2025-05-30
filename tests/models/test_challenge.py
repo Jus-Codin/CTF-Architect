@@ -192,7 +192,6 @@ def challenge_data():
             {
                 "name": "test_service",
                 "path": "/path/to/service",
-                "port": None,
                 "ports": [8080],
                 "type": "web",
                 "extras": None,
