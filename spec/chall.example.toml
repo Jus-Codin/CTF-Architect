@@ -114,8 +114,7 @@ requirements = 0
 # The service table must have the following fields:
 # - name: The name of the service. This will be the name of the docker container. Restricted to [a-z0-9_-] and must be unique
 # - path: The path to the service's directory. This path is relative to the challenge directory
-# - port: The port that the docker container exposes. This is an integer. Only one of port or ports should be specified
-# - ports: The ports that the docker container exposes. This is an array of integers. Only one of port or ports should be specified
+# - ports: The ports that the docker container exposes. This is an array of integers. This can be specified if it is an internal service
 # - type: The type of the service. This must be one of the following:
 #   - web      : A web service, must have a port exposed
 #   - tcp      : A tcp service, must have a port exposed
@@ -127,10 +126,10 @@ requirements = 0
 
 # Example service
 [[challenge.services]]
-name = "service1"
-path = "service1"
-port = 1337
-type = "web"
+name  = "service1"
+path  = "service1"
+ports = [1337]
+type  = "web"
 
 # Extra service info
 [challenge.services.extras]

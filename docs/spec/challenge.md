@@ -151,8 +151,7 @@ requirements = 0
 # The service table must have the following fields:
 # - name: The name of the service. This will be the name of the docker container. Restricted to [a-z0-9_-] and must be unique
 # - path: The path to the service's directory. This path is relative to the challenge directory
-# - port: The port that the docker container exposes. This is an integer. Only one of port or ports should be specified
-# - ports: The ports that the docker container exposes. This is an array of integers. Only one of port or ports should be specified
+# - ports: The ports that the docker container exposes. This is an array of integers. This can be specified if it is an internal service
 # - type: The type of the service. This must be one of the following:
 #   - web      : A web service, must have a port exposed
 #   - tcp      : A tcp service, must have a port exposed
@@ -164,10 +163,10 @@ requirements = 0
 
 # Example service
 [[challenge.services]]
-name = "service1"
-path = "service1"
-port = 1337
-type = "web"
+name  = "service1"
+path  = "service1"
+ports = [1337]
+type  = "web"
 
 # Extra service info (optional)
 [challenge.services.extras]
@@ -299,10 +298,10 @@ Examples:
 ```toml
 # Example service
 [[challenge.services]]
-name = "service1"
-path = "./service/service1"
-port = 1337
-type = "web"
+name  = "service1"
+path  = "./service/service1"
+ports = [1337]
+type  = "web"
 
 # Example service with multiple ports
 [[challenge.services]]
@@ -313,10 +312,10 @@ type = "nc"
 
 # Example service with extras
 [[challenge.services]]
-name = "service3"
-path = "./service/service3"
-port = 1337
-type = "web"
+name  = "service1"
+path  = "./service/service1"
+ports = [1337]
+type  = "web"
 
 [challenge.services.extras]
 privileged = true
@@ -336,14 +335,8 @@ Path to the service directory, relative to the root of the challenge folder. Mus
 path = "./service/service1"
 ```
 
-### port (optional)
-Port the docker container exposes. Must be specified unless `ports` is specified or `type` is `"internal"`. Must be an integer.
-```toml
-port = 1337
-```
-
 ### ports (optional)
-List of ports the docker container exposes. Must be specified unless `port` is specified or `type` is `"internal"`. Must be a list of integers.
+List of ports the docker container exposes. Must be specified unless `type` is `"internal"`. Must be a list of integers.
 ```toml
 ports = [1337, 1338]
 ```
