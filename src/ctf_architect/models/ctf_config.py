@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Annotated, Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, StringConstraints, field_validator
 
 from ctf_architect.models.base import Model
 from ctf_architect.version import (
@@ -41,7 +41,7 @@ class CTFConfig(Model):
         extras (list[ExtraField] | None): The list of extra fields for challenges in the CTF.
     """
 
-    categories: list[str]
+    categories: list[Annotated[str, StringConstraints(to_lower=True)]]
     difficulties: list[str]
     flag_format: str | None = None
     starting_port: int | None = None
