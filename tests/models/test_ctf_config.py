@@ -61,6 +61,13 @@ def test_ctf_config_initialization(ctf_config_data):
     assert config.extras[0].type == "string"
 
 
+def test_ctf_config_categories_to_lower(ctf_config_data):
+    """Test that categories are converted to lowercase."""
+    ctf_config_data["categories"] = ["Web", "Crypto"]
+    config = CTFConfig.model_validate(ctf_config_data)
+    assert config.categories == ["web", "crypto"]
+
+
 def test_ctf_config_file_from_config(ctf_config_data):
     """Test creating a CTFConfig object from a CTFConfig."""
     config = CTFConfig.model_validate(ctf_config_data)
