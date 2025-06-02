@@ -42,6 +42,7 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "pytest>=8.3.5",
+    "pytest-cov>=6.1.1",
     "ruff>=0.8.4",
 ]
 docs = [
@@ -54,6 +55,7 @@ line-length = 120
 target-version = "py311"
 include = [
     "src/**/*.py",
+    "tests/**/*.py",
 ]
 
 [tool.ruff.lint]
@@ -74,3 +76,16 @@ convention = "google"
 
 [tool.ruff.format]
 quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
+addopts = [
+    "-ra",
+    "--strict-config",
+    "--strict-markers",
+    "--cov=ctf_architect",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
