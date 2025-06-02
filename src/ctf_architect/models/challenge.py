@@ -182,7 +182,7 @@ class Challenge(Model):
         else:
             services = "| Service | Ports | Type |\n" "| ------- | ---- | ---- |\n"
             services += "\n".join(
-                f"| [`{service.name}`](<{service.path.as_posix()}>) | {', '.join(str(port) for port in service.ports) or 'None'} | {service.type} |"
+                f"| [`{service.name}`](<{service.path.as_posix()}>) | {', '.join(str(port) for port in service.ports_list) or 'None'} | {service.type} |"
                 for service in self.services
             )
 
