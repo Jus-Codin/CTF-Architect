@@ -91,7 +91,7 @@ class Service(Model):
 
 
 class Challenge(Model):
-    """Represents a challenge.
+    """Represents a challenge config.
 
     Attributes:
         author (str): The author of the challenge.
