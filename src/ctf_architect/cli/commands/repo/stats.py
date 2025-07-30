@@ -8,7 +8,7 @@ from rich.table import Table
 
 from ctf_architect.cli.ui.console import console
 from ctf_architect.constants import APP_CMD_NAME
-from ctf_architect.core.challenge import save_chall_readme
+from ctf_architect.core.challenge import write_chall_readme
 from ctf_architect.core.repo import load_repo_config, walk_challenges
 from ctf_architect.core.stats import (
     get_category_difficulty_distribution,
@@ -141,7 +141,7 @@ def update(
 
     if update_challenges:
         for challenge in walk_challenges():
-            save_chall_readme(challenge.repo_path, challenge)
+            write_chall_readme(challenge.repo_path, challenge)
 
     try:
         for category in config.categories:

@@ -34,7 +34,7 @@ from ctf_architect.cli.validators import (
     valid_port,
     valid_service_name,
 )
-from ctf_architect.core.challenge import is_challenge_folder, load_chall_config, save_chall_config, save_chall_readme
+from ctf_architect.core.challenge import is_challenge_folder, load_chall_config, write_chall_config, write_chall_readme
 from ctf_architect.core.initialize import init_chall
 from ctf_architect.core.lint import lint_challenge
 from ctf_architect.core.repo import load_repo_config
@@ -598,10 +598,10 @@ def update(
 
     chall_config = load_chall_config(chall_path)
 
-    save_chall_readme(chall_path, chall_config)
+    write_chall_readme(chall_path, chall_config)
 
     if remake_config:
-        save_chall_config(chall_path, chall_config)
+        write_chall_config(chall_path, chall_config)
 
     console.print(
         ":sparkles: Challenge updated! :sparkles:",

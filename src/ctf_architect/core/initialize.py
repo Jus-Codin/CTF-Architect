@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 from typing import Literal, TypedDict
 
 from ctf_architect.constants import CTF_CONFIG_FILE
-from ctf_architect.core.challenge import save_chall_config, save_chall_readme
+from ctf_architect.core.challenge import write_chall_config, write_chall_readme
 from ctf_architect.core.repo import load_repo_config, save_repo_config
 from ctf_architect.core.stats import update_category_readme, update_root_readme
 from ctf_architect.models.challenge import Challenge, Flag, Hint, Service
@@ -275,8 +275,8 @@ def init_chall(
 
         chall = Challenge.model_validate(kwargs)
 
-        save_chall_config(temp_path, chall)
-        save_chall_readme(temp_path, chall)
+        write_chall_config(temp_path, chall)
+        write_chall_readme(temp_path, chall)
 
         if target_dir is None:
             target_dir = Path(chall.folder_name)

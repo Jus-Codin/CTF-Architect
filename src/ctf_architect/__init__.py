@@ -1,6 +1,6 @@
 import importlib.metadata
 
-from ctf_architect.core.challenge import is_challenge_folder, load_chall_config, save_chall_config, save_chall_readme
+from ctf_architect.core.challenge import is_challenge_folder, load_chall_config, write_chall_config, write_chall_readme
 from ctf_architect.core.compose import create_compose_files, update_compose_files
 from ctf_architect.core.initialize import init_chall, init_repo_from_config, init_repo_no_config
 from ctf_architect.core.lint import lint_challenge, lint_challenge_repo
@@ -22,8 +22,8 @@ from ctf_architect.core.stats import update_category_readme, update_root_readme
 __all__ = [
     "is_challenge_folder",
     "load_chall_config",
-    "save_chall_config",
-    "save_chall_readme",
+    "write_chall_config",
+    "write_chall_readme",
     "create_compose_files",
     "update_compose_files",
     "init_chall",
