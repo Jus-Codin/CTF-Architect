@@ -55,7 +55,7 @@ def write_chall_config(path: str | Path, challenge: ChallengeConfig) -> None:
 
     Args:
         path (str | Path): The folder to write the challenge config to.
-        challenge (Challenge): The challenge config to write.
+        challenge (ChallengeConfig): The challenge config to write.
     """
     if isinstance(path, str):
         path = Path(path)
@@ -83,7 +83,7 @@ def write_chall_readme(path: str | Path, challenge: ChallengeConfig) -> None:
 
     Args:
         path (str | Path): The folder to write the challenge readme to.
-        challenge: (Challenge): The challenge config to generate the readme for.
+        challenge (ChallengeConfig): The challenge config to generate the readme for.
     """
     if isinstance(path, str):
         path = Path(path)
@@ -96,7 +96,7 @@ class ChallengeFolder:
 
     Attributes:
         path (Path): The path of the challenge folder
-        config (Challenge): The challenge config defined for the challenge
+        config (ChallengeConfig): The challenge config defined for the challenge
     """
 
     def __init__(self, path: Path, challenge_config: ChallengeConfig):

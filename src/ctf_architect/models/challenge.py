@@ -205,7 +205,7 @@ class ChallengeFile(Model):
 
     Attributes:
         version (str): The specification version.
-        challenge (Challenge): The challenge object.
+        challenge (ChallengeConfig): The challenge object.
     """
 
     version: str
@@ -224,7 +224,7 @@ class ChallengeFile(Model):
         """Create a ChallengeFile object from a Challenge object.
 
         Args:
-            challenge (Challenge): The Challenge object to convert.
+            challenge (ChallengeConfig): The Challenge object to convert.
 
         Returns:
             ChallengeFile: The converted ChallengeFile object.
