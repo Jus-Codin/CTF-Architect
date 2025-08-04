@@ -8,7 +8,7 @@ from pathlib import Path
 from tomlkit import comment, document, dump, load, nl
 
 from ctf_architect.constants import CHALLENGE_CONFIG_FILE, CHALLENGE_CONFIG_HEADER
-from ctf_architect.models.challenge import Challenge, ChallengeFile
+from ctf_architect.models.challenge import ChallengeConfig, ChallengeFile
 from ctf_architect.version import CHALLENGE_SPEC_VERSION
 
 
@@ -30,7 +30,7 @@ def is_challenge_folder(path: str | Path) -> bool:
     return False
 
 
-def load_chall_config(path: str | Path) -> Challenge:
+def load_chall_config(path: str | Path) -> ChallengeConfig:
     """Loads the challenge config from the specified path.
 
     Args:
@@ -50,7 +50,7 @@ def load_chall_config(path: str | Path) -> Challenge:
     return config_file.challenge
 
 
-def write_chall_config(path: str | Path, challenge: Challenge) -> None:
+def write_chall_config(path: str | Path, challenge: ChallengeConfig) -> None:
     """Writes the given challenge config to the specified path.
 
     Args:
@@ -78,7 +78,7 @@ def write_chall_config(path: str | Path, challenge: Challenge) -> None:
         dump(doc, f)
 
 
-def write_chall_readme(path: str | Path, challenge: Challenge) -> None:
+def write_chall_readme(path: str | Path, challenge: ChallengeConfig) -> None:
     """Writes the challenge readme to the specified path.
 
     Args:
@@ -99,7 +99,7 @@ class ChallengeFolder:
         config (Challenge): The challenge config defined for the challenge
     """
 
-    def __init__(self, path: Path, challenge_config: Challenge):
+    def __init__(self, path: Path, challenge_config: ChallengeConfig):
         self.path = path
         self.config = challenge_config
 

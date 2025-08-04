@@ -11,7 +11,7 @@ from ctf_architect.constants import CTF_CONFIG_FILE
 from ctf_architect.core.challenge import write_chall_config, write_chall_readme
 from ctf_architect.core.repo import load_repo_config, save_repo_config
 from ctf_architect.core.stats import update_category_readme, update_root_readme
-from ctf_architect.models.challenge import Challenge, Flag, Hint, Service
+from ctf_architect.models.challenge import ChallengeConfig, Flag, Hint, Service
 from ctf_architect.models.ctf_config import CTFConfig, ExtraField
 
 
@@ -273,7 +273,7 @@ def init_chall(
         if folder_name is not None:
             kwargs["folder_name"] = folder_name
 
-        chall = Challenge.model_validate(kwargs)
+        chall = ChallengeConfig.model_validate(kwargs)
 
         write_chall_config(temp_path, chall)
         write_chall_readme(temp_path, chall)

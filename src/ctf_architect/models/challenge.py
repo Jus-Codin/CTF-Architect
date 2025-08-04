@@ -86,11 +86,11 @@ class Service(Model):
         """
         return self.ports or []
 
-    def unique_name(self, challenge: Challenge) -> str:
+    def unique_name(self, challenge: ChallengeConfig) -> str:
         return f"{challenge.category}-{challenge.folder_name}-{self.name}".lower().replace(" ", "-")
 
 
-class Challenge(Model):
+class ChallengeConfig(Model):
     """Represents a challenge config.
 
     Attributes:
@@ -122,7 +122,7 @@ class Challenge(Model):
     services: Annotated[list[Service], Field(min_length=1)] | None = None
 
     @model_validator(mode="after")
-    def _ensure_folder_name(self) -> Challenge:
+    def _ensure_folder_name(self) -> ChallengeConfig:
         if not self.folder_name:
             sanitized = re.sub(r"^[^a-zA-Z]+|[^a-zA-Z0-9 _-]", "", self.name).strip()
             if not sanitized:
@@ -209,7 +209,7 @@ class ChallengeFile(Model):
     """
 
     version: str
-    challenge: Challenge
+    challenge: ChallengeConfig
 
     @field_validator("version")
     def _validate_version(cls, value: str) -> str:
@@ -220,7 +220,7 @@ class ChallengeFile(Model):
         return value
 
     @classmethod
-    def from_challenge(cls, challenge: Challenge) -> ChallengeFile:
+    def from_challenge(cls, challenge: ChallengeConfig) -> ChallengeFile:
         """Create a ChallengeFile object from a Challenge object.
 
         Args:

@@ -17,7 +17,7 @@ from ctf_architect.core.exceptions import (
     InvalidChallengeFolderError,
     NotInChallengeRepositoryError,
 )
-from ctf_architect.models.challenge import Challenge
+from ctf_architect.models.challenge import ChallengeConfig
 from ctf_architect.models.ctf_config import ConfigFile, CTFConfig
 from ctf_architect.version import CTF_CONFIG_SPEC_VERSION
 
@@ -170,7 +170,7 @@ def find_challenge_folder(name: str, verify: bool = True) -> Path | None:
                 return folder
 
 
-def find_challenge(name: str) -> Challenge | None:
+def find_challenge(name: str) -> ChallengeConfig | None:
     """Finds a challenge with the given name.
 
     Args:
@@ -319,7 +319,7 @@ def walk_challenges(
     *,
     ignore_invalid: bool = False,
     ignore_errors: bool = False,
-) -> Generator[Challenge, None, None]:
+) -> Generator[ChallengeConfig, None, None]:
     """Walks through all challenges in the challenges folder.
 
     Can specify a category to only walk through challenges in that category.

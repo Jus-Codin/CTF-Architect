@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from ctf_architect.models.challenge import Challenge, ChallengeFile, Flag, Hint, Service
+from ctf_architect.models.challenge import ChallengeConfig, ChallengeFile, Flag, Hint, Service
 from ctf_architect.version import CHALLENGE_SPEC_VERSION
 
 
@@ -158,7 +158,7 @@ def test_service_deserialization():
 
 def test_service_unique_name():
     """Test the unique name generation for a service."""
-    challenge = Challenge(
+    challenge = ChallengeConfig(
         author="test_author",
         category="test_category",
         description="This is a test challenge",
@@ -202,7 +202,7 @@ def challenge_data():
 
 def test_challenge_initialization(challenge_data):
     """Test the Challenge model initialization."""
-    challenge = Challenge.model_validate(challenge_data)
+    challenge = ChallengeConfig.model_validate(challenge_data)
     assert challenge.author == "test_author"
     assert challenge.category == "test_category"
     assert challenge.description == "This is a test challenge"
@@ -230,7 +230,7 @@ def test_challenge_initialization(challenge_data):
 def test_challenge_folder_name_validation():
     """Test that the folder name is validated correctly."""
     with pytest.raises(ValidationError, match="String should match pattern"):
-        Challenge(
+        ChallengeConfig(
             author="test_author",
             category="test_category",
             description="This is a test challenge",
@@ -240,7 +240,7 @@ def test_challenge_folder_name_validation():
         )
 
     # Valid folder name
-    challenge = Challenge(
+    challenge = ChallengeConfig(
         author="test_author",
         category="test_category",
         description="This is a test challenge",
@@ -254,7 +254,7 @@ def test_challenge_folder_name_validation():
 def test_challenge_ensure_folder_name():
     """Test that the folder name is auto-generated if not provided."""
     with pytest.raises(ValidationError, match="Invalid challenge name, unable to create a valid folder name"):
-        Challenge(
+        ChallengeConfig(
             author="test_author",
             category="test_category",
             description="This is a test challenge",
@@ -263,7 +263,7 @@ def test_challenge_ensure_folder_name():
         )
 
     # Valid challenge with auto-generated folder name
-    challenge = Challenge(
+    challenge = ChallengeConfig(
         author="test_author",
         category="test_category",
         description="This is a test challenge",
@@ -284,7 +284,7 @@ def test_challenge_ensure_folder_name():
 )
 def test_challenge_network_name(category, folder_name, expected_network_name):
     """Test the network name generation for a challenge."""
-    challenge = Challenge(
+    challenge = ChallengeConfig(
         author="test_author",
         category=category,
         description="This is a test challenge",
@@ -297,7 +297,7 @@ def test_challenge_network_name(category, folder_name, expected_network_name):
 
 def test_challenge_repo_path():
     """Test the repo path generation for a challenge."""
-    challenge = Challenge(
+    challenge = ChallengeConfig(
         author="test_author",
         category="test_category",
         description="This is a test challenge",
@@ -322,7 +322,7 @@ def test_challenge_repo_path():
 )
 def test_challenge_files_serialization(file, expected):
     """Test that the files are serialized correctly."""
-    challenge = Challenge(
+    challenge = ChallengeConfig(
         author="test_author",
         category="test_category",
         description="This is a test challenge",
@@ -337,7 +337,7 @@ def test_challenge_files_serialization(file, expected):
 
 
 def test_challenge_config_file_from_challenge(challenge_data):
-    challenge = Challenge.model_validate(challenge_data)
+    challenge = ChallengeConfig.model_validate(challenge_data)
     challenge_file = ChallengeFile.from_challenge(challenge)
     assert challenge_file.version == str(CHALLENGE_SPEC_VERSION)
     assert challenge_file.challenge == challenge
@@ -345,7 +345,7 @@ def test_challenge_config_file_from_challenge(challenge_data):
 
 def test_challenge_config_file_serialization(challenge_data):
     """Test serialization of ChallengeFile."""
-    challenge = Challenge.model_validate(challenge_data)
+    challenge = ChallengeConfig.model_validate(challenge_data)
     challenge_file = ChallengeFile.from_challenge(challenge)
     serialized = challenge_file.model_dump()
 
@@ -363,7 +363,7 @@ def test_challenge_config_file_deserialization(challenge_data):
     }
     challenge_file = ChallengeFile.model_validate(challenge_file_json)
     assert challenge_file.version == str(CHALLENGE_SPEC_VERSION)
-    assert challenge_file.challenge == Challenge.model_validate(challenge_data)
+    assert challenge_file.challenge == ChallengeConfig.model_validate(challenge_data)
 
 
 def test_challenge_config_file_invalid_version(challenge_data):
