@@ -91,7 +91,7 @@ def write_chall_readme(path: str | Path, challenge: ChallengeConfig) -> None:
     (path / "README.md").write_text(challenge.readme, encoding="utf-8")
 
 
-class ChallengeFolder:
+class Challenge:
     """Represents a challenge folder.
 
     Attributes:
@@ -103,8 +103,86 @@ class ChallengeFolder:
         self.path = path
         self.config = challenge_config
 
+    @staticmethod
+    def load_config(path: str | Path) -> ChallengeConfig:
+        """Loads the challenge config from the specified path.
+
+        Args:
+            path (str | Path): The path to the challenge config file or folder containing it.
+
+        Returns:
+            ChallengeConfig: The challenge config.
+        """
+        if isinstance(path, str):
+            path = Path(path)
+
+        if path.is_file():
+            config_fp = path
+        else:
+            config_fp = path / CHALLENGE_CONFIG_FILE
+
+        with open(config_fp, encoding="utf-8") as f:
+            data = load(f)
+
+        config_file = ChallengeFile.model_validate(data.unwrap())
+
+        return config_file.challenge
+
+    @staticmethod
+    def write_config(path: str | Path, challenge_config: ChallengeConfig) -> None:
+        """Writes the given challenge config to the specified path.
+
+        Args:
+            path (str | Path): The folder or file to write the challenge config to. If a file
+                               is provided, it will be used as the config file instead.
+            challenge_config (ChallengeConfig): The challenge config to write.
+        """
+        if isinstance(path, str):
+            path = Path(path)
+
+        if path.is_file():
+            config_fp = path
+        else:
+            config_fp = path / CHALLENGE_CONFIG_FILE
+
+        doc = document()
+
+        for line in CHALLENGE_CONFIG_HEADER.splitlines():
+            doc.add(comment(line))
+        doc.add(nl())
+
+        doc.add("version", str(CHALLENGE_SPEC_VERSION))  # type: ignore
+
+        # NOTE: We have to do exclude_none=True because pydantic ignores exclude_defaults for fields with
+        #       custom field serializers. We need it for `challenge.files`, but it can be None, so we need
+        #       to exclude it here. This is fine since None cannot be serialized in TOML anyway.
+        #       See: https://github.com/pydantic/pydantic/issues/6575
+        doc.add("challenge", challenge_config.model_dump(mode="json", exclude_defaults=True, exclude_none=True))  # type: ignore
+
+        with open(config_fp, "w", encoding="utf-8") as f:
+            dump(doc, f)
+
+    @staticmethod
+    def write_readme(path: str | Path, challenge_config: ChallengeConfig) -> None:
+        """Writes the challenge readme to the specified path.
+
+        Args:
+            path (str | Path): The folder or file to write the challenge readme to. If a file
+                               is provided, it will be used as the readme file instead.
+            challenge_config (ChallengeConfig): The challenge config to generate the readme for.
+        """
+        if isinstance(path, str):
+            path = Path(path)
+
+        if path.is_file():
+            readme_fp = path
+        else:
+            readme_fp = path / "README.md"
+
+        readme_fp.write_text(challenge_config.readme, encoding="utf-8")
+
     @classmethod
-    def from_path(cls, path: str | Path) -> ChallengeFolder:
+    def from_path(cls, path: str | Path) -> Challenge:
         """Loads a ChallengeFolder from the specified path.
 
         Args:
@@ -123,7 +201,7 @@ class ChallengeFolder:
 
         return cls(path, challenge)
 
-    def copy_to(self, destination: str | Path, as_subfolder: bool = True) -> ChallengeFolder:
+    def copy_to(self, destination: str | Path, as_subfolder: bool = True) -> Challenge:
         """Copies the challenge folder into the specified destination.
 
         This will create a new folder at the destination path and copy all files from the challenge folder to it.
@@ -162,9 +240,9 @@ class ChallengeFolder:
 
         shutil.copytree(self.path, target_folder, dirs_exist_ok=True)
 
-        return ChallengeFolder(target_folder, self.config)
+        return Challenge(target_folder, self.config)
 
-    def move_to(self, destination: str | Path, as_subfolder: bool = True) -> ChallengeFolder:
+    def move_to(self, destination: str | Path, as_subfolder: bool = True) -> Challenge:
         """Moves the challenge folder to the specified destination.
 
         This will move the entire challenge folder to the new location, including all files and subdirectories.
@@ -198,7 +276,7 @@ class ChallengeFolder:
 
         shutil.move(self.path, target_folder)
 
-        return ChallengeFolder(target_folder, self.config)
+        return Challenge(target_folder, self.config)
 
     def save_config(self) -> None:
         """Saves the challenge config to the folder."""
