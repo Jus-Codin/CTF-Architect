@@ -33,6 +33,8 @@ def is_challenge_folder(path: str | Path) -> bool:
 def load_chall_config(path: str | Path) -> ChallengeConfig:
     """Loads the challenge config from the specified path.
 
+    Deprecated: Use `Challenge.load_config` instead.
+
     Args:
         path (str | Path): The path to the challenge config file.
 
@@ -52,6 +54,8 @@ def load_chall_config(path: str | Path) -> ChallengeConfig:
 
 def write_chall_config(path: str | Path, challenge: ChallengeConfig) -> None:
     """Writes the given challenge config to the specified path.
+
+    Deprecated: Use `Challenge.write_config` instead.
 
     Args:
         path (str | Path): The folder to write the challenge config to.
@@ -81,6 +85,8 @@ def write_chall_config(path: str | Path, challenge: ChallengeConfig) -> None:
 def write_chall_readme(path: str | Path, challenge: ChallengeConfig) -> None:
     """Writes the challenge readme to the specified path.
 
+    Deprecated: Use `Challenge.write_readme` instead.
+
     Args:
         path (str | Path): The folder to write the challenge readme to.
         challenge (ChallengeConfig): The challenge config to generate the readme for.
@@ -94,18 +100,27 @@ def write_chall_readme(path: str | Path, challenge: ChallengeConfig) -> None:
 class Challenge:
     """Represents a challenge folder.
 
+    Warning:
+        This class should not be instantiated directly. Use the `Challenge.from_path` method to create an instance.
+
     Attributes:
         path (Path): The path of the challenge folder
         config (ChallengeConfig): The challenge config defined for the challenge
+        initialized (bool): Whether the challenge folder has been initialized.
+                            This is set to True when the challenge folder is created or loaded from a config file.
     """
 
-    def __init__(self, path: Path, challenge_config: ChallengeConfig):
+    def __init__(self, path: Path, challenge_config: ChallengeConfig, initialized: bool = False) -> None:
         self.path = path
         self.config = challenge_config
+        self.initialized = initialized
 
     @staticmethod
     def load_config(path: str | Path) -> ChallengeConfig:
         """Loads the challenge config from the specified path.
+
+        If the path is a file, it will be used as the config file.
+        Else, it will look for a `chall.toml` file in the folder.
 
         Args:
             path (str | Path): The path to the challenge config file or folder containing it.
@@ -132,9 +147,11 @@ class Challenge:
     def write_config(path: str | Path, challenge_config: ChallengeConfig) -> None:
         """Writes the given challenge config to the specified path.
 
+        If the path is a file, it will be used as the config file.
+        Else, it will write the config to a `chall.toml` file in the folder
+
         Args:
-            path (str | Path): The folder or file to write the challenge config to. If a file
-                               is provided, it will be used as the config file instead.
+            path (str | Path): The folder or file to write the challenge config to.
             challenge_config (ChallengeConfig): The challenge config to write.
         """
         if isinstance(path, str):
@@ -166,9 +183,11 @@ class Challenge:
     def write_readme(path: str | Path, challenge_config: ChallengeConfig) -> None:
         """Writes the challenge readme to the specified path.
 
+        If the path is a file, it will be used as the readme file.
+        Else, it will write the readme to a `README.md` file in the folder.
+
         Args:
-            path (str | Path): The folder or file to write the challenge readme to. If a file
-                               is provided, it will be used as the readme file instead.
+            path (str | Path): The folder or file to write the challenge readme to.
             challenge_config (ChallengeConfig): The challenge config to generate the readme for.
         """
         if isinstance(path, str):
@@ -183,13 +202,13 @@ class Challenge:
 
     @classmethod
     def from_path(cls, path: str | Path) -> Challenge:
-        """Loads a ChallengeFolder from the specified path.
+        """Loads a Challenge from the specified path.
 
         Args:
             path (str | Path): The path to the challenge folder.
 
         Returns:
-            ChallengeFolder: The challenge folder instance.
+            Challenge: The challenge folder instance.
         """
         if isinstance(path, str):
             path = Path(path)
@@ -197,9 +216,14 @@ class Challenge:
         if not is_challenge_folder(path):
             raise ValueError(f"The specified path {path} is not a valid challenge folder.")
 
-        challenge = load_chall_config(path)
+        challenge = cls.load_config(path)
 
-        return cls(path, challenge)
+        return cls(path, challenge, initialized=True)
+
+    @property
+    def repo_path(self) -> Path:
+        """The path to the challenge folder relative to the repository root."""
+        return Path("challenges", self.config.category.lower(), self.config.folder_name)
 
     def copy_to(self, destination: str | Path, as_subfolder: bool = True) -> Challenge:
         """Copies the challenge folder into the specified destination.
@@ -207,17 +231,23 @@ class Challenge:
         This will create a new folder at the destination path and copy all files from the challenge folder to it.
         If the destination folder already exists and is not empty, an error will be raised.
 
+        Note:
+            Only initialized challenges can be copied. If the challenge is not initialized, it will raise an error.
+
         Args:
             destination (str | Path): The destination path to copy the challenge folder into.
             as_subfolder (bool): Whether to copy the challenge folder as a subfolder inside the destination.
                                  If False, the challenge folder's contents will be copied directly into the destination.
 
         Returns:
-            ChallengeFolder: A new ChallengeFolder instance pointing to the copied folder.
+            Challenge: A new Challenge instance pointing to the copied folder.
 
         Raises:
             FileExistsError: If the destination folder already exists and is not empty.
         """
+        if not self.initialized:
+            raise RuntimeError("Cannot copy an uninitialized challenge. Please initialize the challenge first.")
+
         if isinstance(destination, str):
             destination = Path(destination)
 
@@ -240,12 +270,15 @@ class Challenge:
 
         shutil.copytree(self.path, target_folder, dirs_exist_ok=True)
 
-        return Challenge(target_folder, self.config)
+        return Challenge.from_path(target_folder)
 
     def move_to(self, destination: str | Path, as_subfolder: bool = True) -> Challenge:
         """Moves the challenge folder to the specified destination.
 
         This will move the entire challenge folder to the new location, including all files and subdirectories.
+
+        Note:
+            Only initialized challenges can be moved. If the challenge is not initialized, it will raise an
 
         Args:
             destination (str | Path): The destination path to move the challenge folder to.
@@ -253,8 +286,11 @@ class Challenge:
                                  If False, the challenge folder will be moved directly into the destination.
 
         Returns:
-            ChallengeFolder: A new ChallengeFolder instance pointing to the moved folder.
+            Challenge: A new Challenge instance pointing to the moved folder.
         """
+        if not self.initialized:
+            raise RuntimeError("Cannot move an uninitialized challenge. Please initialize the challenge first.")
+
         if isinstance(destination, str):
             destination = Path(destination)
 
@@ -276,15 +312,15 @@ class Challenge:
 
         shutil.move(self.path, target_folder)
 
-        return Challenge(target_folder, self.config)
+        return Challenge.from_path(target_folder)
 
     def save_config(self) -> None:
         """Saves the challenge config to the folder."""
-        write_chall_config(self.path, self.config)
+        self.write_config(self.path, self.config)
 
     def save_readme(self) -> None:
         """Writes the challenge readme to the folder."""
-        write_chall_readme(self.path, self.config)
+        self.write_readme(self.path, self.config)
 
     def save_all(self) -> None:
         """Saves both the challenge config and readme to the folder."""
@@ -293,4 +329,9 @@ class Challenge:
 
     def refresh(self) -> None:
         """Refreshes the challenge config from the folder."""
-        self.config = load_chall_config(self.path)
+        if not self.initialized:
+            raise RuntimeError("Cannot refresh an uninitialized challenge. Please initialize the challenge first.")
+
+        self.config = self.load_config(self.path)
+
+    # TODO: Implement method to initialize a new challenge folder given a ChallengeConfig

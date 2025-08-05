@@ -1,15 +1,18 @@
 """Functions for repository-level operations."""
 
+from __future__ import annotations
+
 import re
 import shutil
 from collections.abc import Generator
 from functools import lru_cache
 from pathlib import Path
+from typing import overload
 
 from tomlkit import comment, document, dump, load, nl
 
 from ctf_architect.constants import CTF_CONFIG_FILE, CTF_CONFIG_HEADER
-from ctf_architect.core.challenge import is_challenge_folder, load_chall_config
+from ctf_architect.core.challenge import Challenge, is_challenge_folder, load_chall_config
 from ctf_architect.core.exceptions import (
     ChallengeExistsError,
     FolderNameCollisionError,
@@ -340,3 +343,407 @@ def walk_challenges(
                 pass
         else:
             yield load_chall_config(folder)
+
+
+class Repo:
+    """A class representing a challenge repository.
+
+    This class provides methods to interact with the challenge repository, such as loading the CTF config,
+    walking through challenges, and adding or removing challenges.
+
+    Warning:
+        This class should not be instantiated directly. Use the `from_path` method to create an instance.
+
+    Attributes:
+        path (Path): The path to the challenge repository.
+        ctf_config (CTFConfig): The CTF config object for the repository.
+        initialized (bool): Whether the repository has been initialized.
+    """
+
+    def __init__(self, path: Path, ctf_config: CTFConfig, initialized: bool = False) -> None:
+        self.path = path
+        self.ctf_config = ctf_config
+        self.initialized = initialized
+
+    @staticmethod
+    def load_config(path: str | Path) -> CTFConfig:
+        """Loads the CTF config from the specified path.
+
+        If the path is a file, it will load the CTF config from that file.
+        If the path is a directory, it will look for the CTF config file in that
+
+        Args:
+            path (str | Path): The path to the CTF config file or directory.
+
+        Returns:
+            CTFConfig: The loaded CTF config object.
+        """
+        if isinstance(path, str):
+            path = Path(path)
+
+        if path.is_file():
+            config_fp = path
+        else:
+            config_fp = path / CTF_CONFIG_FILE
+
+        with open(config_fp, encoding="utf-8") as f:
+            data = load(f)
+
+        config_file = ConfigFile.model_validate(data.unwrap())
+
+        # TODO: Implement new cache mechanism for CTFConfig
+
+        return config_file.config
+
+    @staticmethod
+    def write_config(path: str | Path, config: CTFConfig) -> None:
+        """Writes the CTF config to the specified path.
+
+        If the path is a file, it will be used as the config file.
+        If the path is a directory, it will write the config to a `ctf_config
+
+        Args:
+            path (str | Path): The folder or file to write the CTF config to.
+            config (CTFConfig): The CTF config object to write.
+        """
+        if isinstance(path, str):
+            path = Path(path)
+
+        if path.is_file():
+            config_fp = path
+        else:
+            config_fp = path / CTF_CONFIG_FILE
+
+        doc = document()
+        for line in CTF_CONFIG_HEADER.splitlines():
+            doc.add(comment(line))
+        doc.add(nl())
+
+        doc.add("version", str(CTF_CONFIG_SPEC_VERSION))  # type: ignore
+        doc.add("config", config.model_dump(mode="json", exclude_defaults=True))  # type: ignore
+
+        with open(config_fp, "w", encoding="utf-8") as f:
+            dump(doc, f)
+
+        # TODO: Implement new cache mechanism for CTFConfig
+
+    @classmethod
+    def from_path(cls, path: str | Path) -> Repo:
+        """Loads a Repo from the specified path.
+
+        Args:
+            path (str | Path): The path to the challenge repository.
+
+        Returns:
+            Repo: The Repo instance.
+        """
+        if isinstance(path, str):
+            path = Path(path)
+
+        if not is_challenge_repo(path):
+            raise NotInChallengeRepositoryError(f'"{path.resolve()}" is not a challenge repository')
+
+        ctf_config = cls.load_config(path)
+        return cls(path, ctf_config, initialized=True)
+
+    def save_config(self) -> None:
+        """Saves the current CTF config to the repository."""
+        self.write_config(self.path, self.ctf_config)
+
+    def refresh(self) -> None:
+        """Refreshes the CTF config by reloading it from the repository."""
+        self.ctf_config = self.load_config(self.path)
+
+    def walk_chall_folders(self, category: str | None = None, *, skip_invalid: bool = True) -> Generator[Path]:
+        """Walks through the challenge folders in the repository.
+
+        A category can be optionally specified to filter challenges by category.
+
+        Args:
+            category (str, optional): The category to filter challenges by.
+            skip_invalid (bool, optional): Whether to skip invalid challenge folders. Defaults to True.
+
+        Yields:
+            Generator[Path]: The paths to the valid challenge folders.
+        """
+        challenges_path = self.path / "challenges"
+
+        if category is not None:
+            # Check if the category exists in the CTF config
+            if category.lower() not in self.ctf_config.categories:
+                raise InvalidCategoryError(f"Category {category} not in CTF config")
+            categories = [category.lower()]
+        else:
+            categories = self.ctf_config.categories
+
+        for category in categories:
+            if not (challenges_path / category).exists():
+                continue
+            for directory in (challenges_path / category).iterdir():
+                if directory.is_dir():
+                    if not is_challenge_folder(directory):
+                        if skip_invalid:
+                            continue
+                        raise InvalidChallengeFolderError(f"Invalid challenge folder: {directory}")
+
+                    yield directory
+
+    def find_chall_folder(self, name: str, validate: bool = True) -> Path | None:
+        """Finds a challenge folder by name.
+
+        Args:
+            name (str): The name of the challenge folder to find.
+            validate (bool, optional): Whether to validate the challenge folder. Defaults to True.
+
+        Returns:
+            Path | None: The path to the challenge folder if found, None otherwise.
+        """
+        folders = self.walk_chall_folders(skip_invalid=True)
+
+        # TODO: Convert this to a function for standardization
+        folder_name = re.sub(r"^[^a-zA-Z]+|[^a-zA-Z0-9 _-]", "", name).strip()
+
+        for folder in folders:
+            if folder_name.lower() in folder.name.lower():
+                if validate:
+                    try:
+                        Challenge.load_config(folder)
+                        return folder
+                    except Exception:
+                        pass
+                else:
+                    return folder
+
+        return None
+
+    def find_challenge(self, name: str) -> Challenge | None:
+        """Finds a challenge by name.
+
+        The search is performed in two steps:
+        1. Search by the folder name, if a substring match is found, check the
+           challenge config file to verify.
+        2. Search every challenge config file for an exact name match.
+
+        Args:
+            name (str): The name of the challenge to find.
+
+        Returns:
+            Challenge | None: The Challenge object if found, None otherwise.
+        """
+        # Search Strategy:
+        # 1. Search by the folder name, if a substring match is found, check the challenge config file to verify.
+        # 2. Search every challenge config file for an exact name match
+
+        folders = self.walk_chall_folders(skip_invalid=True)
+
+        searched = set()
+
+        # TODO: Maybe convert this to a function
+        folder_name = re.sub(r"^[^a-zA-Z]+|[^a-zA-Z0-9 _-]", "", name).strip()
+
+        for folder in folders:
+            if folder_name.lower() in folder.name.lower():
+                searched.add(folder)
+                try:
+                    challenge = Challenge.from_path(folder)
+                    if challenge.config.name.lower() == name.lower():
+                        return challenge
+                except Exception:
+                    pass
+
+        # Check every challenge config file for a name match
+        for folder in folders:
+            if folder in searched:
+                continue
+
+            try:
+                challenge = Challenge.from_path(folder)
+                if challenge.config.name.lower() == name.lower():
+                    return challenge
+            except Exception:
+                pass
+
+        return None
+
+    def walk_challenges(
+        self,
+        category: str | None = None,
+        *,
+        skip_invalid: bool = False,
+        ignore_errors: bool = False,
+    ) -> Generator[Challenge, None, None]:
+        """Walks through all challenges in the repository.
+
+        A category can be optionally specified to filter challenges by category.
+
+        Args:
+            category (str | None, optional): The category to walk through. Defaults to None.
+            skip_invalid (bool, optional): Whether to skip invalid challenges. Defaults to False.
+            ignore_errors (bool, optional): Whether to ignore errors. Defaults to False.
+
+        Yields:
+            Generator[Challenge]: The Challenge objects.
+        """
+        for folder in self.walk_chall_folders(category, skip_invalid=skip_invalid):
+            if ignore_errors:
+                try:
+                    yield Challenge.from_path(folder)
+                except Exception:
+                    pass
+            else:
+                yield Challenge.from_path(folder)
+
+    @overload
+    def add_challenge(
+        self,
+        challenge_or_folder: Challenge,
+        /,
+        replace_existing: bool = False,
+        preserve_original: bool = False,
+    ) -> None: ...
+
+    @overload
+    def add_challenge(
+        self,
+        challenge_or_folder: str | Path,
+        /,
+        replace_existing: bool = False,
+        preserve_original: bool = False,
+    ) -> None: ...
+
+    def add_challenge(
+        self,
+        challenge_or_folder: str | Path | Challenge,
+        /,
+        replace_existing: bool = False,
+        preserve_original: bool = False,
+    ) -> None:
+        """Adds a challenge to the repository.
+
+        The challenge can be specified as either a `Challenge` object or a path to the challenge folder.
+        If `replace_existing` is True, it will overwrite the existing challenge if it has the same name.
+        If `preserve_original` is True, it will preserve the original challenge folder and copy it to the new location.
+
+        Note:
+            Both the challenge and repository must be initialized before adding a challenge.
+
+        Args:
+            challenge_or_folder (str | Path | Challenge): The challenge to add, either as a `Challenge` object or a path to the challenge folder.
+            replace_existing (bool, optional): Whether to overwrite an existing challenge with the same name. Defaults to False.
+            preserve_original (bool, optional): Whether to preserve the original challenge folder. Defaults to False.
+
+        Raises:
+            NotADirectoryError: The specified path is not a directory.
+            InvalidCategoryError: The category of the challenge is not in the CTF config.
+            ChallengeExistsError: A challenge with the same name already exists.
+            FolderNameCollisionError: Another challenge is using the same folder name.
+        """
+        if not self.initialized:
+            raise RuntimeError(
+                "Cannot add a challenge to an uninitialized repository. Please initialize the repository first."
+            )
+
+        if isinstance(challenge_or_folder, Challenge):
+            challenge = challenge_or_folder
+        else:
+            chall_folder = Path(challenge_or_folder)
+            challenge = Challenge.from_path(chall_folder)
+
+        # Check if the category exists
+        # This is to prevent a challenge from being added to a category that doesn't exist
+        if challenge.config.category not in self.ctf_config.categories:
+            raise InvalidCategoryError(f"Category {challenge.config.category} not in CTF config")
+
+        # Check if path for the challenge already exists
+        if (self.path / challenge.repo_path).exists():
+            # Check if the challenge in that path is the same name as the new challenge
+            old_challenge = Challenge.from_path(self.path / challenge.repo_path)
+            if old_challenge.config.name == challenge.config.name:
+                if replace_existing:
+                    self.remove_challenge(folder=old_challenge.repo_path)
+                else:
+                    raise ChallengeExistsError(f"Challenge with name {challenge.config.name} already exists")
+            else:
+                # Folder name collision
+                raise FolderNameCollisionError(
+                    "Another challenge is using the same folder name. Please resolve the conflict.\n"
+                    f"  Old Challenge: {old_challenge.config.name}\n"
+                    f"  New Challenge: {challenge.config.name}"
+                )
+
+        # Check if a challenge with the same name already exists
+        # Technically, if a challenge in another category has the same name, they can coexist
+        # However, this will most likely lead to confusion and potential issues down the line during deployment
+        elif (c := self.find_challenge(challenge.config.name)) is not None:
+            if replace_existing:
+                self.remove_challenge(folder=c.repo_path)
+            else:
+                raise ChallengeExistsError(f"Challenge with name {c.config.name} already exists")
+
+        new_path = self.path / challenge.repo_path
+        if preserve_original:
+            challenge.copy_to(new_path, as_subfolder=False)
+        else:
+            challenge.move_to(new_path, as_subfolder=False)
+
+    @overload
+    def remove_challenge(self, *, name: str) -> None: ...
+
+    @overload
+    def remove_challenge(self, *, folder: str | Path) -> None: ...
+
+    @overload
+    def remove_challenge(self, *, challenge: Challenge) -> None: ...
+
+    def remove_challenge(
+        self,
+        *,
+        name: str | None = None,
+        folder: str | Path | None = None,
+        challenge: Challenge | None = None,
+    ) -> None:
+        """Removes a challenge from the repository.
+
+        Can specify either the name, folder path, or a Challenge object to remove.
+
+        Args:
+            name (str | None, optional): The name of the challenge to remove. Defaults to None. Keyword-only.
+            folder (str | Path | None, optional): The path to the challenge folder to remove. Defaults to None. Keyword-only.
+            challenge (Challenge | None, optional): The Challenge object to remove. Defaults to None. Keyword-only.
+
+        Raises:
+            RuntimeError: The repository is not initialized.
+            ValueError: More than one, or none of name, folder, or challenge is specified.
+            FileNotFoundError: The challenge with the specified name is not found.
+            NotADirectoryError: The specified path is not a directory.
+            NotInChallengeRepositoryError: The specified path is not in the challenge repository.
+        """
+        if not self.initialized:
+            raise RuntimeError(
+                "Cannot remove a challenge from an uninitialized repository. Please initialize the repository first."
+            )
+
+        if (name, folder, challenge).count(None) != 2:
+            raise ValueError("Must specify only one of name, folder, or challenge to remove")
+
+        if name is not None:
+            challenge = self.find_challenge(name)
+            if challenge is None:
+                raise FileNotFoundError(f"Challenge with name {name} not found")
+            folder = challenge.repo_path
+        elif folder is not None:
+            if isinstance(folder, str):
+                folder = Path(folder)
+            if not folder.is_dir():
+                raise NotADirectoryError(f'"{folder.absolute()}" is not a directory')
+            # Safety check to make sure path is in the challenge repo
+            if folder.resolve().parent != (self.path / "challenges").resolve():
+                raise NotInChallengeRepositoryError(f'"{folder.absolute()}" is not in the CTF repo')
+        elif challenge is not None:
+            folder = challenge.repo_path
+        else:
+            raise ValueError("Must specify one of name, folder, or challenge to remove")
+
+        shutil.rmtree(folder)
+
+    # TODO: Implement method to initialize a new challenge repo
