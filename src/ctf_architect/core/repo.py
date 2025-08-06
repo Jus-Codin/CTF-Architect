@@ -469,8 +469,6 @@ class Repo:
         Returns:
             Path: The path to the specified category.
         """
-        if category.lower() not in self.ctf_config.categories:
-            raise InvalidCategoryError(f"Category {category} not in CTF config")
         return self.challenges_path / category.lower()
 
     def walk_chall_folders(self, category: str | None = None, *, skip_invalid: bool = True) -> Generator[Path]:
@@ -793,6 +791,9 @@ class Repo:
                 "Cannot generate category README from an uninitialized repository. Please initialize the repository first."
             )
 
+        if category.lower() not in self.ctf_config.categories:
+            raise InvalidCategoryError(f"Category {category} not in CTF config")
+
         challenges = []
         services = []
         for challenge in self.walk_challenges(category=category, skip_invalid=True):
@@ -857,6 +858,9 @@ class Repo:
             raise RuntimeError(
                 "Cannot save category README from an uninitialized repository. Please initialize the repository first."
             )
+
+        if category.lower() not in self.ctf_config.categories:
+            raise InvalidCategoryError(f"Category {category} not in CTF config")
 
         readme_content = self.get_category_readme(category)
         category_path = self.get_category_path(category)
