@@ -29,7 +29,7 @@ from ctf_architect.constants import CTF_CONFIG_FILE
 from ctf_architect.core.challenge import is_challenge_folder
 from ctf_architect.core.exceptions import ChallengeExistsError
 from ctf_architect.core.initialize import init_repo_from_config, init_repo_no_config
-from ctf_architect.core.lint import lint_challenge, lint_challenge_repo
+from ctf_architect.core.lint import LintResult, SeverityLevel, lint_challenge, lint_challenge_repo
 from ctf_architect.core.repo import (
     add_challenge,
     find_challenge,
@@ -38,7 +38,6 @@ from ctf_architect.core.repo import (
     load_repo_config,
 )
 from ctf_architect.core.stats import update_category_readme, update_root_readme
-from ctf_architect.models.lint import LintResult, SeverityLevel
 
 app = App(
     name="repo",
