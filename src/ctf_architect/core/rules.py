@@ -4,16 +4,17 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable
+from enum import Enum, StrEnum
+from functools import total_ordering
 from pathlib import Path
 from traceback import format_exception_only
 from typing import Literal
 
 from ctf_architect.constants import CHALLENGE_CONFIG_FILE
-from ctf_architect.core.challenge import load_chall_config
+from ctf_architect.core.challenge import Challenge, load_chall_config
 from ctf_architect.core.exceptions import DuplicateRuleCodeError
-from ctf_architect.core.repo import find_challenge, is_challenge_repo
+from ctf_architect.core.repo import Repo
 from ctf_architect.models.ctf_config import CTFConfig
-from ctf_architect.models.lint import CheckResult, CheckStatus, Rule, SeverityLevel
 
 RULES: list[Rule] = []
 RULES_DICT: dict[str, Rule] = {}
@@ -35,9 +36,10 @@ def rule(
     level: SeverityLevel,
     message: str | None = None,
     requires_ctf_config: bool = False,
+    repo_only: bool = False,
 ):
     def decorator(
-        f: Callable[[Path], bool | str | CheckResult] | Callable[[Path, CTFConfig], bool | str | CheckResult],
+        f: Callable[[CheckContext], bool | str | CheckResult],
     ) -> Rule:
         rule = Rule(
             code=code,
@@ -45,11 +47,147 @@ def rule(
             func=f,
             message=message,
             requires_ctf_config=requires_ctf_config,
+            repo_only=repo_only,
         )
         add_rule(rule)
         return rule
 
     return decorator
+
+
+@total_ordering
+class SeverityLevel(Enum):
+    """Severity level of a rule."""
+
+    INFO = 0
+    """Just for informational purposes"""
+    WARNING = 1
+    """Challenge will be able to be loaded, but may have issues"""
+    ERROR = 2
+    """Challenge will be unable to be loaded, but other rules can be checked"""
+    FATAL = 3
+    """Challenge will be unable to be loaded, non-fatal rules cannot be checked"""
+
+    def __lt__(self, other: SeverityLevel) -> bool:
+        if self.__class__ is other.__class__:
+            return self.value < other.value
+        return NotImplemented
+
+
+class CheckStatus(StrEnum):
+    """Status of a check."""
+
+    PASSED = "passed"
+    """Check passed."""
+    IGNORED = "ignored"
+    """Check was explicitly ignored."""
+    SKIPPED = "skipped"
+    """Check was unable to be performed."""
+    FAILED = "failed"
+    """Check failed."""
+    ERROR = "error"
+    """Check had an unexpected error."""
+
+
+class CheckContext:
+    """Context for a check.
+
+    Attributes:
+        challenge_path (Path): The path to the challenge directory.
+        ctf_config (CTFConfig | None): The CTF configuration, if available.
+        repo (Repo | None): The repository, if available.
+    """
+
+    def __init__(self, challenge_path: Path, ctf_config: CTFConfig | None = None, repo: Repo | None = None):
+        if ctf_config is None and repo is not None:
+            ctf_config = repo.ctf_config
+
+        self.challenge_path = challenge_path
+        self.ctf_config = ctf_config
+        self.repo = repo
+
+
+class CheckResult:
+    """Represents the result of a rule check.
+
+    Attributes:
+        status (CheckStatus): The status of the check.
+        code (str): The code of the check.
+        level (SeverityLevel): The severity level of the check.
+        message (str, optional): The message of the check. Defaults to None.
+    """
+
+    def __init__(self, status: CheckStatus, code: str, level: SeverityLevel, message: str | None = None):
+        self.status = status
+        self.code = code
+        self.level = level
+        self.message = message
+
+
+class Rule:
+    """Represents a lint rule.
+
+    Attributes:
+        code (str): The code of the rule.
+        level (SeverityLevel): The severity level of the rule.
+        func (Callable): The function that implements the rule.
+        message (str, optional): The message of the rule. Defaults to None.
+        requires_ctf_config (bool): Whether the rule requires a CTF config. Defaults to False.
+        repo_only (bool): Whether the rule is only applicable to challenges in repositories. Defaults to False.
+    """
+
+    def __init__(
+        self,
+        code: str,
+        level: SeverityLevel,
+        func: Callable[[CheckContext], bool | str | CheckResult],
+        message: str | None = None,
+        requires_ctf_config: bool = False,
+        repo_only: bool = False,
+    ):
+        self.code = code
+        self.level = level
+        self.func = func
+        self.message = message
+        self.requires_ctf_config = requires_ctf_config
+        self.repo_only = repo_only
+
+        self.__doc__ = func.__doc__
+
+    def check(self, context: CheckContext) -> CheckResult:
+        try:
+            result = self.func(context)
+        except Exception as e:
+            return CheckResult(
+                status=CheckStatus.ERROR,
+                code=self.code,
+                level=self.level,
+                message="Error running check: " + "".join(format_exception_only(e)).strip(),
+            )
+
+        if isinstance(result, str):
+            return CheckResult(
+                status=CheckStatus.FAILED,
+                code=self.code,
+                level=self.level,
+                message=result,
+            )
+        elif result is False:
+            return CheckResult(
+                status=CheckStatus.FAILED,
+                code=self.code,
+                level=self.level,
+                message=self.message,
+            )
+        elif result is True:
+            return CheckResult(
+                status=CheckStatus.PASSED,
+                code=self.code,
+                level=self.level,
+                message=None,
+            )
+        else:
+            return result
 
 
 # FILE STRUCTURE RULES
@@ -58,9 +196,9 @@ def rule(
     level=SeverityLevel.FATAL,
     message=f"{CHALLENGE_CONFIG_FILE} is missing",
 )
-def F000(challenge_path: Path) -> bool:
-    """Check if the challenge directory contains a {CHALLENGE_CONFIG_FILE} file."""
-    return (challenge_path / "chall.toml").exists()
+def F000(ctx: CheckContext) -> bool:
+    """Check if the challenge directory contains a challenge config file."""
+    return (ctx.challenge_path / CHALLENGE_CONFIG_FILE).exists()
 
 
 @rule(
@@ -68,9 +206,9 @@ def F000(challenge_path: Path) -> bool:
     level=SeverityLevel.WARNING,
     message="Solution folder is missing or empty",
 )
-def F001(challenge_path: Path) -> bool:
+def F001(ctx: CheckContext) -> bool:
     """Check if the challenge directory contains a solution folder."""
-    return (challenge_path / "solution").exists() and any((challenge_path / "solution").iterdir())
+    return (ctx.challenge_path / "solution").exists() and any((ctx.challenge_path / "solution").iterdir())
 
 
 @rule(
@@ -78,9 +216,9 @@ def F001(challenge_path: Path) -> bool:
     level=SeverityLevel.WARNING,
     message="No writeup.md with content in solution folder found",
 )
-def F002(challenge_path: Path) -> bool:
+def F002(ctx: CheckContext) -> bool:
     """Check if the solution folder contains a writeup.md file with content."""
-    writeup = challenge_path / "solution" / "writeup.md"
+    writeup = ctx.challenge_path / "solution" / "writeup.md"
     return not writeup.exists() or len(writeup.read_bytes().strip()) > 0
 
 
@@ -89,9 +227,9 @@ def F002(challenge_path: Path) -> bool:
     level=SeverityLevel.ERROR,
     message="README.md file must exist and have content",
 )
-def F003(challenge_path: Path) -> bool:
+def F003(ctx: CheckContext) -> bool:
     """Check if the challenge directory contains a README.md file with content."""
-    readme = challenge_path / "README.md"
+    readme = ctx.challenge_path / "README.md"
     return readme.exists() and len(readme.read_bytes().strip()) > 0
 
 
@@ -100,10 +238,10 @@ def F003(challenge_path: Path) -> bool:
     "C000",
     level=SeverityLevel.FATAL,
 )
-def C000(challenge_path: Path) -> Literal[True] | str:
+def C000(ctx: CheckContext) -> Literal[True] | str:
     """Check if the challenge config file can be loaded."""
     try:
-        load_chall_config(challenge_path)
+        Challenge.load_config(ctx.challenge_path)
     except Exception as e:
         return f"Failed to load {CHALLENGE_CONFIG_FILE} file: " + "".join(format_exception_only(e)).strip()
 
@@ -115,11 +253,11 @@ def C000(challenge_path: Path) -> Literal[True] | str:
     level=SeverityLevel.ERROR,
     requires_ctf_config=True,
 )
-def C001(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str:
+def C001(ctx: CheckContext) -> Literal[True] | str:
     """Check if the challenge category is valid."""
-    challenge = load_chall_config(challenge_path)
+    challenge = load_chall_config(ctx.challenge_path)
 
-    if challenge.category not in ctf_config.categories:
+    if challenge.category not in ctx.ctf_config.categories:
         return f'Invalid category "{challenge.category}" in {CHALLENGE_CONFIG_FILE} file'
     else:
         return True
@@ -130,11 +268,11 @@ def C001(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str:
     level=SeverityLevel.ERROR,
     requires_ctf_config=True,
 )
-def C002(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str:
+def C002(ctx: CheckContext) -> Literal[True] | str:
     """Check if the challenge difficulty is valid."""
-    challenge = load_chall_config(challenge_path)
+    challenge = load_chall_config(ctx.challenge_path)
 
-    if challenge.difficulty not in ctf_config.difficulties:
+    if challenge.difficulty not in ctx.ctf_config.difficulties:
         return f'Invalid difficulty "{challenge.difficulty}" in {CHALLENGE_CONFIG_FILE} file'
     else:
         return True
@@ -145,13 +283,13 @@ def C002(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str:
     level=SeverityLevel.WARNING,
     requires_ctf_config=True,
 )
-def C003(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str:
+def C003(ctx: CheckContext) -> Literal[True] | str:
     """Check for missing extras in the challenge config."""
-    challenge = load_chall_config(challenge_path)
+    challenge = Challenge.load_config(ctx.challenge_path)
 
     missing_extras = []
 
-    config_extras = ctf_config.extras or []
+    config_extras = ctx.ctf_config.extras or []
     challenge_extras = challenge.extras or {}
 
     for extra in config_extras:
@@ -172,14 +310,14 @@ def C003(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str:
     level=SeverityLevel.WARNING,
     requires_ctf_config=True,
 )
-def C004(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str:
+def C004(ctx: CheckContext) -> Literal[True] | str:
     """Check for extra extras in the challenge config."""
-    challenge = load_chall_config(challenge_path)
+    challenge = Challenge.load_config(ctx.challenge_path)
 
     # What is this variable naming...
     extra_extras = []
 
-    config_extras = [e.name for e in ctf_config.extras] if ctf_config.extras else []
+    config_extras = [e.name for e in ctx.ctf_config.extras] if ctx.ctf_config.extras else []
     challenge_extras = challenge.extras or {}
 
     for extra in challenge_extras:
@@ -200,7 +338,7 @@ def C004(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str:
     level=SeverityLevel.WARNING,
     requires_ctf_config=True,
 )
-def C005(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str:
+def C005(ctx: CheckContext) -> Literal[True] | str:
     """Check for incorrect extra types in the challenge config."""
     type_mapping = {
         "string": str,
@@ -209,11 +347,11 @@ def C005(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str:
         "boolean": bool,
     }
 
-    challenge = load_chall_config(challenge_path)
+    challenge = Challenge.load_config(ctx.challenge_path)
 
     incorrect_extras = []
 
-    config_extras = ctf_config.extras or []
+    config_extras = ctx.ctf_config.extras or []
     challenge_extras = challenge.extras or {}
 
     for extra in config_extras:
@@ -236,8 +374,8 @@ def C005(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str:
     level=SeverityLevel.WARNING,
     message="File specified in chall.toml not found or is absolute path",
 )
-def C006(challenge_path: Path) -> Literal[True] | str:
-    challenge = load_chall_config(challenge_path)
+def C006(ctx: CheckContext) -> Literal[True] | str:
+    challenge = Challenge.load_config(ctx.challenge_path)
 
     if challenge.files is None:
         return True
@@ -249,7 +387,7 @@ def C006(challenge_path: Path) -> Literal[True] | str:
         if isinstance(file, Path):
             if file.is_absolute():
                 absolute_files.append(file)
-            if not (challenge_path / file).exists():
+            if not (ctx.challenge_path / file).exists():
                 missing_files.append(file)
 
     result = ""
@@ -274,9 +412,9 @@ def C006(challenge_path: Path) -> Literal[True] | str:
     level=SeverityLevel.WARNING,
     message="Challenge has no flags",
 )
-def C007(challenge_path: Path) -> bool:
+def C007(ctx: CheckContext) -> bool:
     """Check if the challenge has flags."""
-    challenge = load_chall_config(challenge_path)
+    challenge = Challenge.load_config(ctx.challenge_path)
 
     return challenge.flags is not None and len(challenge.flags) > 0
 
@@ -287,11 +425,11 @@ def C007(challenge_path: Path) -> bool:
     message="Challenge flag does not match the format specified in the CTF config",
     requires_ctf_config=True,
 )
-def C008(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str | CheckResult:
+def C008(ctx: CheckContext) -> Literal[True] | str | CheckResult:
     """Check if the challenge flag matches the format specified in the CTF config."""
-    challenge = load_chall_config(challenge_path)
+    challenge = Challenge.load_config(ctx.challenge_path)
 
-    if ctf_config.flag_format is None:
+    if ctx.ctf_config.flag_format is None:
         return CheckResult(
             status=CheckStatus.SKIPPED,
             code="C008",
@@ -310,11 +448,11 @@ def C008(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str | C
     invalid_flags = []
 
     for flag in challenge.flags:
-        if not re.match(ctf_config.flag_format, flag.flag):
+        if not re.match(ctx.ctf_config.flag_format, flag.flag):
             invalid_flags.append(flag.flag)
 
     if invalid_flags:
-        result = f'Flags do not match the flag format "{ctf_config.flag_format}":\n'
+        result = f'Flags do not match the flag format "{ctx.ctf_config.flag_format}":\n'
         for flag in invalid_flags:
             result += f"  - {flag}\n"
         return result.rstrip()
@@ -329,9 +467,9 @@ def C008(challenge_path: Path, ctf_config: CTFConfig) -> Literal[True] | str | C
     level=SeverityLevel.WARNING,
     message="Challenge only has a description and no files or services",
 )
-def C009(challenge_path: Path) -> bool:
+def C009(ctx: CheckContext) -> bool:
     """Check if the challenge only has a description and no files or services."""
-    challenge = load_chall_config(challenge_path)
+    challenge = Challenge.load_config(ctx.challenge_path)
 
     return challenge.files is not None or challenge.services is not None
 
@@ -341,11 +479,12 @@ def C009(challenge_path: Path) -> bool:
     level=SeverityLevel.ERROR,
     message="Challenge folder name and name in chall.toml do not match",
 )
-def C010(challenge_path: Path) -> Literal[True] | str:
-    challenge = load_chall_config(challenge_path)
+def C010(ctx: CheckContext) -> Literal[True] | str:
+    """Check if the challenge folder name matches the name in chall.toml."""
+    challenge = Challenge.load_config(ctx.challenge_path)
 
-    if challenge_path.name != challenge.folder_name:
-        return f'Folder name does not match name in chall.toml (expected "{challenge.folder_name}", got "{challenge_path.name}")'
+    if ctx.challenge_path.name != challenge.folder_name:
+        return f'Folder name does not match name in chall.toml (expected "{challenge.folder_name}", got "{ctx.challenge_path.name}")'
 
     return True
 
@@ -354,24 +493,17 @@ def C010(challenge_path: Path) -> Literal[True] | str:
     "C011",
     level=SeverityLevel.ERROR,
     message="Challenge requirement not found in Challenge Repository",
+    repo_only=True,
 )
-def C011(challenge_path: Path) -> Literal[True] | str | CheckResult:
-    # Check if this is run in a Challenge Repository
-    if not is_challenge_repo():
-        return CheckResult(
-            status=CheckStatus.SKIPPED,
-            code="C011",
-            level=SeverityLevel.ERROR,
-            message="Not in a Challenge Repository",
-        )
-
-    challenge = load_chall_config(challenge_path)
+def C011(ctx: CheckContext) -> Literal[True] | str | CheckResult:
+    """Check if the challenge requirements are valid."""
+    challenge = Challenge.load_config(ctx.challenge_path)
 
     missing_requirements = []
 
     if challenge.requirements is not None:
         for req in challenge.requirements:
-            if not find_challenge(req):
+            if not ctx.repo.find_challenge(req):
                 missing_requirements.append(req)
 
     if missing_requirements:
@@ -389,8 +521,8 @@ def C011(challenge_path: Path) -> Literal[True] | str | CheckResult:
     level=SeverityLevel.FATAL,
     message="Path specified for service does not exist or is an absolute path",
 )
-def S000(challenge_path: Path) -> Literal[True] | str | CheckResult:
-    challenge = load_chall_config(challenge_path)
+def S000(ctx: CheckContext) -> Literal[True] | str | CheckResult:
+    challenge = Challenge.load_config(ctx.challenge_path)
 
     if challenge.services is None:
         return CheckResult(
@@ -406,7 +538,7 @@ def S000(challenge_path: Path) -> Literal[True] | str | CheckResult:
     for service in challenge.services:
         if service.path.is_absolute():
             absolute_paths.append(service.path)
-        if not (challenge_path / service.path).exists():
+        if not (ctx.challenge_path / service.path).exists():
             missing_paths.append(service.path)
 
     result = ""

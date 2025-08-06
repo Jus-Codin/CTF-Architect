@@ -2,66 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from enum import Enum, StrEnum
-from functools import total_ordering
 from pathlib import Path
-from traceback import format_exception_only
 
 from ctf_architect.core.repo import Repo
-from ctf_architect.core.rules import RULES
+from ctf_architect.core.rules import RULES, CheckContext, CheckResult, CheckStatus, Rule, SeverityLevel
 from ctf_architect.models.ctf_config import CTFConfig
-
-
-@total_ordering
-class SeverityLevel(Enum):
-    """Severity level of a rule."""
-
-    INFO = 0
-    """Just for informational purposes"""
-    WARNING = 1
-    """Challenge will be able to be loaded, but may have issues"""
-    ERROR = 2
-    """Challenge will be unable to be loaded, but other rules can be checked"""
-    FATAL = 3
-    """Challenge will be unable to be loaded, non-fatal rules cannot be checked"""
-
-    def __lt__(self, other: SeverityLevel) -> bool:
-        if self.__class__ is other.__class__:
-            return self.value < other.value
-        return NotImplemented
-
-
-class CheckStatus(StrEnum):
-    """Status of a check."""
-
-    PASSED = "passed"
-    """Check passed."""
-    IGNORED = "ignored"
-    """Check was explicitly ignored."""
-    SKIPPED = "skipped"
-    """Check was unable to be performed."""
-    FAILED = "failed"
-    """Check failed."""
-    ERROR = "error"
-    """Check had an unexpected error."""
-
-
-class CheckResult:
-    """Represents the result of a rule check.
-
-    Attributes:
-        status (CheckStatus): The status of the check.
-        code (str): The code of the check.
-        level (SeverityLevel): The severity level of the check.
-        message (str, optional): The message of the check. Defaults to None.
-    """
-
-    def __init__(self, status: CheckStatus, code: str, level: SeverityLevel, message: str | None = None):
-        self.status = status
-        self.code = code
-        self.level = level
-        self.message = message
 
 
 class LintResult:
@@ -69,120 +14,71 @@ class LintResult:
 
     Attributes:
         challenge_path (Path): The path to the challenge directory.
-        passed (list[CheckResult]): List of checks that passed.
-        ignored (list[CheckResult]): List of checks that were ignored.
-        skipped (list[CheckResult]): List of checks that were skipped.
-        failed (list[CheckResult]): List of checks that failed.
-        errors (list[CheckResult]): List of checks that had errors.
+        passed (list[CheckResult], optional): List of checks that passed.
+        ignored (list[CheckResult], optional): List of checks that were ignored.
+        skipped (list[CheckResult], optional): List of checks that were skipped.
+        failed (list[CheckResult], optional): List of checks that failed.
+        errors (list[CheckResult], optional): List of checks that had errors.
     """
 
     def __init__(
         self,
         challenge_path: Path,
-        passed: list[CheckResult],
-        ignored: list[CheckResult],
-        skipped: list[CheckResult],
-        failed: list[CheckResult],
-        errors: list[CheckResult],
+        passed: list[CheckResult] | None = None,
+        ignored: list[CheckResult] | None = None,
+        skipped: list[CheckResult] | None = None,
+        failed: list[CheckResult] | None = None,
+        errors: list[CheckResult] | None = None,
     ):
         self.challenge_path = challenge_path
-        self.passed = passed
-        self.ignored = ignored
-        self.skipped = skipped
-        self.failed = failed
-        self.errors = errors
+        self.passed = passed or []
+        self.ignored = ignored or []
+        self.skipped = skipped or []
+        self.failed = failed or []
+        self.errors = errors or []
 
 
-class Rule:
-    """Represents a lint rule.
+class Linter:
+    """Linter to validate CTF challenges.
+
+    Warning: The linter allows `ctf_config` to be a different config from the one in the `repo`.
+             However, doing so may lead to unexpected results. In general, rules that require a repo should use the repo's CTF config.
 
     Attributes:
-        code (str): The code of the rule.
-        func (Callable): The function that implements the rule.
-        message (str, optional): The message of the rule. Defaults to None.
-        requires_ctf_config (bool): Whether the rule requires a CTF config. Defaults to False.
-        repo_only (bool): Whether the rule is only applicable to repositories. Defaults to False.
+        ctf_config (CTFConfig | None): The CTF configuration, if available.
+        repo (Repo | None): The repository, if available.
+        level (SeverityLevel): The severity level to lint at.
+        ignore (list[str]): The list of rules to ignore.
     """
 
     def __init__(
         self,
-        code: str,
-        func: Callable,
-        message: str | None = None,
-        requires_ctf_config: bool = False,
-        repo_only: bool = False,
-    ):
-        self.code = code
-        self.func = func
-        self.message = message
-        self.requires_ctf_config = requires_ctf_config
-        self.repo_only = repo_only
-
-        self.__doc__ = func.__doc__
-
-    def check(self, challenge_path: Path, ctf_config: CTFConfig | None = None) -> CheckResult:
-        if ctf_config is None and self.requires_ctf_config:
-            return CheckResult(
-                status=CheckStatus.SKIPPED,
-                code=self.code,
-                level=self.level,
-                message="CTF config required for this check",
-            )
-
-        args = [challenge_path]  # type: list[Any]
-        if ctf_config is not None and self.requires_ctf_config:
-            args.append(ctf_config)
-
-        try:
-            result = self.func(*args)
-        except Exception as e:
-            return CheckResult(
-                status=CheckStatus.ERROR,
-                code=self.code,
-                level=self.level,
-                message="Error running check: " + "".join(format_exception_only(e)).strip(),
-            )
-
-        if isinstance(result, str):
-            return CheckResult(
-                status=CheckStatus.FAILED,
-                code=self.code,
-                level=self.level,
-                message=result,
-            )
-        elif result is False:
-            return CheckResult(
-                status=CheckStatus.FAILED,
-                code=self.code,
-                level=self.level,
-                message=self.message,
-            )
-        elif result is True:
-            return CheckResult(
-                status=CheckStatus.PASSED,
-                code=self.code,
-                level=self.level,
-                message=None,
-            )
-        else:
-            return result
-
-
-class Linter:
-    """Linter to validate CTF challenges."""
-
-    def __init__(
-        self,
         ctf_config: CTFConfig | None = None,
+        repo: Repo | None = None,
         level: SeverityLevel = SeverityLevel.INFO,
         ignore: list[str] | None = None,
     ):
         self.ctf_config = ctf_config
+        self.repo = repo
         self.level = level
         self.ignore = ignore or []
 
+        # Check if repo is initialized
+        if repo is not None and not repo.initialized:
+            raise RuntimeError("Cannot lint challenges in an uninitialized repository")
+
+    def get_context(self, challenge_path: Path) -> CheckContext:
+        """Get the context for a check."""
+        return CheckContext(
+            challenge_path=challenge_path,
+            ctf_config=self.ctf_config,
+            repo=self.repo,
+        )
+
     def process_rule(self, challenge_path: Path, rule: Rule) -> CheckResult:
         """Process a rule for a challenge."""
+        context = self.get_context(challenge_path)
+
         if rule.level < self.level:
             return CheckResult(
                 status=CheckStatus.SKIPPED,
@@ -199,7 +95,23 @@ class Linter:
                 message="Rule in ignore list",
             )
 
-        return rule.check(challenge_path, self.ctf_config)
+        if rule.requires_ctf_config and context.ctf_config is None:
+            return CheckResult(
+                status=CheckStatus.SKIPPED,
+                code=rule.code,
+                level=rule.level,
+                message="CTF config required for this check",
+            )
+
+        if rule.repo_only and context.repo is None:
+            return CheckResult(
+                status=CheckStatus.SKIPPED,
+                code=rule.code,
+                level=rule.level,
+                message="Check is applicable only to challenges in a repository",
+            )
+
+        return rule.check(context)
 
     def lint(self, challenge_path: Path) -> LintResult:
         """Lint a challenge directory."""
@@ -277,7 +189,7 @@ def lint_challenge_repo(
     """
     repo = Repo.from_path(repo_path)
 
-    linter = Linter(repo.ctf_config, level, ignore)
+    linter = Linter(repo.ctf_config, repo, level, ignore)
 
     results = {}
 
