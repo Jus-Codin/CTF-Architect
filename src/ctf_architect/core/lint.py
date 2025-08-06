@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal, overload
 
-from ctf_architect.core.challenge import is_challenge_folder
-from ctf_architect.core.repo import load_repo_config
+from ctf_architect.core.repo import Repo
 from ctf_architect.core.rules import RULES
 from ctf_architect.models.ctf_config import CTFConfig
 from ctf_architect.models.lint import (
@@ -110,65 +108,31 @@ def lint_challenge(
     return linter.lint(challenge_path)
 
 
-@overload
 def lint_challenge_repo(
-    *,
-    by_category: Literal[False],
-    repo_path: Path | str | None = None,
+    repo_path: Path | str,
     level: SeverityLevel = SeverityLevel.INFO,
     ignore: list[str] | None = None,
-) -> dict[str, LintResult]: ...
-
-
-@overload
-def lint_challenge_repo(
-    *,
-    by_category: Literal[True],
-    repo_path: Path | str | None = None,
-    level: SeverityLevel = SeverityLevel.INFO,
-    ignore: list[str] | None = None,
-) -> dict[str, dict[str, LintResult]]: ...
-
-
-def lint_challenge_repo(
-    repo_path: Path | str | None = None,
-    level: SeverityLevel = SeverityLevel.INFO,
-    ignore: list[str] | None = None,
-    by_category: bool = False,
-) -> dict[str, LintResult] | dict[str, dict[str, LintResult]]:
-    """Lint a challenge repository.
+) -> dict[str, dict[str, LintResult]]:
+    """Lint all challenges in a repository.
 
     Args:
-        repo_path (Path | str | None, optional): The path to the repository. If not specified, the current directory is used. Defaults to None.
+        repo_path (Path | str): The path to the repository.
         level (SeverityLevel, optional): The severity level to lint at. Defaults to SeverityLevel.INFO.
         ignore (list[str], optional): The list of rules to ignore. Defaults to None.
-        by_category (bool, optional): Whether to return the results by category. Defaults to False.
 
     Returns:
-        dict[str, LintResult] | dict[str, dict[str, LintResult]]: The result of the linting.
+        dict[str, dict[str, LintResult]]: A dictionary mapping category names to dictionaries of challenge folder names and their lint results.
     """
-    if repo_path is None:
-        repo_path = Path.cwd()
-    elif isinstance(repo_path, str):
-        repo_path = Path(repo_path)
+    repo = Repo.from_path(repo_path)
 
-    ctf_config = load_repo_config(repo_path)
-
-    linter = Linter(ctf_config, level, ignore)
+    linter = Linter(repo.ctf_config, level, ignore)
 
     results = {}
 
-    for category in ctf_config.categories:
-        if by_category:
-            results[category] = {}
+    for category in repo.ctf_config.categories:
+        results[category] = {}
 
-        category_path = repo_path / "challenges" / category.lower()
-
-        for challenge_path in category_path.iterdir():
-            if challenge_path.is_dir() and is_challenge_folder(challenge_path):
-                if by_category:
-                    results[category][challenge_path.name] = linter.lint(challenge_path)
-                else:
-                    results[challenge_path.name] = linter.lint(challenge_path)
+        for challenge_path in repo.walk_chall_folders(category, skip_invalid=True):
+            results[category][challenge_path.name] = linter.lint(challenge_path)
 
     return results

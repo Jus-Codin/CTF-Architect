@@ -494,7 +494,7 @@ def lint(
 
     # Lint all challenges
     if challenges is None:
-        results = lint_challenge_repo(level=level, ignore=ignore, by_category=True)
+        results = lint_challenge_repo(Path.cwd(), level=level, ignore=ignore)
 
         failed_challenges = [
             result for category in results.values() for result in category.values() if result.failed or result.errors
