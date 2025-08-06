@@ -10,11 +10,11 @@
   {%- endfor %}
 {{ (distributions[category].values() | sum) ~ " |" }}
 {% endfor %}
-| **Total** |
+{{ "| **Total** | " }}
 {%- for difficulty in ctf_config.difficulties %}
-{{ distributions["total"].get(difficulty, 0) ~ " | " }}
+{{ distributions["_total"].get(difficulty, 0) ~ " | " }}
 {%- endfor %}
-{{ (distributions["total"].values() | sum) ~ " |" }}
+{{ (distributions["_total"].values() | sum) ~ " |" }}
 
 ## Challenges ({{ challenges | count}} total)
 {% if challenges | count == 0 %}
@@ -40,7 +40,7 @@ None
 | Service | Challenge | Category | Ports | Type |
 |---------|-----------|----------|-------|------|
 {% for service, challenge in services %}
-{{ "| [" ~ (service.name | truncate(30)) ~ "](<./" ~ challenge.category.lower() ~ "/" ~ challenge.folder_name ~ service.path.as_posix() ~ ">)"
+{{ "| [" ~ (service.name | truncate(30)) ~ "](<./" ~ challenge.category.lower() ~ "/" ~ challenge.folder_name ~ "/" ~ service.path.as_posix() ~ ">)"
    ~ " | [" ~ (challenge.name | truncate(30)) ~ "](<./" ~ challenge.category.lower() ~ "/" ~ challenge.folder_name ~ ">)"
    ~ " | " ~ (challenge.category | title)
    ~ " | " ~ (service.ports | join(", "))

@@ -24,7 +24,7 @@ None
 {% if challenge.files is not none %}
   {% for file in challenge.files %}
     {% if file is path_object %}
-- [{{ file.name }}](<{{ file.as_posix() }}>)
+- [{{ file.name }}](<./{{ file.as_posix() }}>)
     {% else %}
 - {{ file }}
     {% endif %}
@@ -49,6 +49,8 @@ None
 | Service | Ports | Type |
 | ------- | ----- | ---- |
   {% for service in challenge.services %}
-| [`{{ service.name }}`](<{{ service.path.as_posix() }}>) | {% if service.ports is not none %}{{ service.ports | join(', ') }}{% else %}None{% endif %} | {{ service.type }} |
+{{ "| [`" ~ service.name | truncate(30) ~ "`](<./" ~ service.path.as_posix() ~ ">)"
+   ~ " | " ~ (service.ports | join(", ") if service.ports is not none else "None")
+   ~ " | " ~ service.type | title  ~ " |" }}
   {% endfor %}
 {% endif %}

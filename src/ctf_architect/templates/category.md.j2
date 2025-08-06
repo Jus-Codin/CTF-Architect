@@ -31,7 +31,7 @@ None
 | Service | Challenge | Ports | Type |
 |---------|-----------|-------|------|
 {% for service, challenge in services %}
-{{ "| [" ~ (service.name | truncate(30)) ~ "](<./" ~ challenge.folder_name ~ service.path.as_posix() ~ ">)"
+{{ "| [" ~ (service.name | truncate(30)) ~ "](<./" ~ challenge.folder_name ~ "/" ~ service.path.as_posix() ~ ">)"
    ~ " | [" ~ (challenge.name | truncate(30)) ~ "](<./" ~ challenge.folder_name ~ ">)"
    ~ " | " ~ (service.ports | join(", "))
    ~ " | " ~ (service.type | title)  ~ " |"
