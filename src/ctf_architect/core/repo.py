@@ -20,6 +20,7 @@ from ctf_architect.core.exceptions import (
     InvalidChallengeFolderError,
     NotInChallengeRepositoryError,
 )
+from ctf_architect.core.readme import render_category_readme, render_repo_readme
 from ctf_architect.models.challenge import ChallengeConfig
 from ctf_architect.models.ctf_config import ConfigFile, CTFConfig
 from ctf_architect.version import CTF_CONFIG_SPEC_VERSION
@@ -365,6 +366,11 @@ class Repo:
         self.ctf_config = ctf_config
         self.initialized = initialized
 
+    @property
+    def challenges_path(self) -> Path:
+        """Returns the path to the challenges directory."""
+        return self.path / "challenges"
+
     @staticmethod
     def load_config(path: str | Path) -> CTFConfig:
         """Loads the CTF config from the specified path.
@@ -454,6 +460,19 @@ class Repo:
         """Refreshes the CTF config by reloading it from the repository."""
         self.ctf_config = self.load_config(self.path)
 
+    def get_category_path(self, category: str) -> Path:
+        """Returns the path to the specified category in the challenges directory.
+
+        Args:
+            category (str): The category to get the path for.
+
+        Returns:
+            Path: The path to the specified category.
+        """
+        if category.lower() not in self.ctf_config.categories:
+            raise InvalidCategoryError(f"Category {category} not in CTF config")
+        return self.challenges_path / category.lower()
+
     def walk_chall_folders(self, category: str | None = None, *, skip_invalid: bool = True) -> Generator[Path]:
         """Walks through the challenge folders in the repository.
 
@@ -466,8 +485,6 @@ class Repo:
         Yields:
             Generator[Path]: The paths to the valid challenge folders.
         """
-        challenges_path = self.path / "challenges"
-
         if category is not None:
             # Check if the category exists in the CTF config
             if category.lower() not in self.ctf_config.categories:
@@ -477,9 +494,10 @@ class Repo:
             categories = self.ctf_config.categories
 
         for category in categories:
-            if not (challenges_path / category).exists():
+            category_path = self.get_category_path(category)
+            if not category_path.exists():
                 continue
-            for directory in (challenges_path / category).iterdir():
+            for directory in category_path.iterdir():
                 if directory.is_dir():
                     if not is_challenge_folder(directory):
                         if skip_invalid:
@@ -745,5 +763,88 @@ class Repo:
             raise ValueError("Must specify one of name, folder, or challenge to remove")
 
         shutil.rmtree(folder)
+
+    def _calculate_difficulty_distribution(self, challenges: list[ChallengeConfig]) -> dict[str, int]:
+        """Calculates the difficulty distribution of a given list of challenges.
+
+        Args:
+            challenges (list[ChallengeConfig]): The list of challenges to calculate the distribution for.
+
+        Returns:
+            dict[str, int]: A dictionary mapping difficulty levels to their counts.
+        """
+        # TODO: Consider moving this to a utility function or method instead
+        distribution = {difficulty: 0 for difficulty in self.ctf_config.difficulties}
+        for challenge in challenges:
+            distribution[challenge.difficulty] += 1
+        return distribution
+
+    def get_category_readme(self, category: str) -> str:
+        """Generates the README for a specific category.
+
+        Args:
+            category (str): The category to generate the README for.
+
+        Returns:
+            str: The generated README content for the specified category.
+        """
+        if not self.initialized:
+            raise RuntimeError(
+                "Cannot generate category README from an uninitialized repository. Please initialize the repository first."
+            )
+
+        challenges = []
+        services = []
+        for challenge in self.walk_challenges(category=category, skip_invalid=True):
+            challenges.append(challenge.config)
+            if challenge.config.services is not None:
+                for service in challenge.config.services:
+                    services.append((service, challenge.config))
+
+        distribution = self._calculate_difficulty_distribution(challenges)
+
+        return render_category_readme(
+            category_name=category,
+            ctf_config=self.ctf_config,
+            distribution=distribution,
+            challenges=challenges,
+            services=services,
+        )
+
+    def get_repo_readme(self) -> str:
+        """Generates the repository README.
+
+        Returns:
+            str: The generated README content for the repository.
+        """
+        if not self.initialized:
+            raise RuntimeError(
+                "Cannot generate repository README from an uninitialized repository. Please initialize the repository first."
+            )
+
+        distributions = {}
+        challenges = []
+        services = []
+        for category in self.ctf_config.categories:
+            distributions[category] = {}
+            for challenge in self.walk_challenges(category=category, skip_invalid=True):
+                diff = challenge.config.difficulty
+                distributions[category][diff] = distributions[category].get(diff, 0) + 1
+                challenges.append(challenge.config)
+                if challenge.config.services is not None:
+                    for service in challenge.config.services:
+                        services.append((service, challenge.config))
+
+        # Compute total distribution
+        distributions["_total"] = {
+            diff: sum(d.get(diff, 0) for d in distributions.values()) for diff in self.ctf_config.difficulties
+        }
+
+        return render_repo_readme(
+            ctf_config=self.ctf_config,
+            distributions=distributions,
+            challenges=challenges,
+            services=services,
+        )
 
     # TODO: Implement method to initialize a new challenge repo
