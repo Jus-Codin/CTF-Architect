@@ -8,6 +8,7 @@ from pathlib import Path
 from tomlkit import comment, document, dump, load, nl
 
 from ctf_architect.constants import CHALLENGE_CONFIG_FILE, CHALLENGE_CONFIG_HEADER
+from ctf_architect.core.readme import render_challenge_readme
 from ctf_architect.models.challenge import ChallengeConfig, ChallengeFile
 from ctf_architect.version import CHALLENGE_SPEC_VERSION
 
@@ -198,7 +199,9 @@ class Challenge:
         else:
             readme_fp = path / "README.md"
 
-        readme_fp.write_text(challenge_config.readme, encoding="utf-8")
+        readme_content = render_challenge_readme(challenge_config)
+
+        readme_fp.write_text(readme_content, encoding="utf-8")
 
     @classmethod
     def from_path(cls, path: str | Path) -> Challenge:

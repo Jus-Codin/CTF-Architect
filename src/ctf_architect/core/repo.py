@@ -847,4 +847,31 @@ class Repo:
             services=services,
         )
 
+    def save_category_readme(self, category: str) -> None:
+        """Saves the README for a specific category to the category folder.
+
+        Args:
+            category (str): The category to save the README for.
+        """
+        if not self.initialized:
+            raise RuntimeError(
+                "Cannot save category README from an uninitialized repository. Please initialize the repository first."
+            )
+
+        readme_content = self.get_category_readme(category)
+        category_path = self.get_category_path(category)
+        readme_fp = category_path / "README.md"
+        readme_fp.write_text(readme_content, encoding="utf-8")
+
+    def save_repo_readme(self) -> None:
+        """Saves the repository README to the root of the repository."""
+        if not self.initialized:
+            raise RuntimeError(
+                "Cannot save repository README from an uninitialized repository. Please initialize the repository first."
+            )
+
+        readme_content = self.get_repo_readme()
+        readme_fp = self.challenges_path / "README.md"
+        readme_fp.write_text(readme_content, encoding="utf-8")
+
     # TODO: Implement method to initialize a new challenge repo
