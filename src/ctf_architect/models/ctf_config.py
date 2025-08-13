@@ -41,7 +41,7 @@ class CTFConfig(Model):
         extras (list[ExtraField] | None): The list of extra fields for challenges in the CTF.
     """
 
-    categories: list[Annotated[str, StringConstraints(to_lower=True)]]
+    categories: list[Annotated[str, StringConstraints(to_lower=True, min_length=1, pattern="^[a-zA-Z]+$")]]
     difficulties: list[str]
     flag_format: str | None = None
     starting_port: int | None = None
