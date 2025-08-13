@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from ctf_architect.models.challenge import ChallengeConfig, ChallengeFile, Flag, Hint, Service
+from ctf_architect.models.challenge import ChallengeConfig, ChallengeFile, Flag, Hint, NetworkConfig, Service
 from ctf_architect.version import CHALLENGE_SPEC_VERSION
 
 
@@ -18,9 +18,6 @@ from ctf_architect.version import CHALLENGE_SPEC_VERSION
 )
 def test_flag_initialization(flag, regex, case_insensitive):
     """Test the Flag model with various flag configurations."""
-    if regex is None:
-        flag_instance = Flag(flag=flag)
-
     flag_instance = Flag(flag=flag, regex=regex, case_insensitive=case_insensitive)
     assert flag_instance.flag == flag
     assert flag_instance.regex is regex
@@ -197,6 +194,7 @@ def challenge_data():
                 "extras": None,
             }
         ],
+        "networks": {"test-network-name": {"internal": True, "extras": {"com.docker.driver": "bridge"}}},
     }
 
 
@@ -224,6 +222,12 @@ def test_challenge_initialization(challenge_data):
     assert len(challenge.services) == 1
     assert challenge.services[0] == Service(
         name="test_service", path=Path("/path/to/service"), ports=[8080], type="web"
+    )
+
+    assert isinstance(challenge.networks, dict)
+    assert len(challenge.networks) == 1
+    assert challenge.networks["test-network-name"] == NetworkConfig(
+        internal=True, extras={"com.docker.driver": "bridge"}
     )
 
 
@@ -273,16 +277,45 @@ def test_challenge_ensure_folder_name():
     assert challenge.folder_name == "Baby Shark"
 
 
+def test_challenge_network_name_validation():
+    """Test that the network name is validated correctly."""
+    network_config = NetworkConfig(internal=True, extras={"com.docker.driver": "bridge"})
+
+    with pytest.raises(ValidationError, match="String should match pattern"):
+        ChallengeConfig(
+            author="test_author",
+            category="test_category",
+            description="This is a test challenge",
+            difficulty="easy",
+            name="test_challenge",
+            folder_name="test_challenge",
+            networks={"inv@lid-network-name": network_config},  # Invalid network name
+        )
+
+    # Valid network name
+    challenge = ChallengeConfig(
+        author="test_author",
+        category="test_category",
+        description="This is a test challenge",
+        difficulty="easy",
+        name="test_challenge",
+        folder_name="test_challenge",
+        networks={"valid-network-name_123": network_config},  # Valid network name
+    )
+    assert isinstance(challenge.networks, dict)
+    assert challenge.networks["valid-network-name_123"] == network_config
+
+
 @pytest.mark.parametrize(
     ("category", "folder_name", "expected_network_name"),
     [
-        ("underscore_category", "underscore_folder", "underscore_category-underscore_folder-network"),
-        ("hypen-category", "hypen-folder", "hypen-category-hypen-folder-network"),
-        ("space category", "space folder", "space-category-space-folder-network"),
-        ("mixed_category", "Mixed Folder", "mixed_category-mixed-folder-network"),
+        ("underscore_category", "underscore_folder", "underscore_category-underscore_folder-default"),
+        ("hypen-category", "hypen-folder", "hypen-category-hypen-folder-default"),
+        ("space category", "space folder", "space-category-space-folder-default"),
+        ("mixed_category", "Mixed Folder", "mixed_category-mixed-folder-default"),
     ],
 )
-def test_challenge_network_name(category, folder_name, expected_network_name):
+def test_challenge_default_network_name(category, folder_name, expected_network_name):
     """Test the network name generation for a challenge."""
     challenge = ChallengeConfig(
         author="test_author",
@@ -292,7 +325,7 @@ def test_challenge_network_name(category, folder_name, expected_network_name):
         name="test_challenge",
         folder_name=folder_name,
     )
-    assert challenge.network_name == expected_network_name
+    assert challenge.default_network_name == expected_network_name
 
 
 def test_challenge_repo_path():

@@ -46,6 +46,8 @@ class Hint(Model):
     requirements: list[int] | None = None
 
 
+SlugStr = Annotated[str, StringConstraints(pattern=r"^[a-z][a-z0-9_-]*$")]
+"""A unique identifier string for a service or network. Must follow the pattern `^[a-z][a-z0-9_-]*$`"""
 PortInt = Annotated[int, Field(ge=1, le=65535)]
 
 
@@ -57,13 +59,15 @@ class Service(Model):
         path (Path): The path to the service.
         ports (list[int], optional): The list of ports of the service. Allowed to be unspecified if the service is internal.
         type (Literal["web", "tcp", "ssh", "secret", "internal"]): The type of the service.
+        networks (list[SlugStr], optional): The list of networks the service is connected to. Defaults to None.
         extras (dict[str, Any], optional): The extra information about the service to be passed to the docker compose file. Defaults to None.
     """
 
-    name: Annotated[str, StringConstraints(pattern=r"^[a-z][a-z0-9_-]*$")]
+    name: SlugStr
     path: Path
     ports: Annotated[list[PortInt], Field(min_length=1)] | None = None
     type: Literal["web", "tcp", "ssh", "secret", "internal"]
+    networks: list[SlugStr] | None = None
     extras: dict[str, Any] | None = None
 
     @model_validator(mode="after")
@@ -90,6 +94,18 @@ class Service(Model):
         return f"{challenge.category}-{challenge.folder_name}-{self.name}".lower().replace(" ", "-")
 
 
+class NetworkConfig(Model):
+    """Represents a network configuration for a challenge's services.
+
+    Attributes:
+        internal (bool): Specifies whether the network is internal.
+        extras (dict[str, Any] | None): Extra vendor-specific options for the network, such as network driver for Docker.
+    """
+
+    internal: bool = False
+    extras: dict[str, Any] | None = None
+
+
 class ChallengeConfig(Model):
     """Represents a challenge config.
 
@@ -106,6 +122,7 @@ class ChallengeConfig(Model):
         flags (list[Flag]): The list of flags for the challenge.
         hints (list[Hint], optional): The list of hints for the challenge.
         services (list[Service], optional): The list of services for the challenge.
+        networks (dict[str, NetworkConfig], optional): The networks for the challenge's services.
     """
 
     author: str
@@ -120,6 +137,7 @@ class ChallengeConfig(Model):
     flags: Annotated[list[Flag], Field(min_length=1)] | None = None
     hints: Annotated[list[Hint], Field(min_length=1)] | None = None
     services: Annotated[list[Service], Field(min_length=1)] | None = None
+    networks: Annotated[dict[SlugStr, NetworkConfig], Field(min_length=1)] | None = None
 
     @model_validator(mode="after")
     def _ensure_folder_name(self) -> ChallengeConfig:
@@ -137,8 +155,9 @@ class ChallengeConfig(Model):
         return [file.as_posix() if isinstance(file, Path) else str(file) for file in files]
 
     @property
-    def network_name(self) -> str:
-        return f"{self.category}-{self.folder_name}-network".lower().replace(" ", "-")
+    def default_network_name(self) -> str:
+        """The default network name for the challenge."""
+        return f"{self.category}-{self.folder_name}-default".lower().replace(" ", "-")
 
     @property
     def repo_path(self) -> Path:

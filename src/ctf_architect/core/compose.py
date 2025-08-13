@@ -149,7 +149,7 @@ def create_compose_dicts() -> tuple[dict, dict | None]:
 
     for challenge in walk_challenges():
         if challenge.services is not None:
-            network_name = challenge.network_name
+            network_name = challenge.default_network_name
 
             # Check if the challenge has a Compose file in its service directory
             compose_file = get_compose_file_path(challenge.repo_path / "service")
