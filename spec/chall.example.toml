@@ -123,10 +123,19 @@ requirements = 0
 #                This is useful for challenges where the service must be discovered by the player
 #   - internal : An internal service, does not need to expose a port, and will not be shown in the challenge info
 #                This is useful for challenges where the service should not be accessed directly, i.e. web admin bots
+# Services can optional specify the following fields:
+# - networks: The list of networks the service is connected to. The network must be specified in `challenge.networks`.
+#             The `challenge_default` special identifier can be used to connect to the challenge's default network
+#             A service will be automatically connected to the default network if:
+#             - It is an internal service with no specified networks
+#             - It is a non-internal service with no specified non-internal networks
 
 # Example service
 [[challenge.services]]
 name  = "service1"
+networks = ["example-net"]
+# If the service should also connect to the default network, it can be specified here
+#networks = ["example-net", "challenge_default"]
 path  = "service1"
 ports = [1337]
 type  = "web"
@@ -134,3 +143,34 @@ type  = "web"
 # Extra service info
 [challenge.services.extras]
 privileged = true  # Make the docker container privileged
+
+
+# Example internal service
+[[challenge.services]]
+name = "service2"
+# By default, internal services are connected to the default network
+# if networks are specified, it will only connect to those
+networks = ["example-net-internal"]
+# The internal service can also connect to the common default network using `challenge_default`
+#networks = ["example-net-internal", "challenge_default"]
+path = "service2"
+ports = [1338] # Internal services' ports will not be mapped
+type = "internal"
+
+
+# ------------------------ Challenge Networks (optional) -------------------------
+# Specifies the networks that are used by services
+# Internal networks are only accessible by other services within the same internal network.
+# They are also unable to access the internet or other networks.
+
+# Example public network
+[challenge.networks.example-net]
+internal = false
+
+# Example internal network
+[challenge.networks.example-net-internal]
+internal = true
+
+# To configure the default network, use the `challenge_default` special identifier
+[challenge.networks.challenge_default]
+extras = { "com.docker.driver" = "bridge" }  # Example extra configuration for the default network
