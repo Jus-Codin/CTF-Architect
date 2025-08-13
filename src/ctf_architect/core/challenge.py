@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import shutil
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from tomlkit import comment, document, dump, load, nl
 
@@ -321,3 +322,78 @@ class Challenge:
         self.config = self.load_config(self.path)
 
     # TODO: Implement method to initialize a new challenge folder given a ChallengeConfig
+    @classmethod
+    def new(cls, path: str | Path, challenge_config: ChallengeConfig) -> Challenge:
+        """Creates a new challenge folder at the specified path.
+
+        NOTE: This function does not create the src and solution paths defined in the specification, as they are not actually
+              managed by the API. You should create these folders manually.
+
+        Args:
+            path (str | Path): The path to create the challenge folder at.
+            challenge_config (ChallengeConfig): The challenge config to use for the new challenge.
+
+        Returns:
+            Challenge: A new Challenge instance pointing to the created folder.
+        """
+        if isinstance(path, str):
+            path = Path(path)
+
+        if path.is_file():
+            raise NotADirectoryError(f'"{path.absolute()}" is not a directory')
+
+        # Prepare the target path for challenge initialization
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+
+        # To ensure atomicity, we perform all our operations in a tempdir
+        # and then move the tempdir to the final location
+        with TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+
+            if challenge_config.files is not None:
+                _dist_files = []
+
+                for dist_file in challenge_config.files:
+                    if isinstance(dist_file, Path):
+                        # Validate the file
+                        if not dist_file.exists():
+                            raise FileNotFoundError(f"The file {dist_file.absolute()} does not exist.")
+
+                        if not dist_file.is_file():
+                            raise FileNotFoundError(f"The file {dist_file.absolute()} is not a valid file.")
+
+                        # Create the dist folder if it doesn't exist
+                        if not (temp_path / "dist").exists():
+                            (temp_path / "dist").mkdir()
+
+                        shutil.copy(dist_file, temp_path / "dist")
+
+                        # We need to change the file path to one relative to the folder root
+                        _dist_files.append((temp_path / "dist" / dist_file.name).relative_to(temp_path))
+                    else:
+                        # Just append if it's a URL
+                        _dist_files.append(dist_file)
+
+                challenge_config.files = _dist_files
+
+            if challenge_config.services is not None:
+                (temp_path / "services").mkdir()
+
+                for service in challenge_config.services:
+                    if not service.path.exists():
+                        raise FileNotFoundError(f"The service file {service.path.absolute()} does not exist.")
+
+                    if not service.path.is_dir():
+                        raise NotADirectoryError(f"The service file {service.path.absolute()} is not a directory.")
+
+                    # Copy the service files to the temp directory
+                    shutil.copytree(service.path, temp_path / "services" / service.name)
+
+                    # Update the service path
+                    service.path = (temp_path / "services" / service.name).relative_to(temp_path)
+
+            chall = cls(temp_path, challenge_config, initialized=True)
+            chall.save_all()
+
+            return chall.move_to(path)

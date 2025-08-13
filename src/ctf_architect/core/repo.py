@@ -380,7 +380,7 @@ class Repo:
         """Writes the CTF config to the specified path.
 
         If the path is a file, it will be used as the config file.
-        If the path is a directory, it will write the config to a `ctf_config
+        If the path is a directory, it will write the config to `ctf_config.toml`
 
         Args:
             path (str | Path): The folder or file to write the CTF config to.
@@ -852,4 +852,40 @@ class Repo:
         readme_fp = self.challenges_path / "README.md"
         readme_fp.write_text(readme_content, encoding="utf-8")
 
-    # TODO: Implement method to initialize a new challenge repo
+    @classmethod
+    def new(cls, path: str | Path, ctf_config: CTFConfig, config_file_only: bool = False) -> Repo:
+        """Creates a new challenge repository at the specified path.
+
+        Args:
+            path (str | Path): The path to create the new repository at.
+            ctf_config (CTFConfig): The CTF config object for the new repository.
+            config_file_only (bool, optional): If True, only creates the CTF config file without the challenges directory. Defaults to False.
+
+        Returns:
+            Repo: The newly created Repo instance.
+        """
+        if isinstance(path, str):
+            path = Path(path)
+
+        if not path.is_dir():
+            raise NotADirectoryError(f'"{path.absolute()}" is not a directory')
+
+        cls.write_config(path, ctf_config)
+
+        if config_file_only:
+            return cls(path, ctf_config, initialized=False)
+
+        repo = cls(path, ctf_config, initialized=True)
+
+        challenges_path = path / "challenges"
+        challenges_path.mkdir(parents=True, exist_ok=True)
+
+        # Create the folders for each category and initialize the readme
+        for category in ctf_config.categories:
+            (challenges_path / category).mkdir(parents=True, exist_ok=True)
+            repo.save_category_readme(category)
+
+        # Initialize the root readme
+        repo.save_repo_readme()
+
+        return repo
