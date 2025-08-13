@@ -8,7 +8,7 @@ from cyclopts import App, Parameter
 from ctf_architect.cli.ui.console import console
 from ctf_architect.cli.ui.prompts import confirm
 from ctf_architect.core.compose import create_compose_files, get_compose_file_path
-from ctf_architect.core.repo import is_challenge_repo
+from ctf_architect.utils import is_challenge_repo
 
 app = App(
     name="compose",

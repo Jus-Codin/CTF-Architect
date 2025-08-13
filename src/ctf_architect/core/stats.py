@@ -10,9 +10,10 @@ from ctf_architect.constants import (
     MAX_NAME_LENGTH,
     ROOT_README_TEMPLATE,
 )
-from ctf_architect.core.challenge import is_challenge_folder, load_chall_config
+from ctf_architect.core.challenge import load_chall_config
 from ctf_architect.core.exceptions import InvalidCategoryError
 from ctf_architect.core.repo import load_repo_config, walk_challenge_folders
+from ctf_architect.utils import is_challenge_folder
 
 
 def get_category_difficulty_distribution(name: str) -> dict[str, int]:

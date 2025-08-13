@@ -34,11 +34,12 @@ from ctf_architect.cli.validators import (
     valid_port,
     valid_service_name,
 )
-from ctf_architect.core.challenge import is_challenge_folder, load_chall_config, write_chall_config, write_chall_readme
+from ctf_architect.core.challenge import load_chall_config, write_chall_config, write_chall_readme
 from ctf_architect.core.initialize import init_chall
 from ctf_architect.core.lint import SeverityLevel, lint_challenge
 from ctf_architect.core.repo import load_repo_config
 from ctf_architect.models.ctf_config import CTFConfig
+from ctf_architect.utils import is_challenge_folder
 
 app = App(
     name="chall",

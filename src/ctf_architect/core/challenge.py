@@ -10,25 +10,8 @@ from tomlkit import comment, document, dump, load, nl
 from ctf_architect.constants import CHALLENGE_CONFIG_FILE, CHALLENGE_CONFIG_HEADER
 from ctf_architect.core.readme import render_challenge_readme
 from ctf_architect.models.challenge import ChallengeConfig, ChallengeFile
+from ctf_architect.utils import is_challenge_folder
 from ctf_architect.version import CHALLENGE_SPEC_VERSION
-
-
-def is_challenge_folder(path: str | Path) -> bool:
-    """Checks if the specified folder is a challenge folder.
-
-    If it has a Challenge Config file, it is considered a challenge folder.
-
-    Args:
-        path (str | Path): The path to the folder to check.
-
-    Returns:
-        bool: True if the folder is a challenge folder, False otherwise.
-    """
-    for file in Path(path).iterdir():
-        if file.name.lower() == CHALLENGE_CONFIG_FILE:
-            return True
-
-    return False
 
 
 def load_chall_config(path: str | Path) -> ChallengeConfig:

@@ -26,7 +26,6 @@ from ctf_architect.cli.ui.prompts import (
 )
 from ctf_architect.cli.validators import no_empty_string, valid_port
 from ctf_architect.constants import CTF_CONFIG_FILE
-from ctf_architect.core.challenge import is_challenge_folder
 from ctf_architect.core.exceptions import ChallengeExistsError
 from ctf_architect.core.initialize import init_repo_from_config, init_repo_no_config
 from ctf_architect.core.lint import LintResult, SeverityLevel, lint_challenge, lint_challenge_repo
@@ -34,10 +33,10 @@ from ctf_architect.core.repo import (
     add_challenge,
     find_challenge,
     find_challenge_folder,
-    is_challenge_repo,
     load_repo_config,
 )
 from ctf_architect.core.stats import update_category_readme, update_root_readme
+from ctf_architect.utils import is_challenge_folder, is_challenge_repo
 
 app = App(
     name="repo",

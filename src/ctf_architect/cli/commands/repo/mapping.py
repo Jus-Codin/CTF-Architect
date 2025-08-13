@@ -13,7 +13,7 @@ from ctf_architect.core.port_mapping import (
     load_port_mapping,
     save_port_mapping,
 )
-from ctf_architect.core.repo import is_challenge_repo
+from ctf_architect.utils import is_challenge_repo
 
 app = App(
     name="mapping",
