@@ -11,7 +11,7 @@ from tomlkit import comment, document, dump, load, nl
 from ctf_architect.constants import CHALLENGE_CONFIG_FILE, CHALLENGE_CONFIG_HEADER
 from ctf_architect.core.readme import render_challenge_readme
 from ctf_architect.models.challenge import ChallengeConfig, ChallengeFile
-from ctf_architect.utils import is_challenge_folder
+from ctf_architect.utils import copy_into, is_challenge_folder
 from ctf_architect.version import CHALLENGE_SPEC_VERSION
 
 
@@ -321,17 +321,23 @@ class Challenge:
 
         self.config = self.load_config(self.path)
 
-    # TODO: Implement method to initialize a new challenge folder given a ChallengeConfig
     @classmethod
-    def new(cls, path: str | Path, challenge_config: ChallengeConfig) -> Challenge:
+    def new(
+        cls,
+        path: str | Path,
+        challenge_config: ChallengeConfig,
+        extra_files: list[tuple[str | Path, str | Path]] | None = None,
+    ) -> Challenge:
         """Creates a new challenge folder at the specified path.
 
         NOTE: This function does not create the src and solution paths defined in the specification, as they are not actually
-              managed by the API. You should create these folders manually.
+              managed by the API. You should specify them in the extra_files argument.
 
         Args:
             path (str | Path): The path to create the challenge folder at.
             challenge_config (ChallengeConfig): The challenge config to use for the new challenge.
+            extra_files (list[tuple[str | Path, str | Path]], optional): A list of tuples mapping source paths to destination paths for extra files or directories to include in the challenge.
+                                                                         For security reasons, the destination path must be a relative path that resolves to a subdirectory within the challenge folder.
 
         Returns:
             Challenge: A new Challenge instance pointing to the created folder.
@@ -392,6 +398,9 @@ class Challenge:
 
                     # Update the service path
                     service.path = (temp_path / "services" / service.name).relative_to(temp_path)
+
+            if extra_files is not None:
+                copy_into(temp_path, extra_files)
 
             chall = cls(temp_path, challenge_config, initialized=True)
             chall.save_all()

@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 from ctf_architect.constants import CHALLENGE_CONFIG_FILE, CTF_CONFIG_FILE
@@ -46,3 +47,37 @@ def is_challenge_folder(path: str | Path) -> bool:
             return True
 
     return False
+
+
+def copy_into(path: str | Path, targets: list[tuple[str | Path, str | Path]]) -> None:
+    """Copies files or directories into the specified path.
+
+    The destination paths must be a relative path that resolves to a file or directory in the destination folder.
+
+    Args:
+        path (Path): The destination path to copy into.
+        targets (list[tuple[str | Path, str | Path]]): A list of tuples where each tuple contains the source and destination paths.
+    """
+    if isinstance(path, str):
+        path = Path(path)
+
+    for src, dst in targets:
+        src = Path(src)
+        dst = Path(dst)
+
+        if not src.exists():
+            raise FileNotFoundError(f"The source file {src.absolute()} does not exist.")
+
+        # Security checks
+        if dst.is_absolute() or path not in (path / dst).resolve().parents:
+            raise ValueError(f"Invalid destination path: {dst.absolute()}")
+
+        target = path / dst
+
+        # Ensure destination exists
+        target.parent.mkdir(parents=True, exist_ok=True)
+
+        if src.is_file():
+            shutil.copy(src, target)
+        elif src.is_dir():
+            shutil.copytree(src, target, dirs_exist_ok=True)
