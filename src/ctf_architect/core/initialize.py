@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-import shutil
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Literal, TypedDict
 
 from ctf_architect.core.challenge import Challenge
-from ctf_architect.models.challenge import ChallengeConfig, Flag, Hint, Service
+from ctf_architect.models.challenge import ChallengeConfig
 
 
 class FlagDict(TypedDict):
@@ -33,6 +31,7 @@ class ServiceDict(TypedDict):
 
 
 def init_chall(
+    target_dir: str | Path,
     author: str,
     category: str,
     description: str,
@@ -47,7 +46,6 @@ def init_chall(
     extras: dict[str, str | int | float | bool] | None = None,
     hints: list[HintDict] | None = None,
     services: list[ServiceDict] | None = None,
-    target_dir: str | Path | None = None,
 ):
     """Initialize a new challenge.
 
@@ -68,129 +66,51 @@ def init_chall(
         hints (list[HintDict] | None, optional): The list of hints for the challenge. Defaults to None.
         services (list[ServiceDict] | None, optional): The list of services for the challenge. Defaults to None.
     """
-    if target_dir is not None:
-        if isinstance(target_dir, str):
-            target_dir = Path(target_dir)
+    kwargs = {
+        "author": author,
+        "category": category,
+        "description": description,
+        "difficulty": difficulty,
+        "name": name,
+        "files": dist_files,
+        "requirements": requirements,
+        "extras": extras,
+        "flags": flags,
+        "hints": hints,
+        "services": services,
+    }
 
-        if target_dir.exists():
-            if target_dir.is_file():
-                raise IsADirectoryError(f'"{target_dir}" is a file.')
-            elif any(target_dir.iterdir()):
-                raise NotADirectoryError(f'"{target_dir}" is not empty.')
-        else:
-            target_dir.mkdir(parents=True, exist_ok=True)
+    if folder_name is not None:
+        kwargs["folder_name"] = folder_name
 
-    # TODO: Do I even need to validate this here???
-    _flags = [Flag.model_validate(flag) for flag in flags]
+    extra_files = []
 
-    if hints is None:
-        _hints = None
-    else:
-        _hints = [Hint.model_validate(hint) for hint in hints]
+    if source_files is not None:
+        for file in source_files:
+            if not file.exists():
+                raise FileNotFoundError(f'Source file "{file}" does not exist.')
 
-    with TemporaryDirectory() as temp_dir:
-        temp_path = Path(temp_dir)
+            if file.is_file():
+                extra_files.append((file, Path("src") / file.name))
+            else:
+                extra_files.append((file, Path("src")))
 
-        if dist_files is not None:
-            (temp_path / "dist").mkdir()
+    if solution_files is not None:
+        for file in solution_files:
+            if not file.exists():
+                raise FileNotFoundError(f'Solution file "{file}" does not exist.')
 
-            _files = []
-            for file in dist_files:
-                if isinstance(file, Path):
-                    if not file.exists():
-                        raise FileNotFoundError(f'File "{file}" does not exist.')
+            if file.is_file():
+                extra_files.append((file, Path("solution") / file.name))
+            else:
+                extra_files.append((file, Path("solution")))
 
-                    if not file.is_file():
-                        raise IsADirectoryError(f'"{file}" is a directory.')
+    if not extra_files:
+        extra_files = None
 
-                    shutil.copy(file, temp_path / "dist")
-                    _files.append((temp_path / "dist" / file.name).relative_to(temp_path))
-                else:
-                    # TODO: Validate the URL
-                    _files.append(file)
-        else:
-            _files = None
+    chall_config = ChallengeConfig.model_validate(kwargs)
 
-        if source_files is not None:
-            (temp_path / "src").mkdir()
+    chall = Challenge.new(target_dir, challenge_config=chall_config, extra_files=extra_files)
 
-            for file in source_files:
-                if not file.exists():
-                    raise FileNotFoundError(f'File "{file}" does not exist.')
-
-                if file.is_file():
-                    shutil.copy(file, temp_path / "src")
-                else:
-                    shutil.copytree(file, temp_path / "src" / file.name)
-
-        (temp_path / "solution").mkdir()
-
-        if solution_files is None:
-            (temp_path / "solution" / "writeup.md").touch()
-        else:
-            create_writeup_md = True
-
-            for file in solution_files:
-                if not file.exists():
-                    raise FileNotFoundError(f'File "{file}" does not exist.')
-
-                if file.is_file():
-                    shutil.copy(file, temp_path / "solution")
-                else:
-                    shutil.copytree(file, temp_path / "solution" / file.name)
-
-                if file.name == "writeup.md":
-                    create_writeup_md = False
-
-            if create_writeup_md:
-                (temp_path / "solution" / "writeup.md").touch()
-
-        if services is not None:
-            (temp_path / "service").mkdir()
-
-            _services = []
-            for service in services:
-                _service = Service.model_validate(service)
-
-                if not _service.path.exists():
-                    raise FileNotFoundError(f'Service folder "{_service.path}" does not exist.')
-
-                if not _service.path.is_dir():
-                    raise NotADirectoryError(f'"{_service.path}" is not a directory.')
-
-                shutil.copytree(_service.path, temp_path / "service" / _service.path.name)
-                _service.path = (temp_path / "service" / _service.path.name).relative_to(temp_path)
-
-                _services.append(_service)
-        else:
-            _services = None
-
-        kwargs = {
-            "author": author,
-            "category": category,
-            "description": description,
-            "difficulty": difficulty,
-            "name": name,
-            "files": _files,
-            "requirements": requirements,
-            "extras": extras,
-            "flags": _flags,
-            "hints": _hints,
-            "services": _services,
-        }
-
-        if folder_name is not None:
-            kwargs["folder_name"] = folder_name
-
-        chall = ChallengeConfig.model_validate(kwargs)
-
-        Challenge.write_config(temp_path, chall)
-        Challenge.write_readme(temp_path, chall)
-
-        if target_dir is None:
-            target_dir = Path(chall.folder_name)
-            # Ensure directory exists
-            target_dir.mkdir(parents=True, exist_ok=True)
-
-        for file in temp_path.iterdir():
-            shutil.move(file, target_dir / file.name)
+    if solution_files is None:
+        (chall.path / "solution" / "writeup.md").touch()
