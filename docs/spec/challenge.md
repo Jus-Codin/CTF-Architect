@@ -13,7 +13,7 @@
     │   ├── 📁 {service_name}/
     │   │   ├── 📄...
     │   │   └── 🐋 Dockerfile
-    │   └── 🐋 compose.yml (optional)
+    │   └── 🐋 compose.yml (local testing only)
     ├── 📁 solution/
     │   └── 📄...
     ├── 📄 chall.toml
@@ -26,7 +26,7 @@
 | `dist/` | Directory containing the challenge files to give to users attempting the challenge. |
 | `service/` | Directory containing the services for challenges that require hosting. |
 | `service/{service_name}/` | Directory containing the files for the service. This folder must contain a `Dockerfile` |
-| `service/compose.yml` | Docker Compose file to run the services. Useful if extra configurations in the compose file is needed for the challenge to work. This file will be added directly to the root compose file in the repo using the [`include`](https://docs.docker.com/compose/multiple-compose-files/include/) element. |
+| `service/compose.yml` | Docker Compose file to run the services locally. This should only be used for testing and will not contribute to the actual deployment of the services. |
 | `solution/` | Directory containing the solution files for the challenge. This is used to assist testing, not for giving to users attempting the challenge. |
 | `chall.toml` | TOML file containing the metadata for the challenge. This is generated automatically. |
 | `README.md` | Markdown file containing a text summary of the challenge's details. This is generated automatically.` |
@@ -160,17 +160,58 @@ requirements = 0
 #                This is useful for challenges where the service must be discovered by the player
 #   - internal : An internal service, does not need to expose a port, and will not be shown in the challenge info
 #                This is useful for challenges where the service should not be accessed directly, i.e. web admin bots
+# Services can optional specify the following fields:
+# - networks: The list of networks the service is connected to. The network must be specified in `challenge.networks`.
+#             The `challenge_default` special identifier can be used to connect to the challenge's default network
+#             A service will be automatically connected to the default network if:
+#             - It is an internal service with no specified networks
+#             - It is a non-internal service with no specified non-internal networks
 
 # Example service
 [[challenge.services]]
 name  = "service1"
+networks = ["example-net"]
+# If the service should also connect to the default network, it can be specified here
+#networks = ["example-net", "challenge_default"]
 path  = "service1"
 ports = [1337]
 type  = "web"
 
-# Extra service info (optional)
+# Extra service info
 [challenge.services.extras]
 privileged = true  # Make the docker container privileged
+
+
+# Example internal service
+[[challenge.services]]
+name = "service2"
+# By default, internal services are connected to the default network
+# if networks are specified, it will only connect to those
+networks = ["example-net-internal"]
+# The internal service can also connect to the common default network using `challenge_default`
+#networks = ["example-net-internal", "challenge_default"]
+path = "service2"
+ports = [1338] # Internal services' ports will not be mapped
+type = "internal"
+
+
+# ------------------------ Challenge Networks (optional) -------------------------
+# Specifies the networks that are used by services
+# Internal networks are only accessible by other services within the same internal network.
+# They are also unable to access the internet or other networks.
+
+# Example public network
+[challenge.networks.example-net]
+internal = false
+
+# Example internal network
+[challenge.networks.example-net-internal]
+internal = true
+
+# To configure the default network, use the `challenge_default` special identifier
+[challenge.networks.challenge_default]
+extras = { "com.docker.driver" = "bridge" }  # Example extra configuration for the default network
+
 ```
 
 ## Fields
@@ -291,6 +332,24 @@ content = "This is a hint with requirements"
 requirements = 0
 ```
 
+### networks (optional)
+Specifies the networks available to services for a challenge. Internal networks are only accessible by other services within the same network.
+
+Examples:
+```toml
+# Example public network
+[challenge.networks.example-net]
+internal = false
+
+# Example internal network
+[challenge.networks.example-net-internal]
+internal = true
+
+# To configure the default network, use the `challenge_default` special identifier
+[challenge.networks.challenge_default]
+extras = { "com.docker.driver" = "bridge" }  # Example extra configuration for the default network
+```
+
 ### services (optional)
 List of services for the challenge. A service is allows you to specify configurations for a docker container that will be used to host the challenge.
 
@@ -319,6 +378,25 @@ type  = "web"
 
 [challenge.services.extras]
 privileged = true
+
+# Example service connected to a custom network
+[[challenge.services]]
+name = "service1"
+networks = ["example-net"]
+# If the service should also connect to the default network, it can be specified using `challenge_default`
+#networks = ["example-net", "challenge_default"]
+path = "./service/service1"
+ports = [1337]
+type  = "web"
+
+
+# Example internal service
+[[challenge.services]]
+name = "service1"
+networks = ["example-net-internal"]
+path = "./service/service1"
+ports = [1338]  # Internal services' ports will not be mapped
+type = "internal"
 ```
 
 ## Service Fields
@@ -329,6 +407,12 @@ The name of the service. Must be a string.
 name = "service1"
 ```
 
+### networks (optional)
+List of networks the service is connected to. Must be a list of strings. By default, if no network is specified, the service will be connected to the default network. To connect to both the default network and a custom network, specify `challenge_default` to connect to the default network.
+```toml
+networks = ["example-net"]
+```
+
 ### path
 Path to the service directory, relative to the root of the challenge folder. Must be a string.
 ```toml
@@ -336,7 +420,7 @@ path = "./service/service1"
 ```
 
 ### ports (optional)
-List of ports the docker container exposes. Must be specified unless `type` is `"internal"`. Must be a list of integers.
+List of ports the docker container exposes to the host. Must be specified unless `type` is `"internal"`. Must be a list of integers.
 ```toml
 ports = [1337, 1338]
 ```
@@ -355,7 +439,7 @@ type = "web"
 ```
 
 ### extras (optional)
-Extra configurations for the service to be passed to the docker compose file.
+Extra configurations for the service that will be passed to the deployment configuration manager. For different deployment solutions, some configurations may be required to be specified here or ignored.
 
 !!! warning
 
@@ -379,11 +463,11 @@ networks:
   challengename-network: {}
 
 services:
-  challenge_name-service1:
-    build: ./service/service1
-    container_name: challenge_name-service1
+  web-challenge_name-service1:
+    build: ./challenges/web/challenge_name/service/service1
+    container_name: web-challenge_name-service1
     networks:
-    - challengename-network
+    - web-challengename-network
     ports:
     - 8000:1337
     privileged: true
