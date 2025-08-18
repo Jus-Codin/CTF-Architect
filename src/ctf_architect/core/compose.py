@@ -9,7 +9,6 @@ import yaml
 
 from ctf_architect.core.exceptions import InvalidPortMappingError
 from ctf_architect.core.port_mapping import load_port_mapping
-from ctf_architect.core.repo import walk_challenges
 from ctf_architect.models.challenge import Service
 from ctf_architect.models.port_mapping import PortMapping
 

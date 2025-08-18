@@ -7,7 +7,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Literal, TypedDict
 
-from ctf_architect.core.challenge import write_chall_config, write_chall_readme
+from ctf_architect.core.challenge import Challenge
 from ctf_architect.models.challenge import ChallengeConfig, Flag, Hint, Service
 
 
@@ -80,6 +80,7 @@ def init_chall(
         else:
             target_dir.mkdir(parents=True, exist_ok=True)
 
+    # TODO: Do I even need to validate this here???
     _flags = [Flag.model_validate(flag) for flag in flags]
 
     if hints is None:
@@ -183,8 +184,8 @@ def init_chall(
 
         chall = ChallengeConfig.model_validate(kwargs)
 
-        write_chall_config(temp_path, chall)
-        write_chall_readme(temp_path, chall)
+        Challenge.write_config(temp_path, chall)
+        Challenge.write_readme(temp_path, chall)
 
         if target_dir is None:
             target_dir = Path(chall.folder_name)
