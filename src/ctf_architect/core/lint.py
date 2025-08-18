@@ -189,7 +189,7 @@ def lint_challenge_repo(
     """
     repo = Repo.from_path(repo_path)
 
-    linter = Linter(repo.ctf_config, repo, level, ignore)
+    linter = Linter(repo.ctf_config, repo=repo, level=level, ignore=ignore)
 
     results = {}
 
