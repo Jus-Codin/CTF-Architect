@@ -168,7 +168,7 @@ def lint_challenge(
     Returns:
         LintResult: The result of the linting.
     """
-    linter = Linter(ctf_config, level, ignore)
+    linter = Linter(ctf_config, repo=None, level=level, ignore=ignore)
     return linter.lint(challenge_path)
 
 
