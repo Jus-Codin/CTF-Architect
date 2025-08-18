@@ -23,7 +23,7 @@ from ctf_architect.core.exceptions import (
 from ctf_architect.core.readme import render_category_readme, render_repo_readme
 from ctf_architect.models.challenge import ChallengeConfig
 from ctf_architect.models.ctf_config import ConfigFile, CTFConfig
-from ctf_architect.utils import is_challenge_folder, is_challenge_repo
+from ctf_architect.utils import calculate_difficulty_distribution, is_challenge_folder, is_challenge_repo
 from ctf_architect.version import CTF_CONFIG_SPEC_VERSION
 
 
@@ -736,21 +736,6 @@ class Repo:
 
         shutil.rmtree(folder)
 
-    def _calculate_difficulty_distribution(self, challenges: list[ChallengeConfig]) -> dict[str, int]:
-        """Calculates the difficulty distribution of a given list of challenges.
-
-        Args:
-            challenges (list[ChallengeConfig]): The list of challenges to calculate the distribution for.
-
-        Returns:
-            dict[str, int]: A dictionary mapping difficulty levels to their counts.
-        """
-        # TODO: Consider moving this to a utility function or method instead
-        distribution = {difficulty: 0 for difficulty in self.ctf_config.difficulties}
-        for challenge in challenges:
-            distribution[challenge.difficulty] += 1
-        return distribution
-
     def get_category_readme(self, category: str) -> str:
         """Generates the README for a specific category.
 
@@ -776,7 +761,7 @@ class Repo:
                 for service in challenge.config.services:
                     services.append((service, challenge.config))
 
-        distribution = self._calculate_difficulty_distribution(challenges)
+        distribution = calculate_difficulty_distribution(challenges)
 
         return render_category_readme(
             category_name=category,

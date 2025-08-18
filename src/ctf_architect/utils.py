@@ -2,6 +2,7 @@ import shutil
 from pathlib import Path
 
 from ctf_architect.constants import CHALLENGE_CONFIG_FILE, CTF_CONFIG_FILE
+from ctf_architect.models.challenge import ChallengeConfig
 
 
 def is_challenge_repo(path: str | Path | None = None) -> bool:
@@ -99,3 +100,20 @@ def copy_into(path: str | Path, targets: list[tuple[str | Path, str | Path]]) ->
             shutil.copy(src, target)
         elif src.is_dir():
             shutil.copytree(src, target, dirs_exist_ok=True)
+
+
+def calculate_difficulty_distribution(challenges: list[ChallengeConfig]) -> dict[str, int]:
+    """Calculates the difficulty distribution of a given list of challenges.
+
+    Args:
+        challenges (list[ChallengeConfig]): The list of challenges to analyze.
+
+    Returns:
+        dict[str, int]: A dictionary mapping difficulty levels to their respective counts.
+    """
+    distribution = {}
+    for challenge in challenges:
+        difficulty = challenge.difficulty
+        distribution[difficulty] = distribution.get(difficulty, 0) + 1
+    return distribution
+
