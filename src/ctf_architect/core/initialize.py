@@ -31,7 +31,6 @@ class ServiceDict(TypedDict):
 
 
 def init_chall(
-    target_dir: str | Path,
     author: str,
     category: str,
     description: str,
@@ -46,6 +45,7 @@ def init_chall(
     extras: dict[str, str | int | float | bool] | None = None,
     hints: list[HintDict] | None = None,
     services: list[ServiceDict] | None = None,
+    target_dir: str | Path | None = None,
 ):
     """Initialize a new challenge.
 
@@ -109,6 +109,9 @@ def init_chall(
         extra_files = None
 
     chall_config = ChallengeConfig.model_validate(kwargs)
+
+    if target_dir is None:
+        target_dir = Path.cwd() / chall_config.folder_name
 
     chall = Challenge.new(target_dir, challenge_config=chall_config, extra_files=extra_files)
 
