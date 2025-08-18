@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Annotated
 
 from cyclopts import App, Parameter
@@ -7,14 +8,9 @@ from rich.align import Align
 from rich.table import Table
 
 from ctf_architect.cli.ui.console import console
-from ctf_architect.constants import APP_CMD_NAME
-from ctf_architect.core.challenge import write_chall_readme
-from ctf_architect.core.repo import load_repo_config, walk_challenges
-from ctf_architect.core.stats import (
-    get_category_difficulty_distribution,
-    update_category_readme,
-    update_root_readme,
-)
+from ctf_architect.core.exceptions import NotInChallengeRepositoryError
+from ctf_architect.core.repo import Repo
+from ctf_architect.utils import calculate_difficulty_distribution
 
 app = App(
     name="stats",
@@ -32,8 +28,8 @@ def show(*, category: Annotated[str | None, Parameter(name=["--category", "-c"])
         category: The category to show statistics for.
     """
     try:
-        config = load_repo_config()
-    except FileNotFoundError:
+        repo = Repo.from_path(Path.cwd())
+    except NotInChallengeRepositoryError:
         console.print(
             "Could not find Repository config file. Are you in the right directory?",
             style="ctfa.error",
@@ -52,7 +48,7 @@ def show(*, category: Annotated[str | None, Parameter(name=["--category", "-c"])
 
         table.add_column("Category", header_style="bright_cyan", style="cyan", no_wrap=True)
 
-        for difficulty in config.difficulties:
+        for difficulty in repo.ctf_config.difficulties:
             table.add_column(
                 difficulty.capitalize(),
                 header_style="bright_yellow",
@@ -62,28 +58,33 @@ def show(*, category: Annotated[str | None, Parameter(name=["--category", "-c"])
 
         table.add_column("Total", header_style="bright_green", style="green", justify="center")
 
-        stats = {category: get_category_difficulty_distribution(category) for category in config.categories}
+        distributions: dict[str, dict[str, int]] = {}
+        for category in repo.ctf_config.categories:
+            distributions[category] = {}
+            for challenge in repo.walk_challenges(category=category, skip_invalid=True):
+                diff = challenge.config.difficulty
+                distributions[category][diff] = distributions[category].get(diff, 0) + 1
 
-        for category in stats:
-            is_last = category == config.categories[-1]
+        for category in distributions:
+            is_last = category == repo.ctf_config.categories[-1]
             table.add_row(
                 category.capitalize(),
-                *[str(stats[category][difficulty]) for difficulty in config.difficulties],
-                str(sum(stats[category].values())),
+                *[str(distributions[category][difficulty]) for difficulty in repo.ctf_config.difficulties],
+                str(sum(distributions[category].values())),
                 end_section=is_last,
             )
 
         total_row = ["Total"]
         total_count = 0
 
-        for difficulty in config.difficulties:
-            count = sum(stats[category][difficulty] for category in stats)
+        for difficulty in repo.ctf_config.difficulties:
+            count = sum(distributions[category][difficulty] for category in distributions)
             total_row.append(str(count))
             total_count += count
 
         table.add_row(*total_row, str(total_count))
 
-    elif category.lower() not in config.categories:
+    elif category.lower() not in repo.ctf_config.categories:
         console.print(
             f"Category {category} does not exist in the repository",
             style="ctfa.error",
@@ -103,17 +104,19 @@ def show(*, category: Annotated[str | None, Parameter(name=["--category", "-c"])
         table.add_column("Difficulty", header_style="bright_cyan", style="cyan")
         table.add_column("Count", header_style="bright_green", style="green", justify="center")
 
-        stats = get_category_difficulty_distribution(category)
+        distribution = calculate_difficulty_distribution(
+            [challenge.config for challenge in repo.walk_challenges(category=category, skip_invalid=True)]
+        )
 
-        for difficulty in config.difficulties:
-            is_last = difficulty == config.difficulties[-1]
+        for difficulty in repo.ctf_config.difficulties:
+            is_last = difficulty == repo.ctf_config.difficulties[-1]
             table.add_row(
                 difficulty.capitalize(),
-                str(stats[difficulty]),
+                str(distribution[difficulty]),
                 end_section=is_last,
             )
 
-        table.add_row("Total", str(sum(stats.values())))
+        table.add_row("Total", str(sum(distribution.values())))
 
     console.print(
         Align.center(table, vertical="middle"),
@@ -131,8 +134,8 @@ def update(
         update_challenges: Update all challenge READMe.md's.
     """
     try:
-        config = load_repo_config()
-    except FileNotFoundError:
+        repo = Repo.from_path(Path.cwd())
+    except NotInChallengeRepositoryError:
         console.print(
             "Could not find Repository config file. Are you in the right directory?",
             style="ctfa.error",
@@ -140,18 +143,8 @@ def update(
         return
 
     if update_challenges:
-        for challenge in walk_challenges():
-            write_chall_readme(challenge.repo_path, challenge)
+        for challenge in repo.walk_challenges():
+            challenge.save_readme()
 
-    try:
-        for category in config.categories:
-            update_category_readme(category)
-
-        update_root_readme()
-    except FileNotFoundError:
-        console.print(
-            f"README not found. Please run `{APP_CMD_NAME} repo init` first",
-            style="ctfa.error",
-        )
-    else:
-        console.print("Stats updated successfully", style="ctfa.success")
+    repo.save_all_readmes()
+    console.print("Stats updated successfully", style="ctfa.success")

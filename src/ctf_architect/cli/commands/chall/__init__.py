@@ -34,10 +34,10 @@ from ctf_architect.cli.validators import (
     valid_port,
     valid_service_name,
 )
-from ctf_architect.core.challenge import load_chall_config, write_chall_config, write_chall_readme
+from ctf_architect.core.challenge import Challenge
 from ctf_architect.core.initialize import init_chall
 from ctf_architect.core.lint import SeverityLevel, lint_challenge
-from ctf_architect.core.repo import load_repo_config
+from ctf_architect.core.repo import Repo
 from ctf_architect.models.ctf_config import CTFConfig
 from ctf_architect.utils import is_challenge_folder
 
@@ -428,7 +428,7 @@ def init(
             console.print("Aborting...", style="ctfa.error")
             return
     else:
-        config = load_repo_config(config_path)
+        config = Repo.load_config(config_path)
 
     # Add spacing
     console.print()
@@ -450,7 +450,7 @@ def new(
             console.print("Aborting...", style="ctfa.error")
             return
     else:
-        config = load_repo_config(config_path)
+        config = Repo.load_config(config_path)
 
     # Add spacing
     console.print()
@@ -497,7 +497,7 @@ def lint(
         else:
             config = None
     else:
-        config = load_repo_config(ctf_config)
+        config = Repo.load_config(ctf_config)
 
     VIOLATION_STYLES = {
         SeverityLevel.FATAL: ("ctfa.lint.level.fatal", "✕"),
@@ -596,12 +596,12 @@ def update(
         console.print(":x: Specified path is not a challenge folder.", style="ctfa.error")
         return
 
-    chall_config = load_chall_config(chall_path)
+    chall_config = Challenge.load_config(chall_path)
 
-    write_chall_readme(chall_path, chall_config)
+    Challenge.write_readme(chall_path, chall_config)
 
     if remake_config:
-        write_chall_config(chall_path, chall_config)
+        Challenge.write_config(chall_path, chall_config)
 
     console.print(
         ":sparkles: Challenge updated! :sparkles:",

@@ -8,7 +8,7 @@ from ctf_architect.cli.ui.components import create_repo_config_panels
 from ctf_architect.cli.ui.console import console
 from ctf_architect.cli.ui.prompts import confirm, input_str, select
 from ctf_architect.cli.ui.prompts.session import InvalidResponse
-from ctf_architect.core.repo import load_repo_config
+from ctf_architect.core.repo import Repo
 
 
 def ask_repo_config():
@@ -25,7 +25,7 @@ def ask_repo_config():
         if not config_file_path:
             return None
 
-        config = load_repo_config(config_file_path)
+        config = Repo.load_config(config_file_path)
 
         for panel in create_repo_config_panels(
             name=config.name,

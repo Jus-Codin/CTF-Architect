@@ -26,16 +26,10 @@ from ctf_architect.cli.ui.prompts import (
 )
 from ctf_architect.cli.validators import no_empty_string, valid_port
 from ctf_architect.constants import CTF_CONFIG_FILE
-from ctf_architect.core.exceptions import ChallengeExistsError
+from ctf_architect.core.exceptions import ChallengeExistsError, NotInChallengeRepositoryError
 from ctf_architect.core.initialize import init_repo_from_config, init_repo_no_config
 from ctf_architect.core.lint import LintResult, SeverityLevel, lint_challenge, lint_challenge_repo
-from ctf_architect.core.repo import (
-    add_challenge,
-    find_challenge,
-    find_challenge_folder,
-    load_repo_config,
-)
-from ctf_architect.core.stats import update_category_readme, update_root_readme
+from ctf_architect.core.repo import Repo
 from ctf_architect.utils import is_challenge_folder, is_challenge_repo
 
 app = App(
@@ -307,8 +301,8 @@ def challenge_import(
         no_update_stats (bool, optional): Whether to skip updating repo stats. Defaults to False.
     """
     try:
-        config = load_repo_config()
-    except FileNotFoundError:
+        repo = Repo.from_path(Path.cwd())
+    except NotInChallengeRepositoryError:
         console.print(
             "Could not find Repository config file. Are you in the right directory?",
             style="ctfa.error",
@@ -366,8 +360,7 @@ def challenge_import(
 
                 while True:
                     try:
-                        add_challenge(challenge_folder, asked_allow_replace)
-
+                        repo.add_challenge(challenge_folder, replace_existing=asked_allow_replace)
                         console.print(
                             f"Successfully imported {challenge_folder.name}",
                             style="ctfa.success",
@@ -390,10 +383,7 @@ def challenge_import(
     if not no_update_stats and success > 0:
         console.print("Updating stats...", style="ctfa.info")
 
-        for category in config.categories:
-            update_category_readme(category)
-
-        update_root_readme()
+        repo.save_all_readmes()
 
         console.print(":sparkles: Repository stats updated.", style="ctfa.info")
 
@@ -430,14 +420,16 @@ def challenge_export(
         )
         return
 
-    challenge = find_challenge(name)
+    repo = Repo.from_path(Path.cwd())
+
+    challenge = repo.find_challenge(name)
 
     if challenge is None:
         console.print(f"Could not find challenge: {name}", style="ctfa.error")
         return
 
     if file_name is None:
-        file_name = f"{challenge.folder_name}.zip"
+        file_name = f"{challenge.config.folder_name}.zip"
 
     zip_path = path / file_name
 
@@ -475,8 +467,8 @@ def lint(
         show_skipped (bool, optional): Show rules that were skipped. If no challenge is specified, this flag does nothing. Defaults to False.
     """
     try:
-        config = load_repo_config()
-    except FileNotFoundError:
+        repo = Repo.from_path(Path.cwd())
+    except NotInChallengeRepositoryError:
         console.print(
             "Could not find Repository config file. Are you in the right directory?",
             style="ctfa.error",
@@ -572,7 +564,7 @@ def lint(
         _challenge_paths: list[Path] = []
 
         for challenge_name in challenges:
-            challenge_folder = find_challenge_folder(challenge_name)
+            challenge_folder = repo.find_chall_folder(challenge_name, validate=False)
 
             if challenge_folder is None:
                 console.print(f"Could not find challenge: {challenge_name}", style="ctfa.error")
@@ -581,7 +573,7 @@ def lint(
             _challenge_paths.append(challenge_folder)
 
         for challenge_path in _challenge_paths:
-            result = lint_challenge(challenge_path, ctf_config=config, level=level, ignore=ignore)
+            result = lint_challenge(challenge_path, ctf_config=repo.ctf_config, level=level, ignore=ignore)
 
             if result.failed or result.errors:
                 if result.errors:
