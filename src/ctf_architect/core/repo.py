@@ -847,6 +847,18 @@ class Repo:
         readme_fp = self.challenges_path / "README.md"
         readme_fp.write_text(readme_content, encoding="utf-8")
 
+    def save_all_readmes(self) -> None:
+        """Saves all README files for the repository."""
+        if not self.initialized:
+            raise RuntimeError(
+                "Cannot save all README files from an uninitialized repository. Please initialize the repository first."
+            )
+
+        for category in self.ctf_config.categories:
+            self.save_category_readme(category)
+
+        self.save_repo_readme()
+
     @classmethod
     def new(cls, path: str | Path, ctf_config: CTFConfig, config_file_only: bool = False) -> Repo:
         """Creates a new challenge repository at the specified path.
