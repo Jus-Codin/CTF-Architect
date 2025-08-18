@@ -134,7 +134,7 @@ requirements = 0
 [[challenge.services]]
 name  = "service1"
 networks = ["example-net"]
-# If the service should also connect to the default network, it can be specified here
+# If the service should also connect to the default network, it can be specified using `challenge_default`
 #networks = ["example-net", "challenge_default"]
 path  = "service1"
 ports = [1337]
@@ -154,7 +154,7 @@ networks = ["example-net-internal"]
 # The internal service can also connect to the common default network using `challenge_default`
 #networks = ["example-net-internal", "challenge_default"]
 path = "service2"
-ports = [1338] # Internal services' ports will not be mapped
+ports = [1338] # Internal services' ports will not be mapped to the host
 type = "internal"
 
 
