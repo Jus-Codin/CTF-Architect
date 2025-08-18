@@ -89,7 +89,6 @@ def generate_port_mapping(
     mapping = {}
     # secret_services = []
 
-    # There has to be a better way to do this...
     for challenge in repo.walk_challenges():
         if challenge.config.services is not None:
             for service in challenge.config.services:
