@@ -49,6 +49,24 @@ def is_challenge_folder(path: str | Path) -> bool:
     return False
 
 
+def is_service_folder(path: str | Path) -> bool:
+    """Checks if the specified folder is a service folder.
+
+    A service folder is considered valid if it contains a Dockerfile.
+
+    Args:
+        path (str | Path): The path to the folder to check.
+
+    Returns:
+        bool: True if the folder is a service folder, False otherwise.
+    """
+    for file in Path(path).iterdir():
+        if file.name.lower() == "dockerfile":
+            return True
+
+    return False
+
+
 def copy_into(path: str | Path, targets: list[tuple[str | Path, str | Path]]) -> None:
     """Copies files or directories into the specified path.
 
