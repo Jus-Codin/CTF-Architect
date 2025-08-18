@@ -1,5 +1,7 @@
 import shutil
+from collections import OrderedDict
 from pathlib import Path
+from typing import Any, Generic, TypeVar
 
 from ctf_architect.constants import CHALLENGE_CONFIG_FILE, CTF_CONFIG_FILE
 from ctf_architect.models.challenge import ChallengeConfig
@@ -117,3 +119,70 @@ def calculate_difficulty_distribution(challenges: list[ChallengeConfig]) -> dict
         distribution[difficulty] = distribution.get(difficulty, 0) + 1
     return distribution
 
+
+_KT = TypeVar("_KT")
+_VT = TypeVar("_VT")
+_T = TypeVar("_T", bound=Any)
+
+
+class LRUCache(Generic[_KT, _VT]):
+    """LRU cache implementation that allows for key removal."""
+
+    def __init__(self, max_size: int):
+        self.cache = OrderedDict()
+        self.max_size = max_size
+
+    def get(self, key: _KT, default: _T | None = None) -> _VT | _T | None:
+        """Get an item from the cache."""
+        if key not in self.cache:
+            return default
+        else:
+            self.cache.move_to_end(key)
+            return self.cache[key]
+
+    def put(self, key: _KT, value: _VT) -> None:
+        """Put an item into the cache."""
+        if key in self.cache:
+            self.cache.move_to_end(key)
+        self.cache[key] = value
+        if len(self.cache) > self.max_size:
+            self.cache.popitem(last=False)
+
+    def pop(self, key: _KT, default: _T | None = None) -> _VT | _T | None:
+        """Remove an item from the cache."""
+        if key not in self.cache:
+            return default
+        else:
+            return self.cache.pop(key)
+
+    def clear(self):
+        """Clear the cache."""
+        self.cache.clear()
+
+    def keys(self):
+        """Get all keys from the cache."""
+        return self.cache.keys()
+
+    def values(self):
+        """Get all values from the cache."""
+        return self.cache.values()
+
+    def items(self):
+        """Get all items from the cache."""
+        return self.cache.items()
+
+    def __len__(self):
+        """Get the current size of the cache."""
+        return len(self.cache)
+
+    def __contains__(self, key: _KT) -> bool:
+        """Check if a key is in the cache."""
+        return key in self.cache
+
+    def __getitem__(self, key: _KT) -> _VT:
+        """Get an item from the cache."""
+        return self.cache[key]
+
+    def __setitem__(self, key: _KT, value: _VT):
+        """Set an item in the cache."""
+        self.cache[key] = value

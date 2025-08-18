@@ -23,7 +23,7 @@ from ctf_architect.core.exceptions import (
 from ctf_architect.core.readme import render_category_readme, render_repo_readme
 from ctf_architect.models.challenge import ChallengeConfig
 from ctf_architect.models.ctf_config import ConfigFile, CTFConfig
-from ctf_architect.utils import calculate_difficulty_distribution, is_challenge_folder, is_challenge_repo
+from ctf_architect.utils import LRUCache, calculate_difficulty_distribution, is_challenge_folder, is_challenge_repo
 from ctf_architect.version import CTF_CONFIG_SPEC_VERSION
 
 
@@ -320,6 +320,10 @@ def walk_challenges(
             yield load_chall_config(folder)
 
 
+# TODO: Not too sure what the ideal max size should be, maybe tweak this in the future
+CTF_CONFIG_CACHE: LRUCache[str | Path, CTFConfig] = LRUCache(max_size=128)
+
+
 class Repo:
     """A class representing a challenge repository.
 
@@ -346,7 +350,7 @@ class Repo:
         return self.path / "challenges"
 
     @staticmethod
-    def load_config(path: str | Path) -> CTFConfig:
+    def load_config(path: str | Path, ignore_cache: bool = False) -> CTFConfig:
         """Loads the CTF config from the specified path.
 
         If the path is a file, it will load the CTF config from that file.
@@ -354,6 +358,7 @@ class Repo:
 
         Args:
             path (str | Path): The path to the CTF config file or directory.
+            ignore_cache (bool, optional): Whether to ignore the cache. Defaults to False.
 
         Returns:
             CTFConfig: The loaded CTF config object.
@@ -362,18 +367,21 @@ class Repo:
             path = Path(path)
 
         if path.is_file():
-            config_fp = path
+            config_fp = path.resolve()
         else:
-            config_fp = path / CTF_CONFIG_FILE
+            config_fp = (path / CTF_CONFIG_FILE).resolve()
 
-        with open(config_fp, encoding="utf-8") as f:
-            data = load(f)
+        if not ignore_cache and config_fp in CTF_CONFIG_CACHE:
+            return CTF_CONFIG_CACHE[config_fp]
+        else:
+            with open(config_fp, encoding="utf-8") as f:
+                data = load(f)
 
-        config_file = ConfigFile.model_validate(data.unwrap())
+            config_file = ConfigFile.model_validate(data.unwrap())
 
-        # TODO: Implement new cache mechanism for CTFConfig
+            CTF_CONFIG_CACHE[config_fp] = config_file.config
 
-        return config_file.config
+            return config_file.config
 
     @staticmethod
     def write_config(path: str | Path, config: CTFConfig) -> None:
@@ -390,9 +398,9 @@ class Repo:
             path = Path(path)
 
         if path.is_file():
-            config_fp = path
+            config_fp = path.resolve()
         else:
-            config_fp = path / CTF_CONFIG_FILE
+            config_fp = (path / CTF_CONFIG_FILE).resolve()
 
         doc = document()
         for line in CTF_CONFIG_HEADER.splitlines():
@@ -405,7 +413,9 @@ class Repo:
         with open(config_fp, "w", encoding="utf-8") as f:
             dump(doc, f)
 
-        # TODO: Implement new cache mechanism for CTFConfig
+        # If the write was successful, revoke the cache entry
+        if config_fp in CTF_CONFIG_CACHE:
+            CTF_CONFIG_CACHE.pop(config_fp)
 
     @classmethod
     def from_path(cls, path: str | Path) -> Repo:
@@ -432,7 +442,7 @@ class Repo:
 
     def refresh(self) -> None:
         """Refreshes the CTF config by reloading it from the repository."""
-        self.ctf_config = self.load_config(self.path)
+        self.ctf_config = self.load_config(self.path, ignore_cache=True)
 
     def get_category_path(self, category: str) -> Path:
         """Returns the path to the specified category in the challenges directory.
