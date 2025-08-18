@@ -181,8 +181,12 @@ class LRUCache(Generic[_KT, _VT]):
 
     def __getitem__(self, key: _KT) -> _VT:
         """Get an item from the cache."""
-        return self.cache[key]
+        if key in self.cache:
+            self.cache.move_to_end(key)
+            return self.cache[key]
+        else:
+            raise KeyError(f"Key {key} not found in cache.")
 
     def __setitem__(self, key: _KT, value: _VT):
         """Set an item in the cache."""
-        self.cache[key] = value
+        self.put(key, value)
