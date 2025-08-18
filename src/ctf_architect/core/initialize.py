@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal, TypedDict
+from typing import Literal, NotRequired, TypedDict
 
 from ctf_architect.core.challenge import Challenge
 from ctf_architect.models.challenge import ChallengeConfig
@@ -11,23 +11,22 @@ from ctf_architect.models.challenge import ChallengeConfig
 
 class FlagDict(TypedDict):
     flag: str
-    regex: bool
-    case_insensitive: bool
+    regex: NotRequired[bool]
+    case_insensitive: NotRequired[bool]
 
 
 class HintDict(TypedDict):
     cost: int
     content: str
-    requirements: list[int] | None
+    requirements: NotRequired[list[int]]
 
 
 class ServiceDict(TypedDict):
     name: str
     path: Path
-    port: int
-    ports: list[int]
+    ports: NotRequired[list[int]]
     type: Literal["web", "tcp", "ssh", "secret", "internal"]
-    extras: dict[str, str | int | float | bool] | None
+    extras: NotRequired[dict[str, str | int | float | bool]]
 
 
 def init_chall(
@@ -113,7 +112,8 @@ def init_chall(
     if target_dir is None:
         target_dir = Path.cwd() / chall_config.folder_name
 
-    chall = Challenge.new(target_dir, challenge_config=chall_config, extra_files=extra_files)
+    chall = Challenge.new(target_dir, challenge_config=chall_config, extra_files=extra_files, as_subfolder=False)
 
     if solution_files is None:
+        (chall.path / "solution").mkdir(parents=True, exist_ok=True)
         (chall.path / "solution" / "writeup.md").touch()

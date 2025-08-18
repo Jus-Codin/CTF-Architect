@@ -230,7 +230,11 @@ class Challenge:
             if any(target_folder.iterdir()):
                 raise FileExistsError(f"The destination folder {target_folder} already exists and is not empty.")
 
-        shutil.move(self.path, target_folder)
+        if as_subfolder:
+            shutil.move(self.path, target_folder)
+        else:
+            for file in self.path.iterdir():
+                shutil.move(file, target_folder / file.name)
 
         return Challenge.from_path(target_folder)
 
@@ -260,6 +264,7 @@ class Challenge:
         path: str | Path,
         challenge_config: ChallengeConfig,
         extra_files: list[tuple[str | Path, str | Path]] | None = None,
+        as_subfolder: bool = True,
     ) -> Challenge:
         """Creates a new challenge folder at the specified path.
 
@@ -271,6 +276,7 @@ class Challenge:
             challenge_config (ChallengeConfig): The challenge config to use for the new challenge.
             extra_files (list[tuple[str | Path, str | Path]], optional): A list of tuples mapping source paths to destination paths for extra files or directories to include in the challenge.
                                                                          For security reasons, the destination path must be a relative path that resolves to a subdirectory within the challenge folder.
+            as_subfolder (bool, optional): Whether to create the challenge as a subfolder inside the specified path. Otherwise, the challenge will be created at the specified path directly.
 
         Returns:
             Challenge: A new Challenge instance pointing to the created folder.
@@ -338,4 +344,4 @@ class Challenge:
             chall = cls(temp_path, challenge_config, initialized=True)
             chall.save_all()
 
-            return chall.move_to(path)
+            return chall.move_to(path, as_subfolder=as_subfolder)
