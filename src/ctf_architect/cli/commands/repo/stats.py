@@ -60,9 +60,10 @@ def show(*, category: Annotated[str | None, Parameter(name=["--category", "-c"])
 
         distributions: dict[str, dict[str, int]] = {}
         for category in repo.ctf_config.categories:
-            distributions[category] = {}
+            distributions[category] = {difficulty: 0 for difficulty in repo.ctf_config.difficulties}
             for challenge in repo.walk_challenges(category=category, skip_invalid=True):
                 diff = challenge.config.difficulty
+                print(diff)
                 distributions[category][diff] = distributions[category].get(diff, 0) + 1
 
         for category in distributions:
@@ -112,7 +113,7 @@ def show(*, category: Annotated[str | None, Parameter(name=["--category", "-c"])
             is_last = difficulty == repo.ctf_config.difficulties[-1]
             table.add_row(
                 difficulty.capitalize(),
-                str(distribution[difficulty]),
+                str(distribution.get(difficulty, 0)),
                 end_section=is_last,
             )
 
