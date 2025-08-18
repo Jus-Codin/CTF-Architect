@@ -94,17 +94,17 @@ class CheckContext:
 
     Attributes:
         challenge_path (Path): The path to the challenge directory.
-        ctf_config (CTFConfig | None): The CTF configuration, if available.
-        repo (Repo | None): The repository, if available.
+        ctf_config (CTFConfig): The CTF configuration, if available.
+        repo (Repo): The repository, if available.
     """
 
     def __init__(self, challenge_path: Path, ctf_config: CTFConfig | None = None, repo: Repo | None = None):
         if ctf_config is None and repo is not None:
             ctf_config = repo.ctf_config
 
-        self.challenge_path = challenge_path
-        self.ctf_config = ctf_config
-        self.repo = repo
+        self.challenge_path: Path = challenge_path
+        self.ctf_config: CTFConfig = ctf_config  # type: ignore
+        self.repo: Repo = repo  # type: ignore
 
 
 class CheckResult:
@@ -556,3 +556,33 @@ def S000(ctx: CheckContext) -> Literal[True] | str | CheckResult:
         result += s
 
     return result.rstrip() if result else True
+
+
+@rule("S001", level=SeverityLevel.WARNING, message="Service folder does not contain a Dockerfile")
+def S001(ctx: CheckContext) -> Literal[True] | str | CheckResult:
+    challenge = Challenge.load_config(ctx.challenge_path)
+
+    if challenge.services is None:
+        return CheckResult(
+            status=CheckStatus.SKIPPED,
+            code="S001",
+            level=SeverityLevel.FATAL,
+            message="No services defined in challenge",
+        )
+
+    missing_dockerfiles = []
+
+    for service in challenge.services:
+        for file in (ctx.challenge_path / service.path).iterdir():
+            if file.name.lower() == "dockerfile":
+                break
+        else:
+            missing_dockerfiles.append(service.name)
+
+    if missing_dockerfiles:
+        result = "Services do not contain a Dockerfile:\n"
+        for service_name in missing_dockerfiles:
+            result += f"  - {service_name}\n"
+        return result.rstrip()
+
+    return True
