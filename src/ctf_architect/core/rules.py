@@ -11,7 +11,7 @@ from traceback import format_exception_only
 from typing import Literal
 
 from ctf_architect.constants import CHALLENGE_CONFIG_FILE
-from ctf_architect.core.challenge import Challenge, load_chall_config
+from ctf_architect.core.challenge import Challenge
 from ctf_architect.core.exceptions import DuplicateRuleCodeError
 from ctf_architect.core.repo import Repo
 from ctf_architect.models.ctf_config import CTFConfig
@@ -255,7 +255,7 @@ def C000(ctx: CheckContext) -> Literal[True] | str:
 )
 def C001(ctx: CheckContext) -> Literal[True] | str:
     """Check if the challenge category is valid."""
-    challenge = load_chall_config(ctx.challenge_path)
+    challenge = Challenge.load_config(ctx.challenge_path)
 
     if challenge.category not in ctx.ctf_config.categories:
         return f'Invalid category "{challenge.category}" in {CHALLENGE_CONFIG_FILE} file'
@@ -270,7 +270,7 @@ def C001(ctx: CheckContext) -> Literal[True] | str:
 )
 def C002(ctx: CheckContext) -> Literal[True] | str:
     """Check if the challenge difficulty is valid."""
-    challenge = load_chall_config(ctx.challenge_path)
+    challenge = Challenge.load_config(ctx.challenge_path)
 
     if challenge.difficulty not in ctx.ctf_config.difficulties:
         return f'Invalid difficulty "{challenge.difficulty}" in {CHALLENGE_CONFIG_FILE} file'
