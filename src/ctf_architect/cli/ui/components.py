@@ -8,7 +8,6 @@ from rich.panel import Panel
 from rich.table import Table
 
 from ctf_architect.core.initialize import (
-    ExtraFieldDict,
     FlagDict,
     HintDict,
     ServiceDict,
@@ -24,7 +23,7 @@ def create_repo_config_panels(
     starting_port: int | None,
     categories: list[str],
     difficulties: list[str],
-    extras: list[ExtraField] | list[ExtraFieldDict] | None,
+    extras: list[ExtraField] | list[dict] | None,
 ) -> Iterable[Panel]:
     _panels = []
 

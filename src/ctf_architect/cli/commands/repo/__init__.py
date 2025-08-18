@@ -27,9 +27,9 @@ from ctf_architect.cli.ui.prompts import (
 from ctf_architect.cli.validators import no_empty_string, valid_port
 from ctf_architect.constants import CTF_CONFIG_FILE
 from ctf_architect.core.exceptions import ChallengeExistsError, NotInChallengeRepositoryError
-from ctf_architect.core.initialize import init_repo_from_config, init_repo_no_config
 from ctf_architect.core.lint import LintResult, SeverityLevel, lint_challenge, lint_challenge_repo
 from ctf_architect.core.repo import Repo
+from ctf_architect.models.ctf_config import CTFConfig
 from ctf_architect.utils import is_challenge_folder, is_challenge_repo
 
 app = App(
@@ -103,7 +103,11 @@ def init(
             if any([name, categories, difficulties, flag_format, starting_port]):
                 console.print(":warning: Ignoring provided arguments...", style="ctfa.warning")
 
-            init_repo_from_config()
+            Repo.new(
+                Path.cwd(),
+                Repo.load_config(CTF_CONFIG_FILE),
+                config_file_only=False,
+            )
             console.print(
                 ":sparkles: Challenge repository initialized! :sparkles:",
                 style="ctfa.success",
@@ -267,15 +271,16 @@ def init(
         console.print(panel)
 
     if confirm("Are you sure you want to create this Challenge Repository?").execute():
-        init_repo_no_config(
+        config = CTFConfig(
             name=name,
             categories=categories,
             difficulties=difficulties,
             flag_format=flag_format,
             starting_port=starting_port,
             extras=extras,
-            config_only=config_only,
         )
+
+        Repo.new(Path.cwd(), config, config_file_only=config_only)
 
         console.print(
             ":sparkles: Challenge repository initialized! :sparkles:",

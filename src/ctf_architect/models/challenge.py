@@ -13,7 +13,6 @@ from pydantic import (
     model_validator,
 )
 
-from ctf_architect.constants import CHALL_README_TEMPLATE
 from ctf_architect.models.base import Model
 from ctf_architect.version import CHALLENGE_SPEC_VERSION, is_supported_challenge_version
 
@@ -163,60 +162,6 @@ class ChallengeConfig(Model):
     def repo_path(self) -> Path:
         """The path to the challenge folder relative to the repository root."""
         return Path("challenges") / self.category.lower() / self.folder_name
-
-    @property
-    def readme(self) -> str:
-        """The README content for the challenge."""
-        if self.extras is None:
-            extras = ""
-        else:
-            extras = "\n".join(f"- **{key.capitalize()}:** {value}" for key, value in self.extras.items())
-
-        if self.hints is None:
-            hints = "None"
-        else:
-            hints = "\n".join(f"- `{hint.content}` ({hint.cost} points)" for hint in self.hints)
-
-        if self.files is None:
-            files = "None"
-        else:
-            files = ""
-            for file in self.files:
-                if isinstance(file, Path):
-                    files += f"- [{file.name}](<{file.as_posix()}>)\n"
-                else:
-                    files += f"- {file}\n"
-            files = files.strip()
-
-        if self.flags is None:
-            flags = "None"
-        else:
-            flags = "\n".join(
-                f"- `{flag.flag}` ({'regex' if flag.regex else 'static'}, {'case-insensitive' if flag.case_insensitive else 'case-sensitive'})"
-                for flag in self.flags
-            )
-
-        if self.services is None:
-            services = "None"
-        else:
-            services = "| Service | Ports | Type |\n" "| ------- | ---- | ---- |\n"
-            services += "\n".join(
-                f"| [`{service.name}`](<{service.path.as_posix()}>) | {', '.join(str(port) for port in service.ports_list) or 'None'} | {service.type} |"
-                for service in self.services
-            )
-
-        return CHALL_README_TEMPLATE.format(
-            name=self.name,
-            description=self.description,
-            author=self.author,
-            category=self.category,
-            difficulty=self.difficulty,
-            extras=extras,
-            hints=hints,
-            files=files,
-            flags=flags,
-            services=services,
-        )
 
 
 class ChallengeFile(Model):
