@@ -83,6 +83,7 @@ testpaths = [
     "tests",
 ]
 addopts = [
+    "-vv",
     "-ra",
     "--strict-config",
     "--strict-markers",
