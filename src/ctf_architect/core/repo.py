@@ -25,7 +25,7 @@ from ctf_architect.utils import LRUCache, calculate_difficulty_distribution, is_
 from ctf_architect.version import CTF_CONFIG_SPEC_VERSION
 
 # TODO: Not too sure what the ideal max size should be, maybe tweak this in the future
-CTF_CONFIG_CACHE: LRUCache[str | Path, CTFConfig] = LRUCache(max_size=128)
+CTF_CONFIG_CACHE: LRUCache[Path, CTFConfig] = LRUCache(max_size=32)
 
 
 class Repo:
