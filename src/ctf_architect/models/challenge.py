@@ -13,7 +13,7 @@ from pydantic import (
     model_validator,
 )
 
-from ctf_architect.models.base import Model
+from ctf_architect.models.base import Model, SlugStr
 from ctf_architect.version import CHALLENGE_SPEC_VERSION, is_supported_challenge_version
 
 
@@ -45,8 +45,6 @@ class Hint(Model):
     requirements: list[int] | None = None
 
 
-SlugStr = Annotated[str, StringConstraints(pattern=r"^[a-z][a-z0-9_-]*$")]
-"""A unique identifier string for a service or network. Must follow the pattern `^[a-z][a-z0-9_-]*$`"""
 PortInt = Annotated[int, Field(ge=1, le=65535)]
 
 
