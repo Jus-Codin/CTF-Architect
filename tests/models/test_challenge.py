@@ -187,11 +187,12 @@ def challenge_data():
         "hints": [{"cost": 100, "content": "This is a test hint", "requirements": None}],
         "services": [
             {
+                "extras": None,
                 "name": "test_service",
+                "networks": None,
                 "path": "/path/to/service",
                 "ports": [8080],
                 "type": "web",
-                "extras": None,
             }
         ],
         "networks": {"test-network-name": {"internal": True, "extras": {"com.docker.driver": "bridge"}}},
