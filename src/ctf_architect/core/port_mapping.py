@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from functools import lru_cache
 from pathlib import Path
 
 import yaml
@@ -12,13 +11,16 @@ from ctf_architect.core.exceptions import (
 )
 from ctf_architect.core.repo import Repo
 from ctf_architect.models.port_mapping import PortMapping, PortMappingFile
+from ctf_architect.utils import LRUCache
 
 PortMappingsDict = dict[str, list[PortMapping]]
 
 
+PORT_MAPPING_CACHE: LRUCache[Path, PortMappingsDict] = LRUCache(max_size=32)
+
+
 # TODO: Make the path variable mandatory to be specified to the function
-@lru_cache
-def load_port_mapping(path: str | Path = Path.cwd()) -> dict[str, list[PortMapping]]:
+def load_port_mapping(path: str | Path = Path.cwd(), ignore_cache: bool = False) -> PortMappingsDict:
     """Load the port mapping from the port_mapping.yaml file.
 
     If the path is a directory, it will look for the port_mapping.yaml file in that directory.
@@ -26,6 +28,7 @@ def load_port_mapping(path: str | Path = Path.cwd()) -> dict[str, list[PortMappi
 
     Args:
         path (str | Path): The path to the port mapping file or directory. Defaults to the current working directory.
+        ignore_cache (bool, optional): Whether to ignore the cache. Defaults to False.
 
     Returns:
         dict[str, list[PortMapping]]: A dictionary of service names to port mappings.
@@ -34,28 +37,49 @@ def load_port_mapping(path: str | Path = Path.cwd()) -> dict[str, list[PortMappi
         path = Path(path)
 
     if path.is_file():
-        fp = path
+        fp = path.resolve()
     else:
-        fp = path / PORT_MAPPING_FILE
+        fp = (path / PORT_MAPPING_FILE).resolve()
 
-    with open(fp) as f:
-        data = yaml.safe_load(f)
+    if not ignore_cache and fp in PORT_MAPPING_CACHE:
+        return PORT_MAPPING_CACHE[fp]
+    else:
+        with open(fp) as f:
+            data = yaml.safe_load(f)
 
-    mapping_file = PortMappingFile.model_validate(data)
+        mapping_file = PortMappingFile.model_validate(data)
 
-    return mapping_file.mapping
+        PORT_MAPPING_CACHE[fp] = mapping_file.mapping
+
+        return mapping_file.mapping
 
 
-def save_port_mapping(mapping: PortMappingsDict) -> None:
-    """Save the port mapping to the port_mapping.yaml file.
+# TODO: Make the path variable mandatory to be specified to the function
+def save_port_mapping(mapping: PortMappingsDict, path: str | Path = Path.cwd()) -> None:
+    """Save the port mapping to the specified path.
+
+    If the path is a file, it will be used as the config file.
+    If the path is a directory, it will be used as the directory to save the config file in.
 
     Args:
+        path (str | Path): The path to the port mapping file or directory.
         mapping (dict[str, list[PortMapping]]): A dictionary of service names to port mappings.
     """
+    if isinstance(path, str):
+        path = Path(path)
+
+    if path.is_file():
+        fp = path.resolve()
+    else:
+        fp = (path / PORT_MAPPING_FILE).resolve()
+
     data = PortMappingFile.from_mapping(mapping)
 
-    with open(PORT_MAPPING_FILE, "w") as f:
+    with open(fp, "w") as f:
         yaml.safe_dump(data.model_dump(), f)
+
+    if fp in PORT_MAPPING_CACHE:
+        PORT_MAPPING_CACHE.pop(fp)
 
 
 def generate_port_mapping(
