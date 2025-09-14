@@ -9,7 +9,7 @@ from tempfile import TemporaryDirectory
 from tomlkit import comment, document, dump, load, nl
 
 from ctf_architect.constants import CHALLENGE_CONFIG_FILE, CHALLENGE_CONFIG_HEADER
-from ctf_architect.core.readme import render_challenge_readme
+from ctf_architect.core.readmes import render_challenge_readme
 from ctf_architect.models.challenge import ChallengeConfig, ChallengeFile
 from ctf_architect.utils import copy_into, is_challenge_folder
 from ctf_architect.version import CHALLENGE_SPEC_VERSION

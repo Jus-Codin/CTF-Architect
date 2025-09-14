@@ -19,7 +19,7 @@ from ctf_architect.core.exceptions import (
     InvalidChallengeFolderError,
     NotInChallengeRepositoryError,
 )
-from ctf_architect.core.readme import render_category_readme, render_repo_readme
+from ctf_architect.core.readmes import render_category_readme, render_repo_readme
 from ctf_architect.models.ctf_config import ConfigFile, CTFConfig
 from ctf_architect.utils import LRUCache, calculate_difficulty_distribution, is_challenge_folder, is_challenge_repo
 from ctf_architect.version import CTF_CONFIG_SPEC_VERSION
