@@ -29,7 +29,7 @@
 | `service/compose.yml` | Docker Compose file to run the services locally. This should only be used for testing and will not contribute to the actual deployment of the services. |
 | `solution/` | Directory containing the solution files for the challenge. This is used to assist testing, not for giving to users attempting the challenge. |
 | `chall.toml` | TOML file containing the metadata for the challenge. This is generated automatically. |
-| `README.md` | Markdown file containing a text summary of the challenge's details. This is generated automatically.` |
+| `README.md` | Markdown file containing a text summary of the challenge's details. This is generated automatically. |
 
 
 ## Example
