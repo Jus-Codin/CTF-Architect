@@ -190,3 +190,11 @@ class LRUCache(Generic[_KT, _VT]):
     def __setitem__(self, key: _KT, value: _VT):
         """Set an item in the cache."""
         self.put(key, value)
+
+
+class _MISSING_TYPE:
+    def __repr__(self):
+        return "<MISSING>"
+
+
+MISSING = _MISSING_TYPE()

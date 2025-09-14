@@ -15,6 +15,7 @@ class Version(NamedTuple):
 CHALLENGE_SPEC_VERSION = Version(MAJOR=0, MINOR=1)
 CTF_CONFIG_SPEC_VERSION = Version(MAJOR=0, MINOR=1)
 PORT_MAPPING_SPEC_VERSION = Version(MAJOR=0, MINOR=1)
+DEPLOYMENTS_SPEC_VERSION = Version(MAJOR=0, MINOR=1)
 
 
 def is_supported_challenge_version(version: str) -> bool:
@@ -59,3 +60,17 @@ def is_supported_port_mapping_version(version: str) -> bool:
         major, minor = segments
 
     return int(major) == PORT_MAPPING_SPEC_VERSION.MAJOR and int(minor) <= PORT_MAPPING_SPEC_VERSION.MINOR
+
+
+def is_supported_deployments_config_version(version: str) -> bool:
+    """Check if the specified Deployments Config version is supported by the current version of CTF Architect."""
+    segments = version.split(".")
+
+    # In the future we may want to support more than just major and minor versions
+    # so we check for exactly 2 segments
+    if len(segments) != 2:
+        return False
+    else:
+        major, minor = segments
+
+    return int(major) == DEPLOYMENTS_SPEC_VERSION.MAJOR and int(minor) <= DEPLOYMENTS_SPEC_VERSION.MINOR

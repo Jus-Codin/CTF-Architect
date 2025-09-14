@@ -24,3 +24,6 @@ This is the file to specify to ctf-architect when creating a new challenge.
 
 # PORT MAPPING CONSTANTS
 PORT_MAPPING_FILE = "port_mapping.yaml"
+
+# DEPLOYMENTS CONFIG CONSTANTS
+DEPLOYMENTS_CONFIG_FILE = "ctf_deploy.yaml"

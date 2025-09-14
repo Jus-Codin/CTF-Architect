@@ -1,0 +1,76 @@
+# Deployment Configuration File (version 1.0)
+# This file is machine generated. DO NOT EDIT unless you know what you are doing.
+# If you want to create or edit deployments, use the CLI instead.
+
+# ---------------- Deployment Specification Version (required) ----------------
+version: "1.0"
+
+# -------------------------- Deployment Definitions ---------------------------
+# The `deployments` section defines how groups of challenges will be deployed.
+# Each deployment produces one unit of output (e.g., a docker-compose.yml or a Kubernetes manifest).
+# Multiple deployments may target the same strategy, but they must each have unique names.
+
+deployments:
+  - name: web-challs
+    strategy: docker-compose
+
+    # --------------------------- Output Directory -----------------------------
+    # The `output_dir` is the directory where deployment artifacts will be written.
+    # This path is relative to the repo root.
+    # This field must only be specified if the deployment strategy creates files.
+    output_dir: "deployments/web"
+
+    # ----------------------------- Deployment Config -------------------------
+    # The `config` section contains strategy-specific options.
+    # These options are validated by the strategy plugin.
+    config:
+      project_name: "web"
+      file: "docker-compose.web.yml"
+      push: true
+
+    # ----------------------------- Challenge Selection -----------------------
+    # The `selectors` section controls which challenges are included.
+    # Selection works in two stages:
+    #   1. Inclusion rules are applied first. (OR across rules)
+    #   2. Exclusion rules are applied afterwards. (OR across rules)
+    #
+    # Notes:
+    # - Setting `include: "*"` includes all challenges.
+    # - Setting `exclude: "*"` excludes all challenges (useful for overriding).
+    # - Each rule is a mapping of field → matcher(s).
+    # - Multiple matchers in a single rule = AND.
+    # - Multiple rules in a list = OR.
+
+    selectors:
+      include:
+        # Match all "web" category challenges with "easy" or "medium" difficulty
+        - category:
+            value: "web"
+        - difficulty:
+            value: ["easy", "medium"]
+
+        # Match challenges with "docker" in the extras field
+        - extras:
+            key: "docker"
+            exists: true
+
+      exclude:
+        # Exclude a challenge by exact name
+        - name:
+            value: "broken_web"
+
+# --------------------------- Selector Rule Matchers --------------------------
+# Each SelectorRule supports the following matchers:
+#
+# - value       : Exact value match (string or list of strings).
+# - length      : Match iterable length (int or list of ints).
+# - contains    : Match substring or membership.
+# - pattern     : Regex match (string or list of regexes).
+# - expression  : Numeric comparison expression (e.g., "<5", ">=10").
+# - key         : Match key(s) in a dict or object. Dot-paths are supported.
+# - exists      : Boolean indicating if a field or key must exist.
+#
+# Example:
+#   - extras:
+#       key: "discord"
+#       exists: true
