@@ -1,0 +1,77 @@
+# {{ challenge.name }}
+{{ challenge.description }}
+
+## Summary
+- **Author**: {{ challenge.author }}
+- **Category**: {{ challenge.category | capitalize }}
+- **Difficulty**: {{ challenge.difficulty | capitalize }}
+{% if challenge.extra_labels is not none %}
+  {% for key, value in challenge.extra_labels.items() %}
+- **{{ key | capitalize }}**: {{ value }}
+  {% endfor %}
+{% endif %}
+
+## Hints
+{% if challenge.hints is not none %}
+  {% for hint in challenge.hints %}
+- `{{ hint.content }}` ({{hint.cost}} points)
+  {% endfor %}
+{% else %}
+None
+{% endif %}
+
+## Files
+{% if challenge.files is not none %}
+  {% for file in challenge.files %}
+    {% if file.type == "static" %}
+- [{{ file.path.name }}](<./{{ file.path.as_posix() }}>)
+    {% elif file.type == "url" %}
+- {{ file.url }}
+    {% else %}
+- {{ file }}
+    {% endif %}
+  {% endfor %}
+{% else %}
+None
+{% endif %}
+
+## Flags
+{% if challenge.flags is not none %}
+  {% for flag in challenge.flags %}
+    {% if flag.type == "static" %}
+- `{{ flag.value }}` (static, {% if flag.case_sensitive %}case-sensitive{% else %}case-insensitive{% endif %})
+    {% elif flag.type == "regex" %}
+- `{{ flag.pattern }}` (regex)
+    {% else %}
+- `{{ flag }}`
+    {% endif %}
+  {% endfor %}
+{% else %}
+None
+{% endif %}
+
+## Services
+{% if challenge.services is none %}
+None
+{% else %}
+| Service | Ports | Type | Networks |
+| ------- | ----- | ---- | -------- |
+  {% for service in challenge.services %}
+{{ "| [`" ~ service.name | truncate(30) ~ "`](<./" ~ service.path.as_posix() ~ ">)"
+   ~ " | " ~ (service.ports | join(", ") if service.ports is not none else "None")
+   ~ " | " ~ service.type | title
+   ~ " | " ~ (service.networks | join(", ") if service.networks is not none else "None") ~ " |" }}
+  {% endfor %}
+{% endif %}
+
+## Networks
+{% if challenge.networks is none %}
+None
+{% else %}
+| Network | Internal |
+| ------- | -------- |
+  {% for name, network in challenge.networks.items() %}
+{{ "| `" ~ name | truncate(30) ~ "`"
+   ~ " | " ~ ("Yes" if network.internal else "No") ~ " |" }}
+  {% endfor %}
+{% endif %}

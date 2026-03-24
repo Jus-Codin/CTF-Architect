@@ -6,40 +6,39 @@
 version = "0.1"
 
 
-# --------------------------- CTF Config Info (required) -------------------------
+# ---------------------------- CTF Config (required) -----------------------------
 # This section specifies the information about the CTF repository.
-# Some fields are required, while others are optional:
-# - categories: The categories of challenges
-# - difficulties: The difficulties of challenges
-# - flag_format (optional): The format of the flags
-# - starting_port (optional): The starting port for the challenge services
 # - name: The name of the CTF
-
+# - categories: The categories of challenges (lowercase)
+# - difficulties: The difficulties of challenges (lowercase)
+# The following fields can optionally be included:
+# - flag_format (optional): The regular expression pattern that all flags must match
+# - starting_port (optional): The starting port for the challenge services
 [config]
+name = "Demo CTF"
 categories = ["web", "crypto", "pwn", "re", "misc", "forensics", "osint"]
 difficulties = ["easy", "medium", "hard"]
+
 flag_format = "flag{.*}"
 starting_port = 8000
-name = "Demo CTF"
 
-
-# ------------------------- CTF Config Extras (optional) -------------------------
-# This section specifies extra fields that challenges should have.
-# The fields can be required or optional, and can be of the following types:
+# ---------------------- CTF Config Extra Labels (optional) ----------------------
+# This section specifies extra labels that challenges should have.
+# The labels can be required or optional, and can be of the following types:
 # - string: A string value
 # - integer: An integer value
 # - float: A float value
 # - boolean: A boolean value
 #
-# The fields are specified as a list of tables, where each table has the following fields:
-# - name: The name of the field
-# - description: The description of the field
-# - prompt: The prompt to display to the user when entering the field
-# - required: Whether the field is required or not
-# - type: The type of the field
+# The labels are specified as a list of tables, where each table has the following fields:
+# - name: The name of the label
+# - description: The description of the label
+# - prompt: The prompt to show for the label when creating a challenge
+# - type: The type of the label
+# - required: Whether the label is required or optional
 [[config.extras]]
 name = "discord"
 description = "Discord username"
 prompt = "Enter your Discord username"
-required = true
 type = "string"
+required = true

@@ -113,6 +113,7 @@ nav:
   - Guides:
     - Repository Setup: guides/repository-setup.md
     - Packaging Challenges: guides/packaging-challenges.md
+    - Workflow Planning: guides/workflow-planning.md
   - Specifications:
     - Challenge: spec/challenge.md
     - Repository: spec/repository.md

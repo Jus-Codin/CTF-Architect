@@ -1,0 +1,41 @@
+# {{ category_name | title }} Challenges
+
+## Difficulty Distribution
+| Difficulty | Count |
+|------------|-------|
+{% for difficulty in ctf_config.difficulties %}
+| {{ difficulty | title }} | {{ distribution.get(difficulty, 0) }} |
+{% endfor %}
+
+## Challenges ({{ challenges | count }} total)
+{% if challenges | count == 0 %}
+None
+{% else %}
+| Name | Folder | Description | Category | Difficulty | Author |
+|------|--------|-------------|----------|------------|--------|
+{% for challenge in challenges %}
+{{ "| [" ~ (challenge.name | truncate(30)) ~ "](<./" ~ challenge.folder_name ~ ">)"
+   ~ " | [" ~ (challenge.folder_name | truncate(30)) ~ "](<./" ~ challenge.folder_name ~ ">)"
+   ~ " | " ~ (challenge.description | replace("\n", " ") | trim | truncate(100))
+   ~ " | " ~ (challenge.category | title)
+   ~ " | " ~ (challenge.difficulty | title)
+   ~ " | " ~ challenge.author  ~ " |"
+}}
+{% endfor %}
+{% endif %}
+
+## Services ({{ services | count }} total)
+{% if services | count == 0 %}
+None
+{% else %}
+| Service | Challenge | Ports | Type |
+|---------|-----------|-------|------|
+{% for service, challenge in services %}
+{{ "| [" ~ (service.name | truncate(30)) ~ "](<./" ~ challenge.folder_name ~ "/" ~ service.path.as_posix() ~ ">)"
+   ~ " | [" ~ (challenge.name | truncate(30)) ~ "](<./" ~ challenge.folder_name ~ ">)"
+   ~ " | " ~ (service.ports | join(", "))
+   ~ " | " ~ (service.type | title)
+   ~ " | " ~ (service.networks | join(", ") if service.networks is not none else "None") ~ " |"
+}}
+{% endfor %}
+{% endif %}

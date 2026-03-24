@@ -1,0 +1,134 @@
+# Challenge Metadata File (version 0.1)
+# This file is machine generated. DO NOT EDIT unless you know what you are doing.
+# If you want to create or edit a challenge, use the CLI instead.
+
+# ------------------- Challenge Specification Version (required) -------------------
+version: "0.1"
+
+challenge:
+  # --------------------------- Challenge Info (required) ----------------------------
+  # This section specifies the information about the challenge.
+  # The section must have the following fields:
+  # - id: A unique identifier for the challenge. Restricted to ^[a-z][a-z0-9_-]*$.
+  # - name: The name of the challenge.
+  # - description: A brief description of the challenge.
+  # - category: The category of the challenge. Valid values are specified by the Repo's config.
+  # - difficulty: The difficulty level of the challenge. Valid values are specified by the Repo's config.
+  # - author: The author of the challenge.
+  # The following fields can optionally be included:
+  # - folder_name: The folder name for the challenge. If not specified, defaults to a sanitized challenge name (fallback: challenge ID).
+  # - requirements: A list of challenge IDs that must be solved before this challenge can be unlocked.
+  id: "example-challenge"
+  name: "Example Challenge"
+  description: "This is an example challenge for demonstration purposes."
+  category: "web"
+  difficulty: "medium"
+  author: "example_author"
+  folder_name: "example_challenge_folder"
+  requirements:
+    - "prereq-challenge-1"
+    - "prereq-challenge-2"
+
+  # --------------------------- Challenge Files (optional) ---------------------------
+  # This section specifies the files associated with the challenge.
+  # You can include static files or URLs.
+  # The paths are relative to the challenge root directory.
+  files:
+    - type: "static"
+      path: "files/example.txt"
+    - type: "url"
+      url: "https://example.com/example.txt"
+
+  # -------------------------- Challenge Flags (optional) --------------------------
+  # This section specifies the flags for the challenge.
+  # You can define multiple flags using different methods.
+  # Supported flag types:
+  # - static: A fixed string value.
+  # - regex: A regular expression pattern that the submitted flag must match.
+  flags:
+    - type: "static"
+      value: "FLAG{example_flag_123}"
+      case_sensitive: true
+    - type: "regex"
+      pattern: "^FLAG\\{[a-zA-Z0-9_]+\\}$"
+
+  # --------------------------- Challenge Hints (optional) ---------------------------
+  # Specifies the hints that are part of the challenge.
+  # The hint table must have the following fields:
+  # - cost: The cost of the hint
+  # - content: The content of the hint
+  # - requirements (optional): The requirements to unlock the hint. This should be
+  #   an index referencing a hint in the array of tables. Defaults to null
+  hints:
+    - cost: 10
+      content: "This is a hint"
+    - cost: 20
+      content: "This is a hint with requirements"
+      requirements:
+        - 0
+
+  # ---------------------- Challenge Extra Labels (optional) -----------------------
+  # This section specifies additional labels for the challenge.
+  # These labels are specified by the Repo's config, but extra labels can be added here.
+  # The labels are key-value pairs, where each label can be a string, number, float, or boolean.
+  extra_labels:
+    discord: "example#1234"
+    finals: true
+
+  # ----------------------- Challenge Annotations (optional) -----------------------
+  # This section specifies additional metadata about the challenge.
+  # This section is reserved for extensions and plugins.
+  # Annotations be any type of key-value pairs, and can be nested.
+  # It is recommended to use reverse DNS notation for keys to avoid conflicts.
+  annotations:
+    created_at: "2024-06-01T12:00:00Z"
+    deployment:
+      region: "us-east-1"
+      instance_type: "t2.micro"
+
+  # ------------------------- Challenge Services (optional) --------------------------
+  # Specifies the services that are part of the challenge.
+  # To specify multiple services, create another table in the array of tables.
+  # The service table must have the following fields:
+  # - name: The name of the service. This will be the name of the docker container. Restricted to ^[a-z][a-z0-9_-]*$ and must be unique
+  # - path: The path to the service's directory. This path is relative to the challenge directory
+  # - ports: The ports that the docker container exposes. This is an array of integers. This can be specified if it is an internal service
+  # - type: The type of the service. This must be one of the following:
+  #   - web      : A web service, must have a port exposed
+  #   - tcp      : A tcp service, must have a port exposed
+  #   - ssh      : An ssh service, must have a port exposed
+  #   - secret   : A secret service, it must have a port exposed, but will not be shown in the challenge info
+  #                This is useful for challenges where the service must be discovered by the player
+  #   - internal : An internal service, does not need to expose a port, and will not be shown in the challenge info
+  #                This is useful for challenges where the service should not be accessed directly, i.e. web admin bots
+  # Services can optionally specify the following fields:
+  # - networks: The list of networks the service is connected to. The network must be specified in `challenge.networks`.
+  #             The `challenge_default` special identifier can be used to connect to the challenge's default network
+  #             A service will be automatically connected to the default network if:
+  #             - It is an internal service with no specified networks
+  #             - It is a non-internal service with no specified non-internal networks
+  # - annotations: Additional metadata about the service. This section is reserved for extensions and plugins.
+  #                Annotations be any type of key-value pairs, and can be nested.
+  services:
+    - type: "web"
+      name: "example-service"
+      path: "services/example-service"
+      ports:
+        - 8080
+      networks:
+        - "example-net"
+      annotations:
+        privileged: true
+        limits:
+          cpu: "500m"
+          memory: "256Mi"
+
+  # ------------------------ Challenge Networks (optional) -------------------------
+  # Specifies the networks that are used by services
+  # Services in internal networks are only accessible by other services within the same internal network.
+  # They are also unable to access the internet or other networks.
+  networks:
+    example-net:
+      internal: false
+    example-net-internal:
+      internal: true

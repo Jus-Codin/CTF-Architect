@@ -23,32 +23,40 @@ classifiers = [
 ]
 requires-python = ">=3.11"
 dependencies = [
-    "cyclopts>=3.1.2",
-    "jinja2>=3.1.5",
-    "pydantic>=2.10.4",
-    "pyyaml>=6.0.2",
+    "cyclopts>=4.3.0",
+    "jinja2>=3.1.6",
+    "pydantic>=2.12.5",
+    "pyyaml>=6.0.3",
+    "questionary>=2.1.1",
     "readchar>=4.2.1",
-    "rich>=13.9.4",
-    "tomlkit>=0.13.2",
+    "rich>=14.2.0",
+    "ruamel-yaml>=0.18.16",
+    "textual>=7.2.0",
+    "tomlkit>=0.13.3",
 ]
 
 [project.scripts]
-ctf-architect = "ctf_architect.cli:main"
-ctfa = "ctf_architect.cli:main"
+ctfa = "ctfa.cli:app"
+# ctf-architect = "ctf_architect.cli:main"
+# ctfa = "ctf_architect.cli:main"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.9.11,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+# module-name = "ctfa"
+module-name = ["ctf_architect", "ctfa"]
 
 [dependency-groups]
 dev = [
-    "pytest>=8.3.5",
-    "pytest-cov>=6.1.1",
-    "ruff>=0.8.4",
+    "pytest>=9.0.1",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.7",
 ]
 docs = [
-    "mkdocs-material>=9.5.50",
-    "mkdocstrings[python]>=0.27.0",
+    "mkdocs-material>=9.7.0",
+    "mkdocstrings[python]>=1.0.0",
 ]
 
 [tool.ruff]
@@ -87,7 +95,7 @@ addopts = [
     "-ra",
     "--strict-config",
     "--strict-markers",
-    "--cov=ctf_architect",
+    "--cov=ctfa",
     "--cov-report=term-missing",
     "--cov-report=html",
 ]

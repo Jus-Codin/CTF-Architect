@@ -5,96 +5,62 @@
 # ------------------- Challenge Specification Version (required) -------------------
 version = "0.1"
 
-
 # --------------------------- Challenge Info (required) ----------------------------
 # This section specifies the information about the challenge.
 # The section must have the following fields:
-# - author: The author of the challenge
-# - category: The category of the challenge
-# - description: The description of the challenge
-# - difficulty: The difficulty of the challenge
-# - name: The name of the challenge
+# - id: A unique identifier for the challenge. Restricted to ^[a-z][a-z0-9_-]*$.
+# - name: The name of the challenge.
+# - description: A brief description of the challenge.
+# - category: The category of the challenge. Valid values are specified by the Repo's config.
+# - difficulty: The difficulty level of the challenge. Valid values are specified by the Repo's config.
+# - author: The author of the challenge.
+# The following fields can optionally be included:
+# - folder_name: The folder name for the challenge. If not specified, defaults to the challenge name if possible, else challenge ID.
+# - requirements: A list of challenge IDs that must be solved before this challenge can be unlocked.
 [challenge]
-author = "Author Name"
-category = "category"
-description = "Description"
-difficulty = "difficulty"
-name = "Challenge Name"
-
-# ------------------------ Challenge Folder Name (optional) ------------------------
-# Specifies the folder name to use to store the challenge files.
-# If not specified, the folder name will be generated from the challenge name.
-# Must be a valid folder name, restricted to the pattern \^[a-zA-Z][a-zA-Z0-9 _-]*$\
-
-folder_name = "folder_name"
-
+id = "example-challenge"
+name = "Example Challenge"
+description = "This is an example challenge for demonstration purposes."
+category = "web"
+difficulty = "medium"
+author = "example_author"
+folder_name = "example_challenge_folder"
+requirements = ["prereq-challenge-1", "prereq-challenge-2"]
 
 # --------------------------- Challenge Files (optional) ---------------------------
-# Specifies the files that are part of the challenge.
-# The files are specified as a list of strings, where each string is a path to a file.
-# The paths are relative to the challenge directory.
-# Alternatively, specify a URL to download the file from the internet.
+# This section specifies the files associated with the challenge.
+# You can include static files or URLs.
+# The paths are relative to the challenge root directory.
+[[challenge.files]]
+type = "static"
+path = "files/example.txt"
 
-files = [
-    "file1",
-    "file2"
-]
+[[challenge.files]]
+type = "url"
+url = "https://example.com/example.txt"
 
-# ----------------------- Challenge Requirements (optional) ------------------------
-# Specifies the challenges that must be solved before this challenge can be unlocked.
-# The requirements are specified as a list of strings, where each string is the name of a challenge.
-
-requirements = [
-    "challenge1",
-    "challenge2"
-]
-
-
-# ------------------------ Challenge Extra Info (optional) -------------------------
-# This section specifies extra information about the challenge.
-# The fields in this section must be specified if it is required by the ctf_config.toml file
-
-[challenge.extras]
-discord = "a_discord_username"
-
-
-# --------------------------- Challenge Flags (required) ---------------------------
-# Specifies the flags that are part of the challenge.
-# To specify multiple flags, create another table in the array of tables.
-# The flag table must have the following fields:
-# - flag: The flag value
-# - regex (optional): If the flag is a regex flag, otherwise it is a static flag. Defaults to false
-# - case_insensitive (optional): If the flag is case insensitive or not. Defaults to false
-
-# Static case-sensitive flag
+# -------------------------- Challenge Flags (optional) --------------------------
+# This section specifies the flags for the challenge.
+# You can define multiple flags using different methods.
+# Supported flag types:
+# - static: A fixed string value.
+# - regex: A regular expression pattern that the submitted flag must match.
 [[challenge.flags]]
-flag = "flag{example}"
+type = "static"
+value = "FLAG{example_flag_123}"
+case_sensitive = true # Optional, defaults to true
 
-# Static case-insensitive flag
 [[challenge.flags]]
-flag = "flag{example2}"
-case_insensitive = true
-
-# Regex case-sensitive flag
-[[challenge.flags]]
-flag = "flag{example3}"
-regex = true
-
-# Regex case-insensitive flag
-[[challenge.flags]]
-flag = "flag{example4}"
-regex = true
-case_insensitive = true
-
+type = "regex"
+pattern = "^FLAG\\{[a-zA-Z0-9_]+\\}$"
 
 # --------------------------- Challenge Hints (optional) ---------------------------
 # Specifies the hints that are part of the challenge.
-# To specify multiple hints, create another table in the array of tables.
 # The hint table must have the following fields:
 # - cost: The cost of the hint
 # - content: The content of the hint
 # - requirements (optional): The requirements to unlock the hint. This should be
-#   an index referencing a hint in the array of tables. Defualts to null
+#   an index referencing a hint in the array of tables. Defaults to null
 
 # Example hint
 [[challenge.hints]]
@@ -105,14 +71,30 @@ content = "This is a hint"
 [[challenge.hints]]
 cost = 20
 content = "This is a hint with requirements"
-requirements = 0
+requirements = [0]
 
+# ---------------------- Challenge Extra Labels (optional) -----------------------
+# This section specifies additional labels for the challenge.
+# These labels are specified by the Repo's config, but extra labels can be added here.
+# The labels are key-value pairs, where each label can be a string, number, float, or boolean.
+[challenge.extra_labels]
+discord = "example#1234"
+finals = true
+
+# ----------------------- Challenge Annotations (optional) -----------------------
+# This section specifies additional metadata about the challenge.
+# This section is reserved for extensions and plugins.
+# Annotations be any type of key-value pairs, and can be nested.
+# It is recommended to use reverse DNS notation for keys to avoid conflicts.
+[challenge.annotations]
+created_at = "2024-06-01T12:00:00Z"
+deployment = { region = "us-east-1", instance_type = "t2.micro" }
 
 # ------------------------- Challenge Services (optional) --------------------------
 # Specifies the services that are part of the challenge.
 # To specify multiple services, create another table in the array of tables.
 # The service table must have the following fields:
-# - name: The name of the service. This will be the name of the docker container. Restricted to [a-z0-9_-] and must be unique
+# - name: The name of the service. This will be the name of the docker container. Restricted to ^[a-z][a-z0-9_-]*$ and must be unique
 # - path: The path to the service's directory. This path is relative to the challenge directory
 # - ports: The ports that the docker container exposes. This is an array of integers. This can be specified if it is an internal service
 # - type: The type of the service. This must be one of the following:
@@ -123,44 +105,28 @@ requirements = 0
 #                This is useful for challenges where the service must be discovered by the player
 #   - internal : An internal service, does not need to expose a port, and will not be shown in the challenge info
 #                This is useful for challenges where the service should not be accessed directly, i.e. web admin bots
-# Services can optional specify the following fields:
+# Services can optionally specify the following fields:
 # - networks: The list of networks the service is connected to. The network must be specified in `challenge.networks`.
 #             The `challenge_default` special identifier can be used to connect to the challenge's default network
 #             A service will be automatically connected to the default network if:
 #             - It is an internal service with no specified networks
 #             - It is a non-internal service with no specified non-internal networks
-
-# Example service
+# - annotations: Additional metadata about the service. This section is reserved for extensions and plugins.
+#                Annotations be any type of key-value pairs, and can be nested.
 [[challenge.services]]
-name  = "service1"
+type = "web"
+name = "example-service"
+path = "services/example-service"
+ports = [8080]
 networks = ["example-net"]
-# If the service should also connect to the default network, it can be specified using `challenge_default`
-#networks = ["example-net", "challenge_default"]
-path  = "service1"
-ports = [1337]
-type  = "web"
 
-# Extra service info
-[challenge.services.extras]
-privileged = true  # Make the docker container privileged
-
-
-# Example internal service
-[[challenge.services]]
-name = "service2"
-# By default, internal services are connected to the default network
-# if networks are specified, it will only connect to those
-networks = ["example-net-internal"]
-# The internal service can also connect to the common default network using `challenge_default`
-#networks = ["example-net-internal", "challenge_default"]
-path = "service2"
-ports = [1338] # Internal services' ports will not be mapped to the host
-type = "internal"
-
+[challenge.services.annotations]
+privileged = true
+limits = { cpu = "500m", memory = "256Mi" }
 
 # ------------------------ Challenge Networks (optional) -------------------------
 # Specifies the networks that are used by services
-# Internal networks are only accessible by other services within the same internal network.
+# Services in internal networks are only accessible by other services within the same internal network.
 # They are also unable to access the internet or other networks.
 
 # Example public network
@@ -170,7 +136,3 @@ internal = false
 # Example internal network
 [challenge.networks.example-net-internal]
 internal = true
-
-# To configure the default network, use the `challenge_default` special identifier
-[challenge.networks.challenge_default]
-extras = { "com.docker.driver" = "bridge" }  # Example extra configuration for the default network

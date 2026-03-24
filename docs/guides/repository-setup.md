@@ -103,7 +103,7 @@ Are you sure you want to create this Challenge Repository? Yes
 ✨ Challenge repository initialized! ✨
 ```
 
-This will create a new challenge repository in the current directory. The repository will contain a `ctf_config.toml` file with the specified metadata.
+This will create a new challenge repository in the current directory. The repository will contain a `ctf_config.yaml` file with the specified metadata.
 
 ## Add challenges to the repository
 To add a new challenge to the repository, add the zipped challenges to the root of the repository, run the following command:
@@ -135,7 +135,7 @@ $ ctfa repo lint
 │ │   └── example-challenge (2 violations)                              │
 │ │       ├── ⚠ F002 - No writeup.md with content in solution folder    │
 │ │       │   found                                                     │
-│ │       └── ✕ C011 - Requirements in chall.toml file could not be     │
+│ │       └── ✕ C011 - Requirements in chall.yaml file could not be     │
 │ │           found or loaded:                                          │
 │ │             - Example Requirement                                   │
 │ ├── re/ (all passed)                                                  │
@@ -154,11 +154,11 @@ $ ctfa repo lint example-challenge
 ╭─────────────────── example-challenge Lint Results ────────────────────╮
 │ example-challenge (2 violations)                                      │
 │ ├── ⚠ F002 - No writeup.md with content in solution folder found      │
-│ └── ✕ C011 - Requirements in chall.toml file could not be found or    │
+│ └── ✕ C011 - Requirements in chall.yaml file could not be found or    │
 │     loaded:                                                           │
 │       - Example Requirement                                           │
 ╰───────────────────────────────────────────────────────────────────────╯
 ```
 
 !!! note
-    This is equivalent to running `ctfa chall lint example-challenge`, except the `ctf_config.toml` file is automatically loaded.
+    This is equivalent to running `ctfa chall lint example-challenge`, except the `ctf_config.yaml` file is automatically loaded.

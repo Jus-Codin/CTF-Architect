@@ -73,6 +73,7 @@ class DeploymentConfig(Model):
         config (dict[str, Any], optional): The configuration options for the deployment.
         selectors (Selector): The selectors to use for the deployment.
         output_dir (Path, optional): The output directory for the deployment artifacts.
+        depends_on (list[SlugStr], optional): A list of names of other deployments that this deployment depends on.
     """
 
     name: SlugStr
@@ -80,6 +81,7 @@ class DeploymentConfig(Model):
     config: dict[str, Any] = Field(default_factory=dict)
     selectors: Selectors | None = None
     output_dir: Path | None = None
+    depends_on: list[SlugStr] = Field(default_factory=list)
 
     @field_validator("output_dir", mode="after")
     def _validate_output_dir(cls, value: Path | None) -> Path | None:

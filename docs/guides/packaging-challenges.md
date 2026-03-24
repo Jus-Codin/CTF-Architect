@@ -4,8 +4,8 @@
     This guide assumes that you have successfully installed CTF-Architect. If you have not, please refer to the [installation guide](../installation.md).
 
 
-## Download ctf_config.toml
-Download the relavant `ctf_config.toml` file for the CTF. This is required to properly package the challenge. If you do not have this file, contact the CTF organizers for it.
+## Download ctf_config.yaml
+Download the relavant `ctf_config.yaml` file for the CTF. This is required to properly package the challenge. If you do not have this file, contact the CTF organizers for it.
 
 ## Prepare Your Files
 Prepare the following files for your challenge:
