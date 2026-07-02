@@ -45,8 +45,8 @@ requires = ["uv_build>=0.9.11,<0.10.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
-# module-name = "ctfa"
-module-name = ["ctf_architect", "ctfa"]
+module-name = "ctfa"
+# module-name = ["ctf_architect", "ctfa"]
 
 [dependency-groups]
 dev = [
